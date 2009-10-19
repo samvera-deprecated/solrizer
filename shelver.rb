@@ -1,5 +1,6 @@
 
 load 'indexer.rb'
+require "ruby-debug"
 
 class Shelver
 
@@ -31,6 +32,7 @@ class Shelver
     num_docs = 1000000   # modify this number to guarantee that all the objects are retrieved from the repository
     pids = Repository.get_pids( num_docs )
     puts "Shelving #{pids.length} Fedora objects"
+    puts "WARNING: You have turned off indexing of Full Text content.  Be sure to re-run indexer with INDEX_FULL_TEXT set to true in main.rb" if INDEX_FULL_TEXT == false
     pids.each do |pid|
       shelve_object( pid )
     end

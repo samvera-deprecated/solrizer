@@ -1,4 +1,4 @@
-
+require 'solr'
 require 'rexml/document'
 
 TEXT_FORMAT_ALTO = 0
@@ -70,6 +70,17 @@ class Extractor
     end
   end
 
+  #
+  # This method extracts solr fields from simple xml
+  #
+  def xml_to_solr( text, solr_doc=Solr::Document.new )
+    doc = REXML::Document.new( text )
+    doc.root.elements.each do |element|
+      solr_doc << Solr::Field.new( :"#{element.name}_t" => "#{element.text}" )
+    end
+    return solr_doc
+  end
+  
   private :extractFullTextFromAlto
 
 end

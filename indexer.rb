@@ -2,6 +2,7 @@
 require 'solr'
 
 load 'extractor.rb'
+INDEX_FULL_TEXT = true unless defined?(INDEX_FULL_TEXT) 
 
 class Indexer
 
@@ -51,6 +52,14 @@ class Indexer
   end
 
   #
+  # This method extracts the facet categories from the given Fedora object's external tag datastream
+  #
+  def extract_xml_to_solr( obj, ds_name, solr_doc=Solr::Document.new )
+    xml_ds = Repository.get_datastream( obj, ds_name )
+    extractor.xml_to_solr( xml_ds.content, solr_doc )
+  end
+    
+  #
   # This method creates a Solr-formatted XML document
   #
   def create_document( obj )
@@ -59,21 +68,26 @@ class Indexer
     #   object and categorize each datastream based on its filename
     full_text_ds_names = Array.new
     facet_ds_names = Array.new
+    xml_ds_names = Array.new
     ds_names = Repository.get_datastreams( obj )
     ds_names.each do |ds_name|
       if( ds_name =~ /.*.xml$/ and ds_name !~ /.*_TEXT.*/ and ds_name !~ /.*_METS.*/ and ds_name !~ /.*_LogicalStruct.*/ )
         full_text_ds_names << ds_name
       elsif( ds_name =~ /extProperties/ )
         facet_ds_names << ds_name
+      elsif( ds_name =~ /descMetadata/ )
+        xml_ds_names << ds_name
       end
     end
 
     # extract full-text
     keywords = String.new
-    full_text_ds_names.each do |full_text_ds_name|
-      keywords += extract_full_text( obj, full_text_ds_name )
+    if INDEX_FULL_TEXT
+      debugger
+      full_text_ds_names.each do |full_text_ds_name|
+        keywords += extract_full_text( obj, full_text_ds_name )
+      end
     end
-
     # extract facet categories
     facets = extract_facet_categories( obj, facet_ds_names[0] )
 
@@ -82,6 +96,8 @@ class Indexer
     solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
     solr_doc << Solr::Field.new( :text => "#{keywords}" )
     facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
+    # Pass the solr_doc through extract_simple_xml_to_solr
+    xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
 
     # increment the unique id to ensure that all documents in the search index are unique
     @@unique_id += 1

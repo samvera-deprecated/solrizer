@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+INDEX_FULL_TEXT = false
+
 require 'rubygems'
 
 load 'configuration.rb'  
