@@ -52,10 +52,30 @@ class Extractor
         facets['state'] = element_data
       end
     end
+    
+    facets.merge! extract_location_info( doc )
 
     return facets
   end
 
+  # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
+  # @doc a REXML document
+  def extract_location_info( doc )
+    hash = Hash[]
+    doc.elements.each( '/document/facets/facet[@type="sourcelocation"]' ) do |element|
+      text = element.text
+      if text.include?("Folder")
+        hash['folder'] = element.text
+      elsif text.include?("Box")
+        hash['box'] = element.text
+      elsif text.include?("eaf7000")
+        hash['series'] = element.text
+      end
+    end
+    hash['collection'] = "e-a-feigenbaum-collection"
+    return hash
+  end
+  
   #
   # This method extracts all keywords from the given ALTO text
   #
