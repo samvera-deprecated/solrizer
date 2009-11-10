@@ -57,6 +57,51 @@ class Extractor
 
     return facets
   end
+  
+  def extract_facets( text )
+    # initialize XML document for parsing
+    doc = REXML::Document.new( text )
+
+    # extract all facet categories and facet data from the XML attributes
+    facets = Hash.new
+    doc.elements.each( '/document/attributes/attribute' ) do |element|
+      element_data = element.text
+      type_attr = element.attribute( "type" ).to_s
+      if( type_attr =~ /title/ )
+        facets['title'] = element_data
+      elsif( type_attr =~ /year/ )
+        facets['year'] = element_data
+      end
+    end
+
+    doc.elements.each( '/document/facets/facet' ) do |element|
+      element_data = element.text
+      type_attr = element.attribute( "type" ).to_s
+      if( type_attr =~ /technology/ )
+        facets['technology'] ||= []
+        facets['technology'] << element_data
+      elsif( type_attr =~ /company/ )
+        facets['company'] ||= []
+        facets['company'] << element_data
+      elsif( type_attr =~ /person/ )
+        facets['person'] ||= []
+        facets['person'] << element_data
+      elsif( type_attr =~ /organization/ )
+        facets['organization'] ||= []
+        facets['organization'] << element_data
+      elsif( type_attr =~ /city/ )
+        facets['city'] ||= []
+        facets['city'] << element_data
+      elsif( type_attr =~ /provinceorstate/ )
+        facets['state'] ||=[]
+        facets['state'] << element_data
+      end
+    end
+    
+    facets.merge! extract_location_info( doc )
+
+    return facets
+  end
 
   # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
   # @doc a REXML document

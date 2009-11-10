@@ -34,10 +34,20 @@ describe Extractor do
   # The hash output of this method will be merged into the facets hash in extract_facet_categories
   describe "extract_location_info" do
     it "should extract series, box, & folder and add collection info to boot" do
-      extracted_meta = fixture("druid-bv448hq0314-extProperties.xml") 
-      doc = REXML::Document.new( extracted_meta )
+      ext_properties = fixture("druid-bv448hq0314-extProperties.xml") 
+      doc = REXML::Document.new( ext_properties )
       result = @extractor.extract_location_info( doc )
       result.should == Hash['box' => 'Box 51A', 'folder' => 'Folder 15', 'series' => 'eaf7000', 'collection' => 'e-a-feigenbaum-collection']
     end
   end
+  
+  describe "extract_facets" do
+    it "should extract facet info to a hash" do
+      ext_properties = fixture("druid-bv448hq0314-extProperties.xml") 
+      # doc = REXML::Document.new( ext_properties )
+      result = @extractor.extract_facets( ext_properties )   
+      result.should == {"box"=>"Box 51A", "city"=>["Ann Arbor", "Hyderabad", "Palo Alto"], "person"=>["ELLIE ENGELMORE", "Reddy", "EDWARD FEIGENBAUM"], "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "series"=>"eaf7000", "folder"=>"Folder 15", "technology"=>["artificial intelligence"], "year"=>"1985", "organization"=>["Heuristic Programming Project", "Mathematics and Computer/Information Sciences University of Hyderabad Central University P. O. Hyder", "Professor K. C. Reddy School of Mathematics and Computer/Information Sciences"], "collection"=>"e-a-feigenbaum-collection", "state"=>["Michigan", "California"]}
+    end
+  end
+  
 end

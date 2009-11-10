@@ -48,7 +48,8 @@ class Indexer
   #
   def extract_facet_categories( obj, ds_name )
     facet_ds = Repository.get_datastream( obj, ds_name )
-    extractor.extractFacetCategories( facet_ds.content )
+    extractor.extract_facets( facet_ds.content )
+    #extractor.extractFacetCategories( facet_ds.content )
   end
 
   #
@@ -95,7 +96,9 @@ class Indexer
     solr_doc = Solr::Document.new
     solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
     solr_doc << Solr::Field.new( :text => "#{keywords}" )
-    facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
+    Indexer.solrize(facets, solr_doc)
+    #facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
+    
     # Pass the solr_doc through extract_simple_xml_to_solr
     xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
 
@@ -136,6 +139,26 @@ class Indexer
   #
   def deleteDocument( id )
     connection.delete( id )
+  end
+  
+  # Populates a solr doc with values from a hash.  
+  # Accepts two forms of hashes:
+  # => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}
+  # or
+  # => {:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]} }
+  #
+  # Note that values for individual fields can be a single string or an array of strings.
+  def self.solrize( input_hash, solr_doc=Solr::Document.new )
+    facets = input_hash.has_key?(:facets) ? input_hash[:facets] : input_hash
+    facets.each_pair do |facet_name, value|
+      case value.class.to_s
+      when "String"
+        solr_doc << Solr::Field.new( :"#{facet_name}_facet" => "#{value}" )
+      when "Array"
+        value.each { |v| solr_doc << Solr::Field.new( :"#{facet_name}_facet" => "#{v}" ) } 
+      end
+    end
+    return solr_doc
   end
 
   private :connect, :create_document, :extract_full_text, :extract_facet_categories
