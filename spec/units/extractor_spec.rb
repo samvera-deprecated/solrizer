@@ -2,6 +2,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'extractor'
 
 describe Extractor do
+  before(:all) do
+    @descriptor = Descriptor.register("sc0340")
+  end
+  
   before(:each) do
     @extractor = Extractor.new
   end
@@ -23,21 +27,27 @@ describe Extractor do
     end
   end
   
-  describe ".extractFacetCategories" do
-    it "should extract facet info from extracted entities" do
-      extracted_meta = fixture("druid-bv448hq0314-extProperties.xml") 
-      result = @extractor.extractFacetCategories( extracted_meta )
-      result.should == {"box"=>"Box 51A", "city"=>"Palo Alto", "person"=>"EDWARD FEIGENBAUM", "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "series"=>"eaf7000", "folder"=>"Folder 15", "technology"=>"artificial intelligence", "year"=>"1985", "organization"=>"Professor K. C. Reddy School of Mathematics and Computer/Information Sciences", "collection"=>"e-a-feigenbaum-collection", "state"=>"California"}
-    end
-  end
+  # describe ".extractFacetCategories" do
+  #   it "should extract facet info from extracted entities" do
+  #     extracted_meta = fixture("druid-bv448hq0314-extProperties.xml") 
+  #     result = @extractor.extractFacetCategories( extracted_meta )
+  #     result.should == {"box"=>"Box 51A", "city"=>"Palo Alto", "person"=>"EDWARD FEIGENBAUM", "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "series"=>"eaf7000", "folder"=>"Folder 15", "technology"=>"artificial intelligence", "year"=>"1985", "organization"=>"Professor K. C. Reddy School of Mathematics and Computer/Information Sciences", "collection"=>"e-a-feigenbaum-collection", "state"=>"California"}
+  #   end
+  # end
   
   # The hash output of this method will be merged into the facets hash in extract_facet_categories
   describe "extract_location_info" do
-    it "should extract series, box, & folder and add collection info to boot" do
+    it "should extract series, box, & folder and add collection/series and subseries info to boot" do
+      ext_properties = fixture("druid-cm234kq4672-extProperties.xml") 
+      doc = REXML::Document.new( ext_properties )
+      result = @extractor.extract_location_info( doc )
+      result.should == {:facets=>{"series"=>"Accession 2005-101>", "subseries"=> "Stanford Materials", "box"=>"Box 51", "folder"=>"EAF Printed CorrespondenceApril-Sept. 1984", "collection"=>"Edward A. Feigenbaum Papers"}, :symbols=>{"box"=>"Box 51", "folder"=>"Folder 5", "series"=>"eaf7000"}}
+    end
+    it "should fail gracefully when there is no EAD info for the document's location info" do
       ext_properties = fixture("druid-bv448hq0314-extProperties.xml") 
       doc = REXML::Document.new( ext_properties )
       result = @extractor.extract_location_info( doc )
-      result.should == Hash['box' => 'Box 51A', 'folder' => 'Folder 15', 'series' => 'eaf7000', 'collection' => 'e-a-feigenbaum-collection']
+      result.should == {:facets=>{'box' => 'Box 51A', 'folder' => 'Folder 15', "subseries"=>"", 'series' => 'Accession 2005-101>', 'collection' => "Edward A. Feigenbaum Papers"}, :symbols=>{'box' => 'Box 51A', 'folder' => 'Folder 15', 'series' => 'eaf7000'}}
     end
   end
   
@@ -46,7 +56,7 @@ describe Extractor do
       ext_properties = fixture("druid-bv448hq0314-extProperties.xml") 
       # doc = REXML::Document.new( ext_properties )
       result = @extractor.extract_facets( ext_properties )   
-      result.should == {"box"=>"Box 51A", "city"=>["Ann Arbor", "Hyderabad", "Palo Alto"], "person"=>["ELLIE ENGELMORE", "Reddy", "EDWARD FEIGENBAUM"], "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "series"=>"eaf7000", "folder"=>"Folder 15", "technology"=>["artificial intelligence"], "year"=>"1985", "organization"=>["Heuristic Programming Project", "Mathematics and Computer/Information Sciences University of Hyderabad Central University P. O. Hyder", "Professor K. C. Reddy School of Mathematics and Computer/Information Sciences"], "collection"=>"e-a-feigenbaum-collection", "state"=>["Michigan", "California"]}
+      result.should == {"city"=>["Ann Arbor", "Hyderabad", "Palo Alto"], "person"=>["ELLIE ENGELMORE", "Reddy", "EDWARD FEIGENBAUM"], "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "technology"=>["artificial intelligence"], "year"=>"1985", "organization"=>["Heuristic Programming Project", "Mathematics and Computer/Information Sciences University of Hyderabad Central University P. O. Hyder", "Professor K. C. Reddy School of Mathematics and Computer/Information Sciences"], "state"=>["Michigan", "California"]}
     end
   end
   

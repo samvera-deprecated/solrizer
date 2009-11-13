@@ -158,8 +158,21 @@ class Indexer
         value.each { |v| solr_doc << Solr::Field.new( :"#{facet_name}_facet" => "#{v}" ) } 
       end
     end
+    
+    if input_hash.has_key?(:symbols) 
+      input_hash[:symbols].each do |symbol_name, value|
+        case value.class.to_s
+        when "String"
+          solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{value}" )
+        when "Array"
+          value.each { |v| solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{v}" ) } 
+        end
+      end
+    end
+    
     return solr_doc
   end
+  
 
   private :connect, :create_document, :extract_full_text, :extract_facet_categories
 

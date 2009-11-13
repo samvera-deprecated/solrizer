@@ -1,5 +1,5 @@
 
-require 'active_fedora'
+require 'active-fedora'
 
 class Repository
 

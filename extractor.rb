@@ -1,5 +1,6 @@
 require 'solr'
 require 'rexml/document'
+require 'descriptor'
 
 TEXT_FORMAT_ALTO = 0
 
@@ -17,6 +18,7 @@ class Extractor
   end
 
   #
+  # DEPRECATED: Use extract_facets instead
   # This method extracts facet categories from the given text and return a hash containing all the facets
   #
   def extractFacetCategories( text )
@@ -53,7 +55,7 @@ class Extractor
       end
     end
     
-    facets.merge! extract_location_info( doc )
+    facets.merge! extract_location_info( doc )[:facets]
 
     return facets
   end
@@ -97,28 +99,60 @@ class Extractor
         facets['state'] << element_data
       end
     end
-    
-    facets.merge! extract_location_info( doc )
 
     return facets
   end
+  
+  def extract_ext_properties( text )
+    extract_facets( text ).merge! extract_location_info( text )
+  end
 
   # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
+  # Uses title info from EAD descriptor to populate the facet values when possible
+  # @returns facets and symbol fields in format {:facets=>{...}, :symbols=>{...}}
   # @doc a REXML document
   def extract_location_info( doc )
-    hash = Hash[]
+    
+    descriptor = Descriptor.retrieve("sc0340")
+    symbols = Hash[]
+    
     doc.elements.each( '/document/facets/facet[@type="sourcelocation"]' ) do |element|
       text = element.text
       if text.include?("Folder")
-        hash['folder'] = element.text
+        symbols['folder'] = element.text
       elsif text.include?("Box")
-        hash['box'] = element.text
+        symbols['box'] = element.text
       elsif text.include?("eaf7000")
-        hash['series'] = element.text
+        symbols['series'] = element.text
       end
     end
-    hash['collection'] = "e-a-feigenbaum-collection"
-    return hash
+    
+    series_id = symbols['series'] == "eaf7000" ? "Accession 2005-101>" : hash['series']
+    folder_id = symbols['folder'].gsub("Folder ", "")
+    box_id = symbols['box'].gsub("Box ", "")
+    # box_id = "51"
+    # folder_id = "5"
+    #container_xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]/c02/c03/did[container[@type=\"box\"]=#{box_id} and container[@type=\"folder\"]=#{folder_id}]/unittitle"
+    #container_xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]//container[@type=\"box\"]=\"#{box_id}\""
+    container_xpath_query = "//c01[did/unittitle=\"#{series_id}\"]//did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']"
+    subseries_xpath_query = "//c01[did/unittitle=\"#{series_id}\"]/c02[c03/did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']]"
+     
+    # puts "Query: #{container_xpath_query}"
+    container = descriptor.xpath( container_xpath_query )
+    subseries = descriptor.xpath( subseries_xpath_query )
+    
+    # puts "Container: #{container}"
+    #puts "Unittitle: #{container.search("unittitle").first.content}"
+    # puts "Subseries: #{subseries}"
+    # puts "Subseries title: #{subseries.search("unittitle").first.content}"
+        
+    facets = Hash[]
+    facets['folder'] = container.search("unittitle").first.nil? ? symbols["folder"] : container.search("unittitle").first.content
+    facets['box'] = symbols['box']
+    facets['subseries'] = subseries.search("unittitle").first.nil? ? "" : subseries.search("unittitle").first.content
+    facets['series'] = series_id
+    facets['collection'] = "Edward A. Feigenbaum Papers"
+    return Hash[:facets => facets, :symbols=> symbols]
   end
   
   #

@@ -35,5 +35,16 @@ describe Indexer do
       result["person_facet"].should == "p1"
       result.inspect.include?'@name="person_facet", @boost=nil, @value="p2"'.should be_true
     end
+    
+    it "should create symbols from the :symbols subhash" do
+      simple_hash = Hash[:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}, :symbols=>{'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}]
+      result = Indexer.solrize( simple_hash )
+      result.should be_kind_of Solr::Document
+      result["technology_s"].should == "t1"
+      result.inspect.include?'@name="technology_s", @boost=nil, @value="t2"'.should be_true
+      result["company_s"].should == "c1"
+      result["person_s"].should == "p1"
+      result.inspect.include?'@name="person_s", @boost=nil, @value="p2"'.should be_true
+    end
   end
 end
