@@ -6,6 +6,10 @@ TEXT_FORMAT_ALTO = 0
 
 class Extractor
 
+  def initialize
+    @descriptor = Descriptor.register("sc0340")
+  end
+  
   #
   # This method extracts keywords from the given text based on the text format
   #
@@ -62,7 +66,7 @@ class Extractor
   
   def extract_facets( text )
     # initialize XML document for parsing
-    doc = REXML::Document.new( text )
+    doc = text.class==REXML::Document ? text : REXML::Document.new( text )
 
     # extract all facet categories and facet data from the XML attributes
     facets = Hash.new
@@ -104,25 +108,31 @@ class Extractor
   end
   
   def extract_ext_properties( text )
-    extract_facets( text ).merge! extract_location_info( text )
+    doc = REXML::Document.new( text )
+    loc_info = extract_location_info( doc ) 
+    loc_info[:facets].merge! extract_facets( doc )
+    return loc_info
   end
 
   # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
   # Uses title info from EAD descriptor to populate the facet values when possible
   # @returns facets and symbol fields in format {:facets=>{...}, :symbols=>{...}}
-  # @doc a REXML document
-  def extract_location_info( doc )
+  # @text an XML document
+  def extract_location_info( text )
+    # initialize XML document for parsing
+    doc = text.class==REXML::Document ? text : REXML::Document.new( text )
+    
     
     descriptor = Descriptor.retrieve("sc0340")
     symbols = Hash[]
     
     doc.elements.each( '/document/facets/facet[@type="sourcelocation"]' ) do |element|
-      text = element.text
-      if text.include?("Folder")
+      doc = element.text
+      if doc.include?("Folder")
         symbols['folder'] = element.text
-      elsif text.include?("Box")
+      elsif doc.include?("Box")
         symbols['box'] = element.text
-      elsif text.include?("eaf7000")
+      elsif doc.include?("eaf7000")
         symbols['series'] = element.text
       end
     end
@@ -130,26 +140,15 @@ class Extractor
     series_id = symbols['series'] == "eaf7000" ? "Accession 2005-101>" : hash['series']
     folder_id = symbols['folder'].gsub("Folder ", "")
     box_id = symbols['box'].gsub("Box ", "")
-    # box_id = "51"
-    # folder_id = "5"
-    #container_xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]/c02/c03/did[container[@type=\"box\"]=#{box_id} and container[@type=\"folder\"]=#{folder_id}]/unittitle"
-    #container_xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]//container[@type=\"box\"]=\"#{box_id}\""
-    container_xpath_query = "//c01[did/unittitle=\"#{series_id}\"]//did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']"
+
     subseries_xpath_query = "//c01[did/unittitle=\"#{series_id}\"]/c02[c03/did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']]"
      
-    # puts "Query: #{container_xpath_query}"
-    container = descriptor.xpath( container_xpath_query )
     subseries = descriptor.xpath( subseries_xpath_query )
-    
-    # puts "Container: #{container}"
-    #puts "Unittitle: #{container.search("unittitle").first.content}"
-    # puts "Subseries: #{subseries}"
-    # puts "Subseries title: #{subseries.search("unittitle").first.content}"
         
     facets = Hash[]
-    facets['folder'] = container.search("unittitle").first.nil? ? symbols["folder"] : container.search("unittitle").first.content
+    facets['folder'] = ead_folder_title( series_id, box_id, folder_id ) 
     facets['box'] = symbols['box']
-    facets['subseries'] = subseries.search("unittitle").first.nil? ? "" : subseries.search("unittitle").first.content
+    facets['subseries'] = subseries.search("unittitle").first.content unless subseries.search("unittitle").first.nil?
     facets['series'] = series_id
     facets['collection'] = "Edward A. Feigenbaum Papers"
     return Hash[:facets => facets, :symbols=> symbols]
@@ -180,6 +179,29 @@ class Extractor
     return solr_doc
   end
   
+  # Returns the title for a folder given a series, box and folder
+  # Appends the folder number to the title for easy sorting
+  def ead_folder_title(series, box, folder, ead_description=@descriptor) 
+      if folder.to_s.match(/^[0-9]*:/)
+        return folder
+      else
+        series_id = series == "eaf7000" ? "Accession 1986-052>" : series.to_s
+        folder_id = folder.to_s.gsub("Folder ", "")
+        box_id = box.to_s.gsub("Box ", "")
+        #puts "Series id: " + series_id + "; Box id: " + box_id + "; Folder id: " + folder_id
+        unittitle_query = "//c01[did/unittitle=\"#{series_id}\"]//did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']/unittitle"
+        
+        #xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]/c02/c03/did[container[@type=\"box\"]=#{box_id} and container[@type=\"folder\"]=#{folder_id}]/unittitle"
+        unittitle_node = ead_description.xpath( unittitle_query ).first
+        if unittitle_node.nil?
+          #return "Series id: " + series_id + "; Box id: " + box_id + "; Folder id: " + folder_id
+          return "#{folder_id}: Folder #{folder_id}"
+        else
+          return folder_id + ": " + unittitle_node.content
+        end
+      end
+    end
+    
   private :extractFullTextFromAlto
 
 end

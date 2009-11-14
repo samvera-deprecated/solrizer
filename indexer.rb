@@ -51,6 +51,14 @@ class Indexer
     extractor.extract_facets( facet_ds.content )
     #extractor.extractFacetCategories( facet_ds.content )
   end
+  
+  #
+  # This method extracts the extProperties info from the given Fedora object's external tag datastream
+  #
+  def extract_ext_properties( obj, ds_name )
+    ext_properties_ds = Repository.get_datastream( obj, ds_name )
+    extractor.extract_ext_properties( ext_properties_ds.content )
+  end
 
   #
   # This method extracts the facet categories from the given Fedora object's external tag datastream
@@ -68,14 +76,14 @@ class Indexer
     # retrieve a comprehensive list of all the datastreams associated with the given
     #   object and categorize each datastream based on its filename
     full_text_ds_names = Array.new
-    facet_ds_names = Array.new
+    ext_properties_ds_names = Array.new
     xml_ds_names = Array.new
     ds_names = Repository.get_datastreams( obj )
     ds_names.each do |ds_name|
       if( ds_name =~ /.*.xml$/ and ds_name !~ /.*_TEXT.*/ and ds_name !~ /.*_METS.*/ and ds_name !~ /.*_LogicalStruct.*/ )
         full_text_ds_names << ds_name
       elsif( ds_name =~ /extProperties/ )
-        facet_ds_names << ds_name
+        ext_properties_ds_names << ds_name
       elsif( ds_name =~ /descMetadata/ )
         xml_ds_names << ds_name
       end
@@ -90,13 +98,13 @@ class Indexer
       end
     end
     # extract facet categories
-    facets = extract_facet_categories( obj, facet_ds_names[0] )
+    ext_properties = extract_ext_properties( obj, ext_properties_ds_names[0] )
 
     # create the Solr document
     solr_doc = Solr::Document.new
     solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
     solr_doc << Solr::Field.new( :text => "#{keywords}" )
-    Indexer.solrize(facets, solr_doc)
+    Indexer.solrize(ext_properties, solr_doc)
     #facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
     
     # Pass the solr_doc through extract_simple_xml_to_solr
@@ -148,7 +156,7 @@ class Indexer
   # => {:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]} }
   #
   # Note that values for individual fields can be a single string or an array of strings.
-  def self.solrize( input_hash, solr_doc=Solr::Document.new )
+  def self.solrize( input_hash, solr_doc=Solr::Document.new )    
     facets = input_hash.has_key?(:facets) ? input_hash[:facets] : input_hash
     facets.each_pair do |facet_name, value|
       case value.class.to_s
@@ -169,7 +177,6 @@ class Indexer
         end
       end
     end
-    
     return solr_doc
   end
   
