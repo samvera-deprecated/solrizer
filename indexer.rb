@@ -67,7 +67,12 @@ class Indexer
     xml_ds = Repository.get_datastream( obj, ds_name )
     extractor.xml_to_solr( xml_ds.content, solr_doc )
   end
-    
+  
+  def extract_tags(obj, ds_name)
+    tags_ds =  Repository.get_datastream( obj, ds_name )
+    extractor.extract_tags( tags_ds.content )
+  end
+  
   #
   # This method creates a Solr-formatted XML document
   #
@@ -78,6 +83,7 @@ class Indexer
     full_text_ds_names = Array.new
     ext_properties_ds_names = Array.new
     xml_ds_names = Array.new
+    properties_ds_names = []
     ds_names = Repository.get_datastreams( obj )
     ds_names.each do |ds_name|
       if( ds_name =~ /.*.xml$/ and ds_name !~ /.*_TEXT.*/ and ds_name !~ /.*_METS.*/ and ds_name !~ /.*_LogicalStruct.*/ )
@@ -86,6 +92,8 @@ class Indexer
         ext_properties_ds_names << ds_name
       elsif( ds_name =~ /descMetadata/ )
         xml_ds_names << ds_name
+      elsif ds_name =~ /^properties/
+        properties_ds_names << ds_name
       end
     end
 
@@ -99,6 +107,8 @@ class Indexer
     end
     # extract facet categories
     ext_properties = extract_ext_properties( obj, ext_properties_ds_names[0] )
+    tags = extract_tags(obj, properties_ds_names[0])
+    (ext_properties[:facets] ||={}).merge!(tags)
 
     # create the Solr document
     solr_doc = Solr::Document.new
@@ -178,6 +188,10 @@ class Indexer
       end
     end
     return solr_doc
+  end
+  
+  def extr
+    
   end
   
 

@@ -113,6 +113,17 @@ class Extractor
     loc_info[:facets].merge! extract_facets( doc )
     return loc_info
   end
+  
+  def extract_tags(text)
+    doc = REXML::Document.new( text )
+    extract_tag(doc, 'archivist_tags').merge(extract_tag(doc, 'donor_tags'))
+  end
+  
+  def extract_tag(doc, type)
+    tags = doc.elements["/fields/#{type}"]
+    return {} unless tags
+    {type => tags.text.split(/,/).map {|t| t.strip}}
+  end
 
   # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
   # Uses title info from EAD descriptor to populate the facet values when possible
