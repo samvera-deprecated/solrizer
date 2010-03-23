@@ -4,11 +4,11 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "foo"
-    gem.summary = %Q{TODO: one-line summary of your gem}
+    gem.name = "shelver"
+    gem.summary = %Q{A utility for building solr indexes, usually from Fedora repository content.}
     gem.description = %Q{TODO: longer description of your gem}
     gem.email = "matt.zumwalt@yourmediashelf.com"
-    gem.homepage = "http://github.com/mediashelf/foo"
+    gem.homepage = "http://github.com/mediashelf/shelver"
     gem.authors = ["Matt Zumwalt"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
@@ -39,7 +39,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "foo #{version}"
+  rdoc.title = "shelver #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
