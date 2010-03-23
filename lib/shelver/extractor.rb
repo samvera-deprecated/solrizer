@@ -173,7 +173,7 @@ class Extractor
     # TODO: only read in this file once
     
     if defined?(RAILS_ROOT)
-      config_path = "#{RAILS_ROOT}/config/fedora.yml"
+      config_path = File.join(RAILS_ROOT, "config")
     else
       config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
     end    
