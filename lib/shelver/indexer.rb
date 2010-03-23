@@ -1,5 +1,6 @@
 require 'solr'
 require 'lib/shelver/extractor.rb'
+require 'lib/shelver/repository.rb'
 
 
 module Shelver
@@ -40,7 +41,6 @@ class Indexer
   def connect
      
     if index_full_text == true
-     
       url = Blacklight.solr_config['fulltext']['url']
     else
       url = Blacklight.solr_config['default']['url']
@@ -73,16 +73,6 @@ class Indexer
     extractor.extract_ext_properties( ext_properties_ds.content )
   end
   
-  #
-  # This method extracts the location info from the given Fedora object's location dstream
-  # 
-  
-  def extract_location_data(obj, ds_name)
-    location_ds = Repository.get_datastream(obj, ds_name)
-    unless location_ds.nil?
-	    extractor.extract_location(location_ds.content)
-    end
-  end
 
   #
   # This method extracts the facet categories from the given Fedora object's external tag datastream
@@ -171,7 +161,7 @@ class Indexer
     
     # retrieve a comprehensive list of all the datastreams associated with the given
     #   object and categorize each datastream based on its filename
-    ext_properties_ds_names, location_ds_names, rels_ext_names, properties_ds_names, stories_ds_names, full_text_ds_names, xml_ds_names, jp2_ds_names,  = [],[],[],[],[],[],[],[] 
+    ext_properties_ds_names, rels_ext_names, properties_ds_names, stories_ds_names, full_text_ds_names, xml_ds_names, jp2_ds_names,  = [],[],[],[],[],[],[],[] 
     ds_names = Repository.get_datastreams( obj )
     
     ds_names.each do |ds_name|
@@ -181,8 +171,6 @@ class Indexer
         ext_properties_ds_names << ds_name
       elsif( ds_name =~ /descMetadata/ )
         xml_ds_names << ds_name
-      elsif( ds_name =~ /location/ )
-        location_ds_names << ds_name
       elsif ds_name =~ /^properties/
         properties_ds_names << ds_name
         xml_ds_names << ds_name
@@ -207,16 +195,12 @@ class Indexer
     ext_properties = {}
     ext_properties[:facets] = extract_ext_properties( obj, ext_properties_ds_names[0] )
     ext_properties[:sympols] = ext_properties[:facets]
-    location_data = extract_location_data(obj, location_ds_names[0] )
     tags = extract_tags(obj, properties_ds_names[0])
     
     
     # extract stories content sans html and put into story_t field. stories content with html is placed into story_display 
     
     
-    # Merge the location_data and tag hashes back into the ext_properties hash
-    (ext_properties[:facets] ||={}).merge!(location_data[:facets]) unless location_data.nil?
-    (ext_properties[:symbols] ||={}).merge!(location_data[:symbols]) unless location_data.nil?
     (ext_properties[:facets] ||={}).merge!(tags)
     # create the Solr document
     solr_doc = Solr::Document.new
@@ -245,13 +229,6 @@ class Indexer
       
     # extract RELS-EXT
     rels_ext_names.each { |ds_name| extract_rels_ext(obj, ds_name, solr_doc)}
-    
-    # Hack to set hydra_type for SALT data that has missing or incorrect cmodel info
-    salt_series = ["Accession 2005-101", "Accession 1986-052"]
-    if salt_series.include?(location_data[:symbols]["series"].to_s) 
-      solr_doc << Solr::Field.new( :hydra_type_t => "salt_document" )
-      puts "Added salt_document hydra type manually."
-    end
     
     # increment the unique id to ensure that all documents in the search index are unique
     @@unique_id += 1

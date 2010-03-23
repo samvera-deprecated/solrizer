@@ -149,49 +149,6 @@ class Extractor
   end
 
   
-
-  # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
-  # Uses title info from EAD descriptor to populate the facet values when possible
-  # @returns facets and symbol fields in format {:facets=>{...}, :symbols=>{...}}
-  # @text an XML document
-  
-  def extract_location_info( text )
-    # initialize XML document for parsing
-    doc = text.class==REXML::Document ? text : REXML::Document.new( text )
-    
-    
-    descriptor = Descriptor.retrieve("sc0340")
-    symbols = Hash[]
-    
-    doc.elements.each( '/document/facets/facet[@type="sourcelocation"]' ) do |element|
-      doc = element.text
-      if doc.include?("Folder")
-        symbols['folder'] = element.text
-      elsif doc.include?("Box")
-        symbols['box'] = element.text
-      elsif doc.include?("eaf7000")
-        symbols['series'] = element.text
-      end
-    end
-    
-    series_id = symbols['series'] == "eaf7000" ? "Accession 2005-101>" : hash['series']
-    folder_id = symbols['folder'].gsub("Folder ", "")
-    box_id = symbols['box'].gsub("Box ", "")
-
-    subseries_xpath_query = "//c01[did/unittitle=\"#{series_id}\"]/c02[c03/did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']]"
-     
-    subseries = descriptor.xpath( subseries_xpath_query )
-        
-    facets = Hash[]
-    facets['folder'] = ead_folder_title( series_id, box_id, folder_id ) 
-    facets['box'] = symbols['box']
-    facets['subseries'] = subseries.search("unittitle").first.content unless subseries.search("unittitle").first.nil?
-    facets['series'] = series_id
-    facets['collection'] = "Edward A. Feigenbaum Papers"
-    return Hash[:facets => facets, :symbols=> symbols]
-    
-  end
-  
   #
   # This method extracts all keywords from the given ALTO text
   #

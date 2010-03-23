@@ -33,20 +33,6 @@ describe Shelver::Extractor do
   #   end
   # end
   
-  # The hash output of this method will be merged into the facets hash in extract_facet_categories
-  describe "extract_location_info" do
-    it "should extract series, box, & folder and add collection/series and subseries info to boot" do
-      ext_properties = fixture("druid-cm234kq4672-extProperties.xml") 
-      result = @extractor.extract_location_info( ext_properties )
-      result.should == {:facets=>{"series"=>"Accession 2005-101>", "subseries"=> "Stanford Materials", "box"=>"Box 51", "folder"=>"5: EAF Printed CorrespondenceApril-Sept. 1984", "collection"=>"Edward A. Feigenbaum Papers"}, :symbols=>{"box"=>"Box 51", "folder"=>"Folder 5", "series"=>"eaf7000"}}
-    end
-    it "should fail gracefully when there is no EAD info for the document's location info" do
-      ext_properties = fixture("druid-bv448hq0314-extProperties.xml") 
-      result = @extractor.extract_location_info( ext_properties )
-      result.should == {:facets=>{'box' => 'Box 51A', 'folder' => '15: Folder 15', 'series' => 'Accession 2005-101>', 'collection' => "Edward A. Feigenbaum Papers"}, :symbols=>{'box' => 'Box 51A', 'folder' => 'Folder 15', 'series' => 'eaf7000'}}
-    end
-  end
-  
   describe "extract_rels_ext" do 
     it "should extract the content model of the RELS-EXT datastream of a Fedora object and set hydra_type using hydra_types mapping" do
       rels_ext = fixture("rels_ext_cmodel.xml")
