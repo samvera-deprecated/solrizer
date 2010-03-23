@@ -1,4 +1,4 @@
-
+require 'rubygems'
 require 'lib/shelver/indexer.rb'
 # require 'fastercsv'
 require "ruby-debug"

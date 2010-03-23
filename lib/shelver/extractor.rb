@@ -1,17 +1,12 @@
 require 'solr'
 require 'rexml/document'
 require "nokogiri"
-require 'lib/shelver/descriptor'
 require 'yaml'
 #require 'descriptor.rb'
 TEXT_FORMAT_ALTO = 0
 
 module Shelver
 class Extractor
-
-  def initialize
-    @descriptor = Descriptor.register("sc0340")
-  end
   
   #
   # This method extracts keywords from the given text based on the text format
