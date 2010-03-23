@@ -40,22 +40,35 @@ class Indexer
   #
   def connect
     
-    if defined?(RAILS_ROOT)
-      config_path = File.join(RAILS_ROOT, "config")
-    else
-      config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
-    end
-    
     if defined?(Blacklight)
       solr_config = Blacklight.solr_config
     else
-      solr_config = YAML.load(File.open(File.join(config_path, "solr.yml")))
+      
+      if defined?(RAILS_ROOT)
+        config_path = File.join(RAILS_ROOT, "config")
+        yaml = YAML.load(File.open(File.join(config_path, "solr.yml")))
+        solr_config = yaml[RAILS_ENV]
+      else
+        config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
+        yaml = YAML.load(File.open(File.join(config_path, "solr.yml")))
+        
+        
+        if ENV["environment"].nil?
+          environment = "development"
+        else
+          environment = ENV["environment"]
+        end
+        
+        solr_config = yaml[environment]
+        puts solr_config.inspect
+      end
+      
     end
-    
+        
     if index_full_text == true
-      url = Blacklight.solr_config['fulltext']['url']
+      url = solr_config['fulltext']['url']
     else
-      url = Blacklight.solr_config['default']['url']
+      url = solr_config['default']['url']
     end
     @connection = Solr::Connection.new(url, :autocommit => :on )
   end
