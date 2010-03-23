@@ -24,7 +24,7 @@ describe Shelver::Shelver do
       mock_object.stubs(:label)
       mock_object.stubs(:datastreams).returns({'descMetadata'=>"foo","location"=>"bar"})
 
-      SaltDocument.expects(:load_instance).with( "_PID_" ).returns(mock_object)
+      ActiveFedora::Base.expects(:load_instance).with( "_PID_" ).returns(mock_object)
       @shelver.indexer.expects(:index).with(mock_object)
       @shelver.shelve_object("_PID_")
     end
