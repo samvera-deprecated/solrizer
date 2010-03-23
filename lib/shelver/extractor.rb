@@ -171,7 +171,13 @@ class Extractor
   #
   def extract_rels_ext( text, solr_doc=Solr::Document.new )
     # TODO: only read in this file once
-    map = YAML.load(File.open(File.join(Rails.root, "config/hydra_types.yml")))
+    
+    if defined?(RAILS_ROOT)
+      config_path = "#{RAILS_ROOT}/config/fedora.yml"
+    else
+      config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
+    end    
+    map = YAML.load(File.open(File.join(config_path, "hydra_types.yml")))
     
     doc = Nokogiri::XML(text)
     doc.xpath( '//foo:hasModel', 'foo' => 'info:fedora/fedora-system:def/model#' ).each do |element|

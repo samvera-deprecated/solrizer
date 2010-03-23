@@ -1,0 +1,24 @@
+staging:
+  default:
+    url: http://salt-dev.stanford.edu:8080/bl_solr/core0
+  fulltext:
+    url: http://salt-dev.stanford.edu:8080/bl_solr/core1
+development:
+  default:
+    url: http://localhost:8080/bl_solr/core0
+  fulltext:
+    url: http://localhost:8080/bl_solr/core1
+test: &TEST
+  default:
+    url: http://localhost:8080/bl_solr/core0
+  fulltext:
+    url: http://localhost:8080/bl_solr/core1
+production:
+  default:
+    url: http://salt-dev.stanford.edu:8080/bl_solr/core0 
+  fulltext:
+    url: http://salt-dev.stanford.edu:8080/bl_solr/core1
+cucumber:
+  <<: *TEST
+cucumber:
+  <<: *TEST
