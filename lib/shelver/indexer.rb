@@ -39,7 +39,19 @@ class Indexer
   # This method connects to the Solr instance
   #
   def connect
-     
+    
+    if defined?(RAILS_ROOT)
+      config_path = File.join(RAILS_ROOT, "config")
+    else
+      config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
+    end
+    
+    if defined?(Blacklight)
+      solr_config = Blacklight.solr_config
+    else
+      solr_config = YAML.load(File.open(File.join(config_path, "solr.yml")))
+    end
+    
     if index_full_text == true
       url = Blacklight.solr_config['fulltext']['url']
     else
