@@ -1,11 +1,9 @@
-
 require 'solr'
+require 'lib/shelver/extractor.rb'
 
-load 'extractor.rb'
-INDEX_FULL_TEXT = true unless defined?(INDEX_FULL_TEXT) 
 
-class Indexer
-
+module Shelver
+class Indexer  
   #
   # Class variables
   #
@@ -18,13 +16,21 @@ class Indexer
   #
   # Member variables
   #
-  attr_accessor :connection, :extractor
+  attr_accessor :connection, :extractor, :index_full_text
 
   #
   # This method performs initialization tasks
   #
-  def initialize()
+  def initialize( opts={} )
+    @@index_list = false unless defined?(@@index_list)
     @extractor = Extractor.new
+    
+    if opts[:index_full_text] == true || opts[:index_full_text] == "true"
+      @index_full_text = true 
+    else
+      @index_full_text = false 
+    end
+    
     connect
   end
 
@@ -32,7 +38,14 @@ class Indexer
   # This method connects to the Solr instance
   #
   def connect
-    @connection = Solr::Connection.new( SHELVER_SOLR_URL, :autocommit => :on )
+     
+    if index_full_text == true
+     
+      url = Blacklight.solr_config['fulltext']['url']
+    else
+      url = Blacklight.solr_config['default']['url']
+    end
+    @connection = Solr::Connection.new(url, :autocommit => :on )
   end
 
   #
@@ -59,6 +72,17 @@ class Indexer
     ext_properties_ds = Repository.get_datastream( obj, ds_name )
     extractor.extract_ext_properties( ext_properties_ds.content )
   end
+  
+  #
+  # This method extracts the location info from the given Fedora object's location dstream
+  # 
+  
+  def extract_location_data(obj, ds_name)
+    location_ds = Repository.get_datastream(obj, ds_name)
+    unless location_ds.nil?
+	    extractor.extract_location(location_ds.content)
+    end
+  end
 
   #
   # This method extracts the facet categories from the given Fedora object's external tag datastream
@@ -68,23 +92,88 @@ class Indexer
     extractor.xml_to_solr( xml_ds.content, solr_doc )
   end
   
+  #
+  #
+  #
+  def extract_rels_ext( obj, ds_name, solr_doc=Solr::Document.new )
+    rels_ext_ds = Repository.get_datastream( obj, ds_name )
+    extractor.extract_rels_ext( rels_ext_ds.content, solr_doc )
+  end
+  
+  #
+  # This method generates the month and day facets from the date_t in solr_doc
+  #
+  
+  def generate_dates(solr_doc)
+    
+    # This will check for valid dates, but it seems most of the dates are currently invalid....
+    #date_check =  /^(19|20)\d\d([- \/.])(0[1-9]|1[012])\2(0[1-9]|[12][0-9]|3[01])/
+
+   #if there is not date_t, add on with easy-to-find value
+   if solr_doc[:date_t].nil?
+        solr_doc << Solr::Field.new( :date_t => "9999-99-99")
+   end #if
+
+    # unless date_check !~  solr_doc[:date_t]     
+    date_obj = Date._parse(solr_doc[:date_t])
+    
+    if date_obj[:mon].nil? 
+       solr_doc << Solr::Field.new(:month_facet => 99)
+    elsif 0 < date_obj[:mon] && date_obj[:mon] < 13
+      solr_doc << Solr::Field.new( :month_facet => date_obj[:mon].to_s.rjust(2, '0'))
+    else
+      solr_doc << Solr::Field.new( :month_facet => 99)
+    end
+      
+    if  date_obj[:mday].nil?
+      solr_doc << Solr::Field.new( :day_facet => 99)
+    elsif 0 < date_obj[:mday] && date_obj[:mday] < 32   
+      solr_doc << Solr::Field.new( :day_facet => date_obj[:mday].to_s.rjust(2, '0'))
+    else
+       solr_doc << Solr::Field.new( :day_facet => 99)
+    end
+    
+    return solr_doc
+#      end
+        
+  end
+  
+  #
+  # This method extracts content from stories dstream and puts it into a story_t field
+  # The entire html output it placed into the story_display field
+  #
+  
+  def extract_stories_to_solr( obj, ds_name, solr_doc=Solr::Document.new )
+    
+     story_ds = Repository.get_datastream( obj, ds_name )
+     
+     unless story_ds.new_object?
+       extractor.html_content_to_solr( story_ds, solr_doc )
+     end
+   end
+  
+  
   def extract_tags(obj, ds_name)
     tags_ds =  Repository.get_datastream( obj, ds_name )
     extractor.extract_tags( tags_ds.content )
+  
+  end
+  
+  def extract_jp2_info_from_names_array(obj, ds_names_array)
+    first_jp2 =  Repository.get_datastream( obj, ds_names_array.sort.first )
+    return Hash[:jp2_url_display => "#{first_jp2.url}/content"]
   end
   
   #
   # This method creates a Solr-formatted XML document
   #
   def create_document( obj )
-
+    
     # retrieve a comprehensive list of all the datastreams associated with the given
     #   object and categorize each datastream based on its filename
-    full_text_ds_names = Array.new
-    ext_properties_ds_names = Array.new
-    xml_ds_names = Array.new
-    properties_ds_names = []
+    ext_properties_ds_names, location_ds_names, rels_ext_names, properties_ds_names, stories_ds_names, full_text_ds_names, xml_ds_names, jp2_ds_names,  = [],[],[],[],[],[],[],[] 
     ds_names = Repository.get_datastreams( obj )
+    
     ds_names.each do |ds_name|
       if( ds_name =~ /.*.xml$/ and ds_name !~ /.*_TEXT.*/ and ds_name !~ /.*_METS.*/ and ds_name !~ /.*_LogicalStruct.*/ )
         full_text_ds_names << ds_name
@@ -92,34 +181,78 @@ class Indexer
         ext_properties_ds_names << ds_name
       elsif( ds_name =~ /descMetadata/ )
         xml_ds_names << ds_name
+      elsif( ds_name =~ /location/ )
+        location_ds_names << ds_name
       elsif ds_name =~ /^properties/
         properties_ds_names << ds_name
+        xml_ds_names << ds_name
+      elsif ds_name =~ /stories/
+        stories_ds_names << ds_name
+      elsif ds_name =~ /.*.jp2$/
+        jp2_ds_names << ds_name
+      elsif ds_name =~ /^RELS-EXT/
+        rels_ext_names << ds_name
       end
     end
 
     # extract full-text
     keywords = String.new
-    if INDEX_FULL_TEXT
-      debugger
+    if @index_full_text
       full_text_ds_names.each do |full_text_ds_name|
         keywords += extract_full_text( obj, full_text_ds_name )
       end
     end
+    
     # extract facet categories
-    ext_properties = extract_ext_properties( obj, ext_properties_ds_names[0] )
+    ext_properties = {}
+    ext_properties[:facets] = extract_ext_properties( obj, ext_properties_ds_names[0] )
+    ext_properties[:sympols] = ext_properties[:facets]
+    location_data = extract_location_data(obj, location_ds_names[0] )
     tags = extract_tags(obj, properties_ds_names[0])
+    
+    
+    # extract stories content sans html and put into story_t field. stories content with html is placed into story_display 
+    
+    
+    # Merge the location_data and tag hashes back into the ext_properties hash
+    (ext_properties[:facets] ||={}).merge!(location_data[:facets]) unless location_data.nil?
+    (ext_properties[:symbols] ||={}).merge!(location_data[:symbols]) unless location_data.nil?
     (ext_properties[:facets] ||={}).merge!(tags)
-
     # create the Solr document
     solr_doc = Solr::Document.new
     solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
+    solr_doc << Solr::Field.new( :id_t => "#{obj.pid}" )
     solr_doc << Solr::Field.new( :text => "#{keywords}" )
     Indexer.solrize(ext_properties, solr_doc)
+   
+    # Uncomment these lines if you want to extract jp2 info, including the URL of the cononical jp2 datastream
+    # if !jp2_ds_names.empty?
+    #   jp2_properties = extract_jp2_info_from_names_array( obj, jp2_ds_names )
+    #   Indexer.solrize(jp2_properties, solr_doc)
+    # end
+    
     #facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
     
-    # Pass the solr_doc through extract_simple_xml_to_solr
-    xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
-
+    # Pass the solr_doc through extract_simple_xml_to_solr   
+      xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
+    
+    # Generate month_facet and day_facet from date_t value
+      generate_dates(solr_doc)
+  
+    #Pass the solr_doc through extract_stories_to_solr
+    #needs work
+      stories_ds_names.each { |ds_name| extract_stories_to_solr(obj, ds_name, solr_doc)}
+      
+    # extract RELS-EXT
+    rels_ext_names.each { |ds_name| extract_rels_ext(obj, ds_name, solr_doc)}
+    
+    # Hack to set hydra_type for SALT data that has missing or incorrect cmodel info
+    salt_series = ["Accession 2005-101", "Accession 1986-052"]
+    if salt_series.include?(location_data[:symbols]["series"].to_s) 
+      solr_doc << Solr::Field.new( :hydra_type_t => "salt_document" )
+      puts "Added salt_document hydra type manually."
+    end
+    
     # increment the unique id to ensure that all documents in the search index are unique
     @@unique_id += 1
 
@@ -130,10 +263,20 @@ class Indexer
   # This method adds a document to the Solr search index
   #
   def index( obj )
-    print "Indexing '#{obj.pid}'..."
-    solr_doc = create_document( obj )
-    connection.add( solr_doc )
-    puts "done"
+   # print "Indexing '#{obj.pid}'..."
+    begin
+      
+      solr_doc = create_document( obj )
+      connection.add( solr_doc )
+ 
+     # puts connection.url
+     #puts solr_doc
+     #  puts "done"
+   
+    rescue Exception => e
+       p "unable to index #{obj.pid}.  Failed with #{e.inspect}"
+    end
+   
   end
 
   #
@@ -182,7 +325,7 @@ class Indexer
         case value.class.to_s
         when "String"
           solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{value}" )
-        when "Array"
+	      when "Array"
           value.each { |v| solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{v}" ) } 
         end
       end
@@ -198,4 +341,4 @@ class Indexer
   private :connect, :create_document, :extract_full_text, :extract_facet_categories
 
 end
-
+end

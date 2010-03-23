@@ -1,6 +1,8 @@
 
 require 'active-fedora'
 
+
+module Shelver
 class Repository
 
   #
@@ -27,7 +29,7 @@ class Repository
   # This method retrieves the object associated with the given unique id
   #
   def self.get_object( pid )
-    object = ActiveFedora::Base.load_instance( pid )
+    object = SaltDocument.load_instance( pid )
   end
   
   #
@@ -41,8 +43,12 @@ class Repository
   # This method retrieves the datastream for the given object with the given datastream name
   #
   def self.get_datastream( obj, ds_name )
-    obj.datastreams[ ds_name ]
+    begin
+      obj.datastreams[ ds_name ]
+    rescue
+      return nil
+    end
   end
 
 end
-
+end

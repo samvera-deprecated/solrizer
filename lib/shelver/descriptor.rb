@@ -1,5 +1,6 @@
 require "nokogiri"
 
+module Shelver
 class Descriptor
   
   @@desctriptors = Hash[]
@@ -45,4 +46,5 @@ class Descriptor
   end
   
   
+end
 end

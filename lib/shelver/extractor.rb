@@ -1,9 +1,12 @@
 require 'solr'
 require 'rexml/document'
-require 'descriptor'
-
+require "nokogiri"
+require 'lib/shelver/descriptor'
+require 'yaml'
+#require 'descriptor.rb'
 TEXT_FORMAT_ALTO = 0
 
+module Shelver
 class Extractor
 
   def initialize
@@ -18,7 +21,7 @@ class Extractor
     if( text_format == TEXT_FORMAT_ALTO )
       keywords = extractFullTextFromAlto( text )
     end
-    keywords.join( " " )
+    #keywords.join( " " )
   end
 
   #
@@ -109,9 +112,34 @@ class Extractor
   
   def extract_ext_properties( text )
     doc = REXML::Document.new( text )
-    loc_info = extract_location_info( doc ) 
-    loc_info[:facets].merge! extract_facets( doc )
+    #loc_info = extract_location_info( doc ) 
+    #loc_info[:facets].merge! extract_facets( doc )
+    loc_info = extract_facets( doc )
     return loc_info
+  end
+  
+  def extract_location( text )
+     doc = Nokogiri::XML( text )
+     
+     symbols = Hash[]
+     facets = Hash[]
+     
+     symbols['series'] = doc.search("//c01[@level = 'series']/did/unittitle").first.content unless doc.search("//c01[@level = 'series']/did/unittitle").first.nil?
+     symbols['subseries'] = doc.search("//c02[@level = 'subseries']/did/unittitle").first.content unless doc.search("//c02[@level = 'subseries']/did/unittitle").first.nil?
+     symbols['box'] = doc.search("//c03[@level = 'file']/did/container[@type = 'box']").first.content unless doc.search("//c03[@level = 'file']/did/container[@type = 'box']").first.nil?
+     symbols['folder'] = doc.search("//c03[@level = 'file']/did/container[@type = 'folder']").first.content unless doc.search("//c03[@level = 'file']/did/container[@type = 'folder']").first.nil?
+     symbols['title'] = doc.search("//c03[@level = 'file']/did/unittitle/text()").first.content unless doc.search("//c03[@level = 'file']/did/unittitle/text()").first.nil?
+     symbols['date'] = doc.search("//c03[@level = 'file']/did/unittitle/unitdate").first.content unless doc.search("//c03[@level = 'file']/did/unittitle/unitdate").first.nil?
+     
+     facets['series'] = symbols['series']
+     facets['subseries'] = symbols['subseries']
+     facets['box'] = symbols['box']
+     facets['folder'] = symbols['folder']
+     facets['title'] = symbols['title']
+     facets['date'] = symbols['date']
+     
+     return Hash[:facets => facets, :symbols=> symbols]
+     
   end
   
   def extract_tags(text)
@@ -125,10 +153,13 @@ class Extractor
     {type => tags.text.split(/,/).map {|t| t.strip}}
   end
 
+  
+
   # Extracts series, box, folder and collection info into facets, fixing some of the info when necessary
   # Uses title info from EAD descriptor to populate the facet values when possible
   # @returns facets and symbol fields in format {:facets=>{...}, :symbols=>{...}}
   # @text an XML document
+  
   def extract_location_info( text )
     # initialize XML document for parsing
     doc = text.class==REXML::Document ? text : REXML::Document.new( text )
@@ -163,6 +194,7 @@ class Extractor
     facets['series'] = series_id
     facets['collection'] = "Edward A. Feigenbaum Papers"
     return Hash[:facets => facets, :symbols=> symbols]
+    
   end
   
   #
@@ -170,13 +202,36 @@ class Extractor
   #
   def extractFullTextFromAlto( text )
     # initialize XML document for parsing
-    doc = REXML::Document.new( text )
+    #doc = REXML::Document.new( text )
+        doc = Nokogiri::XML(text)
 
     # extract all keywords from ALTO attributes
     keywords = String.new
-    doc.elements.each( '//String/@CONTENT' ) do |element|
+#    doc.elements.each( '//String/@CONTENT' ) do |element|
+    doc.xpath( '//String/@CONTENT' ).each do |element|
       keywords << element.text
     end
+    return keywords
+  end
+  
+  #
+  # Extracts content-model and hydra-type from RELS-EXT datastream
+  #
+  def extract_rels_ext( text, solr_doc=Solr::Document.new )
+    # TODO: only read in this file once
+    map = YAML.load(File.open(File.join(Rails.root, "config/hydra_types.yml")))
+    
+    doc = Nokogiri::XML(text)
+    doc.xpath( '//foo:hasModel', 'foo' => 'info:fedora/fedora-system:def/model#' ).each do |element|
+      cmodel = element.attributes['resource'].to_s
+      solr_doc << Solr::Field.new( :cmodel_t => cmodel )
+      
+      if map.has_key?(cmodel)
+        solr_doc << Solr::Field.new( :hydra_type_t => map[cmodel] )
+      end
+    end
+
+    return solr_doc
   end
 
   #
@@ -187,8 +242,38 @@ class Extractor
     doc.root.elements.each do |element|
       solr_doc << Solr::Field.new( :"#{element.name}_t" => "#{element.text}" )
     end
+
     return solr_doc
   end
+  
+  #
+  # This method strips html tags out and returns content to be indexed in solr
+  #
+  def html_content_to_solr( ds, solr_doc=Solr::Document.new )
+    
+    text = CGI.unescapeHTML(ds.content)
+    doc = Nokogiri::HTML(text)
+    
+    # html to story_display
+    stories = doc.xpath('//story')
+        
+    stories.each do |story|
+      solr_doc << Solr::Field.new(:story_display => story.children.to_xml)
+    end
+    
+    #strip out text and put in story_t
+    text_nodes = doc.xpath("//text()")
+    text = String.new
+    
+     text_nodes.each do |text_node|
+       text << text_node.content
+     end
+    
+     solr_doc << Solr::Field.new(:story_t => text)
+     
+     return solr_doc
+  end
+  
   
   # Returns the title for a folder given a series, box and folder
   # Appends the folder number to the title for easy sorting
@@ -216,4 +301,4 @@ class Extractor
   private :extractFullTextFromAlto
 
 end
-
+end
