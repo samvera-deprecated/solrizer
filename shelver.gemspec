@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
      "lib/shelver/replicator.rb",
      "lib/shelver/repository.rb",
      "lib/tasks/shelver.rake",
+     "shelver.gemspec",
      "spec/fixtures/druid-bv448hq0314-descMetadata.xml",
      "spec/fixtures/druid-bv448hq0314-extProperties.xml",
      "spec/fixtures/druid-cm234kq4672-extProperties.xml",
