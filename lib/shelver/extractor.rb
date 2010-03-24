@@ -8,134 +8,6 @@ TEXT_FORMAT_ALTO = 0
 module Shelver
 class Extractor
   
-  #
-  # This method extracts keywords from the given text based on the text format
-  #
-  def extractFullText( text, text_format=TEXT_FORMAT_ALTO )
-    keywords = String.new
-    if( text_format == TEXT_FORMAT_ALTO )
-      keywords = extractFullTextFromAlto( text )
-    end
-    #keywords.join( " " )
-  end
-
-  #
-  # DEPRECATED: Use extract_facets instead
-  # This method extracts facet categories from the given text and return a hash containing all the facets
-  #
-  def extractFacetCategories( text )
-    # initialize XML document for parsing
-    doc = REXML::Document.new( text )
-
-    # extract all facet categories and facet data from the XML attributes
-    facets = Hash.new
-    doc.elements.each( '/document/attributes/attribute' ) do |element|
-      element_data = element.text
-      type_attr = element.attribute( "type" ).to_s
-      if( type_attr =~ /title/ )
-        facets['title'] = element_data
-      elsif( type_attr =~ /year/ )
-        facets['year'] = element_data
-      end
-    end
-
-    doc.elements.each( '/document/facets/facet' ) do |element|
-      element_data = element.text
-      type_attr = element.attribute( "type" ).to_s
-      if( type_attr =~ /technology/ )
-        facets['technology'] = element_data
-      elsif( type_attr =~ /company/ )
-        facets['company'] = element_data
-      elsif( type_attr =~ /person/ )
-        facets['person'] = element_data
-      elsif( type_attr =~ /organization/ )
-        facets['organization'] = element_data
-      elsif( type_attr =~ /city/ )
-        facets['city'] = element_data
-      elsif( type_attr =~ /provinceorstate/ )
-        facets['state'] = element_data
-      end
-    end
-    
-    facets.merge! extract_location_info( doc )[:facets]
-
-    return facets
-  end
-  
-  def extract_facets( text )
-    # initialize XML document for parsing
-    doc = text.class==REXML::Document ? text : REXML::Document.new( text )
-
-    # extract all facet categories and facet data from the XML attributes
-    facets = Hash.new
-    doc.elements.each( '/document/attributes/attribute' ) do |element|
-      element_data = element.text
-      type_attr = element.attribute( "type" ).to_s
-      if( type_attr =~ /title/ )
-        facets['title'] = element_data
-      elsif( type_attr =~ /year/ )
-        facets['year'] = element_data
-      end
-    end
-
-    doc.elements.each( '/document/facets/facet' ) do |element|
-      element_data = element.text
-      type_attr = element.attribute( "type" ).to_s
-      if( type_attr =~ /technology/ )
-        facets['technology'] ||= []
-        facets['technology'] << element_data
-      elsif( type_attr =~ /company/ )
-        facets['company'] ||= []
-        facets['company'] << element_data
-      elsif( type_attr =~ /person/ )
-        facets['person'] ||= []
-        facets['person'] << element_data
-      elsif( type_attr =~ /organization/ )
-        facets['organization'] ||= []
-        facets['organization'] << element_data
-      elsif( type_attr =~ /city/ )
-        facets['city'] ||= []
-        facets['city'] << element_data
-      elsif( type_attr =~ /provinceorstate/ )
-        facets['state'] ||=[]
-        facets['state'] << element_data
-      end
-    end
-
-    return facets
-  end
-  
-  def extract_ext_properties( text )
-    doc = REXML::Document.new( text )
-    #loc_info = extract_location_info( doc ) 
-    #loc_info[:facets].merge! extract_facets( doc )
-    loc_info = extract_facets( doc )
-    return loc_info
-  end
-  
-  def extract_location( text )
-     doc = Nokogiri::XML( text )
-     
-     symbols = Hash[]
-     facets = Hash[]
-     
-     symbols['series'] = doc.search("//c01[@level = 'series']/did/unittitle").first.content unless doc.search("//c01[@level = 'series']/did/unittitle").first.nil?
-     symbols['subseries'] = doc.search("//c02[@level = 'subseries']/did/unittitle").first.content unless doc.search("//c02[@level = 'subseries']/did/unittitle").first.nil?
-     symbols['box'] = doc.search("//c03[@level = 'file']/did/container[@type = 'box']").first.content unless doc.search("//c03[@level = 'file']/did/container[@type = 'box']").first.nil?
-     symbols['folder'] = doc.search("//c03[@level = 'file']/did/container[@type = 'folder']").first.content unless doc.search("//c03[@level = 'file']/did/container[@type = 'folder']").first.nil?
-     symbols['title'] = doc.search("//c03[@level = 'file']/did/unittitle/text()").first.content unless doc.search("//c03[@level = 'file']/did/unittitle/text()").first.nil?
-     symbols['date'] = doc.search("//c03[@level = 'file']/did/unittitle/unitdate").first.content unless doc.search("//c03[@level = 'file']/did/unittitle/unitdate").first.nil?
-     
-     facets['series'] = symbols['series']
-     facets['subseries'] = symbols['subseries']
-     facets['box'] = symbols['box']
-     facets['folder'] = symbols['folder']
-     facets['title'] = symbols['title']
-     facets['date'] = symbols['date']
-     
-     return Hash[:facets => facets, :symbols=> symbols]
-     
-  end
   
   def extract_tags(text)
     doc = REXML::Document.new( text )
@@ -148,23 +20,6 @@ class Extractor
     {type => tags.text.split(/,/).map {|t| t.strip}}
   end
 
-  
-  #
-  # This method extracts all keywords from the given ALTO text
-  #
-  def extractFullTextFromAlto( text )
-    # initialize XML document for parsing
-    #doc = REXML::Document.new( text )
-        doc = Nokogiri::XML(text)
-
-    # extract all keywords from ALTO attributes
-    keywords = String.new
-#    doc.elements.each( '//String/@CONTENT' ) do |element|
-    doc.xpath( '//String/@CONTENT' ).each do |element|
-      keywords << element.text
-    end
-    return keywords
-  end
   
   #
   # Extracts content-model and hydra-type from RELS-EXT datastream
@@ -232,31 +87,5 @@ class Extractor
      return solr_doc
   end
   
-  
-  # Returns the title for a folder given a series, box and folder
-  # Appends the folder number to the title for easy sorting
-  def ead_folder_title(series, box, folder, ead_description=@descriptor) 
-      if folder.to_s.match(/^[0-9]*:/)
-        return folder
-      else
-        series_id = series == "eaf7000" ? "Accession 1986-052>" : series.to_s
-        folder_id = folder.to_s.gsub("Folder ", "")
-        box_id = box.to_s.gsub("Box ", "")
-        #puts "Series id: " + series_id + "; Box id: " + box_id + "; Folder id: " + folder_id
-        unittitle_query = "//c01[did/unittitle=\"#{series_id}\"]//did[container[@type=\"box\"]=\'#{box_id}\' and container[@type=\"folder\"]=\'#{folder_id}\']/unittitle"
-        
-        #xpath_query = "//dsc[@type=\"in-depth\"]/c01[did/unittitle=\"#{series_id}\"]/c02/c03/did[container[@type=\"box\"]=#{box_id} and container[@type=\"folder\"]=#{folder_id}]/unittitle"
-        unittitle_node = ead_description.xpath( unittitle_query ).first
-        if unittitle_node.nil?
-          #return "Series id: " + series_id + "; Box id: " + box_id + "; Folder id: " + folder_id
-          return "#{folder_id}: Folder #{folder_id}"
-        else
-          return folder_id + ": " + unittitle_node.content
-        end
-      end
-    end
-    
-  private :extractFullTextFromAlto
-
 end
 end

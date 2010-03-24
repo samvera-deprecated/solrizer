@@ -74,32 +74,6 @@ class Indexer
   end
 
   #
-  # This method extracts the full-text keywords from the given Fedora object's full-text datastream
-  #
-  def extract_full_text( obj, ds_name )
-    full_text_ds = Repository.get_datastream( obj, ds_name )
-    keywords = extractor.extractFullText( full_text_ds.content )
-  end
-
-  #
-  # This method extracts the facet categories from the given Fedora object's external tag datastream
-  #
-  def extract_facet_categories( obj, ds_name )
-    facet_ds = Repository.get_datastream( obj, ds_name )
-    extractor.extract_facets( facet_ds.content )
-    #extractor.extractFacetCategories( facet_ds.content )
-  end
-  
-  #
-  # This method extracts the extProperties info from the given Fedora object's external tag datastream
-  #
-  def extract_ext_properties( obj, ds_name )
-    ext_properties_ds = Repository.get_datastream( obj, ds_name )
-    extractor.extract_ext_properties( ext_properties_ds.content )
-  end
-  
-
-  #
   # This method extracts the facet categories from the given Fedora object's external tag datastream
   #
   def extract_xml_to_solr( obj, ds_name, solr_doc=Solr::Document.new )
@@ -153,31 +127,6 @@ class Indexer
         
   end
   
-  #
-  # This method extracts content from stories dstream and puts it into a story_t field
-  # The entire html output it placed into the story_display field
-  #
-  
-  def extract_stories_to_solr( obj, ds_name, solr_doc=Solr::Document.new )
-    
-     story_ds = Repository.get_datastream( obj, ds_name )
-     
-     unless story_ds.new_object?
-       extractor.html_content_to_solr( story_ds, solr_doc )
-     end
-   end
-  
-  
-  def extract_tags(obj, ds_name)
-    tags_ds =  Repository.get_datastream( obj, ds_name )
-    extractor.extract_tags( tags_ds.content )
-  
-  end
-  
-  def extract_jp2_info_from_names_array(obj, ds_names_array)
-    first_jp2 =  Repository.get_datastream( obj, ds_names_array.sort.first )
-    return Hash[:jp2_url_display => "#{first_jp2.url}/content"]
-  end
   
   #
   # This method creates a Solr-formatted XML document
@@ -190,67 +139,27 @@ class Indexer
     ds_names = Repository.get_datastreams( obj )
     
     ds_names.each do |ds_name|
-      if( ds_name =~ /.*.xml$/ and ds_name !~ /.*_TEXT.*/ and ds_name !~ /.*_METS.*/ and ds_name !~ /.*_LogicalStruct.*/ )
-        full_text_ds_names << ds_name
-      elsif( ds_name =~ /extProperties/ )
-        ext_properties_ds_names << ds_name
-      elsif( ds_name =~ /descMetadata/ )
+      if ds_name =~ /descMetadata/ 
         xml_ds_names << ds_name
       elsif ds_name =~ /^properties/
         properties_ds_names << ds_name
         xml_ds_names << ds_name
-      elsif ds_name =~ /stories/
-        stories_ds_names << ds_name
-      elsif ds_name =~ /.*.jp2$/
-        jp2_ds_names << ds_name
       elsif ds_name =~ /^RELS-EXT/
         rels_ext_names << ds_name
       end
     end
-
-    # extract full-text
-    keywords = String.new
-    if @index_full_text
-      full_text_ds_names.each do |full_text_ds_name|
-        keywords += extract_full_text( obj, full_text_ds_name )
-      end
-    end
-    
-    # extract facet categories
-    ext_properties = {}
-    ext_properties[:facets] = extract_ext_properties( obj, ext_properties_ds_names[0] )
-    ext_properties[:sympols] = ext_properties[:facets]
-    tags = extract_tags(obj, properties_ds_names[0])
-    
-    
-    # extract stories content sans html and put into story_t field. stories content with html is placed into story_display 
-    
-    
-    (ext_properties[:facets] ||={}).merge!(tags)
+        
     # create the Solr document
     solr_doc = Solr::Document.new
     solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
     solr_doc << Solr::Field.new( :id_t => "#{obj.pid}" )
-    solr_doc << Solr::Field.new( :text => "#{keywords}" )
-    Indexer.solrize(ext_properties, solr_doc)
    
-    # Uncomment these lines if you want to extract jp2 info, including the URL of the cononical jp2 datastream
-    # if !jp2_ds_names.empty?
-    #   jp2_properties = extract_jp2_info_from_names_array( obj, jp2_ds_names )
-    #   Indexer.solrize(jp2_properties, solr_doc)
-    # end
-    
-    #facets.each { |key, value| solr_doc << Solr::Field.new( :"#{key}_facet" => "#{value}" ) }
-    
+        
     # Pass the solr_doc through extract_simple_xml_to_solr   
       xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
     
     # Generate month_facet and day_facet from date_t value
       generate_dates(solr_doc)
-  
-    #Pass the solr_doc through extract_stories_to_solr
-    #needs work
-      stories_ds_names.each { |ds_name| extract_stories_to_solr(obj, ds_name, solr_doc)}
       
     # extract RELS-EXT
     rels_ext_names.each { |ds_name| extract_rels_ext(obj, ds_name, solr_doc)}
@@ -335,12 +244,8 @@ class Indexer
     return solr_doc
   end
   
-  def extr
-    
-  end
-  
 
-  private :connect, :create_document, :extract_full_text, :extract_facet_categories
+  private :connect, :create_document
 
 end
 end

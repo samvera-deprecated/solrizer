@@ -75,42 +75,6 @@ describe Shelver::Indexer do
   end
   
   
-  describe "#extract_stories_to_solr" do
-    before(:each) do
-       @mock_story_ds = mock('stories')
-       @mock_story_ds.stubs(:content).returns(fixture("druid-cm234kq4672-stories.xml"))
-     
-       @mock_document =  mock("Document")
-       @mock_document.stubs(:pid)
-       @mock_document.stubs(:label)
-       @mock_document.stubs(:datastream)
-     end #:each
-    
-   describe "stories to solr" do
-      it "should add content from stories dstream into solr doc when its not new" do
-      
-       @extractor.expects(:html_content_to_solr).once
-       @mock_story_ds.stubs(:new_object?).returns(false)
-       
-       Shelver::Repository.expects(:get_datastream).with(@mock_document, "stories").returns(@mock_story_ds)
-       @indexer.extract_stories_to_solr(@mock_document, "stories", @solr_doc)
-        
-      end
-    end
-    
-    describe "no stories not to solr" do
-      it "should not add content from stories dstream if the object is new" do
-       
-         @extractor.expects(:html_content_to_solr).never
-         @mock_story_ds.stubs(:new_object?).returns(true)
-        
-         Shelver::Repository.expects(:get_datastream).with(@mock_document, 'stories').returns(@mock_story_ds)
-         @indexer.extract_stories_to_solr(@mock_document , "stories", @solr_doc)
-     
-        end
-      end
-  end
-  
   
   describe "#solrize" do
     it "should convert a hash to a solr doc" do
