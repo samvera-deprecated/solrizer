@@ -1,11 +1,14 @@
 .DS_Store
 nohup.out
+
+shelver.gemspec
  
 *.sqlite3
 *.log
 *~
 *.swp
- 
+
+pkg/
 coverage/*
  
 tmp/**/*

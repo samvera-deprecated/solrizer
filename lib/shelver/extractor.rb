@@ -2,8 +2,6 @@ require 'solr'
 require 'rexml/document'
 require "nokogiri"
 require 'yaml'
-#require 'descriptor.rb'
-TEXT_FORMAT_ALTO = 0
 
 module Shelver
 class Extractor

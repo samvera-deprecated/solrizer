@@ -1,6 +1,6 @@
 require 'solr'
-require 'lib/shelver/extractor.rb'
-require 'lib/shelver/repository.rb'
+require 'shelver/extractor'
+require 'shelver/repository'
 
 
 module Shelver
