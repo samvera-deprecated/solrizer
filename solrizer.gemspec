@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
      "lib/solrizer/replicator.rb",
      "lib/solrizer/repository.rb",
      "lib/tasks/solrizer.rake",
+     "solrizer.gemspec",
      "spec/fixtures/druid-bv448hq0314-descMetadata.xml",
      "spec/fixtures/druid-bv448hq0314-extProperties.xml",
      "spec/fixtures/druid-cm234kq4672-extProperties.xml",
