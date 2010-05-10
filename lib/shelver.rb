@@ -40,17 +40,15 @@ class Shelver
           obj_done_elapse = obj_done - start
           puts  " completed. Duration: #{obj_done_elapse}"
           
-          unless obj.datastreams['descMetadata'].nil? || obj.datastreams['location'].nil?
-                 print "\t Indexing object #{obj.pid} ... "
-                 # add the keywords and facets to the search index
-                 index_start = Time.now
-                 indexer.index( obj )
-                 
-                 index_done = Time.now
-                 index_elapsed = index_done - index_start
-                 
-                  puts "completed. Duration:  #{index_elapsed} ."
-          end #unless
+         print "\t Indexing object #{obj.pid} ... "
+         # add the keywords and facets to the search index
+         index_start = Time.now
+         indexer.index( obj )
+         
+         index_done = Time.now
+         index_elapsed = index_done - index_start
+         
+          puts "completed. Duration:  #{index_elapsed} ."
         
       
       rescue Exception => e

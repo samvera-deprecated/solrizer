@@ -48,6 +48,7 @@ class Indexer
         config_path = File.join(RAILS_ROOT, "config")
         yaml = YAML.load(File.open(File.join(config_path, "solr.yml")))
         solr_config = yaml[RAILS_ENV]
+        puts solr_config.inspect
       else
         config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
         yaml = YAML.load(File.open(File.join(config_path, "solr.yml")))
@@ -132,37 +133,37 @@ class Indexer
   # This method creates a Solr-formatted XML document
   #
   def create_document( obj )
-    
-    # retrieve a comprehensive list of all the datastreams associated with the given
-    #   object and categorize each datastream based on its filename
-    ext_properties_ds_names, rels_ext_names, properties_ds_names, stories_ds_names, full_text_ds_names, xml_ds_names, jp2_ds_names,  = [],[],[],[],[],[],[],[] 
-    ds_names = Repository.get_datastreams( obj )
-    
-    ds_names.each do |ds_name|
-      if ds_name =~ /descMetadata/ 
-        xml_ds_names << ds_name
-      elsif ds_name =~ /^properties/
-        properties_ds_names << ds_name
-        xml_ds_names << ds_name
-      elsif ds_name =~ /^RELS-EXT/
-        rels_ext_names << ds_name
-      end
-    end
         
     # create the Solr document
     solr_doc = Solr::Document.new
-    solr_doc << Solr::Field.new( :id => "#{obj.pid}" )
-    solr_doc << Solr::Field.new( :id_t => "#{obj.pid}" )
-   
-        
-    # Pass the solr_doc through extract_simple_xml_to_solr   
-      xml_ds_names.each { |ds_name| extract_xml_to_solr(obj, ds_name, solr_doc)}
     
-    # Generate month_facet and day_facet from date_t value
-      generate_dates(solr_doc)
+    model_klazz_array = []
+    
+    obj.relationships[:self][:has_model].each do |cmodel_uri|
+      classname  = cmodel_uri.gsub("info:fedora/afmodel:", "")
       
-    # extract RELS-EXT
-    rels_ext_names.each { |ds_name| extract_rels_ext(obj, ds_name, solr_doc)}
+      if class_exists?(classname)
+        model_klazz_array << Kernel.const_get(classname)
+      else
+        puts "did not find definition for #{classname}"
+      end
+    end
+    
+    # If the object was passed in as a model instance other than ActiveFedora::Base, call its to_solr method
+    if obj.class != ActiveFedora::Base
+      solr_doc = obj.to_solr(solr_doc)
+      model_klazz_array.delete(obj.class)
+    end
+   
+    # Load the object as an instance of each of its other models and get the corresponding solr fields
+    model_klazz_array.each do |klazz|
+      instance = klazz.load_instance(obj.pid)
+      solr_doc = instance.to_solr(solr_doc)
+      puts "  added solr fields from #{klazz.to_s}"
+    end
+    
+    solr_doc << Solr::Field.new( :id_t => "#{obj.pid}" )
+    solr_doc << Solr::Field.new( :id => "#{obj.pid}" ) unless solr_doc[:id]
     
     # increment the unique id to ensure that all documents in the search index are unique
     @@unique_id += 1
@@ -247,5 +248,12 @@ class Indexer
 
   private :connect, :create_document
 
+  def class_exists?(class_name)
+    klass = Module.const_get(class_name)
+    return klass.is_a?(Class)
+  rescue NameError
+    return false
+  end
+  
 end
 end
