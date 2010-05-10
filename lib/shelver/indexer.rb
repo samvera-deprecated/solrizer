@@ -40,6 +40,10 @@ class Indexer
   #
   def connect
     
+    unless ActiveFedora.fedora_config.has_key?(:url) 
+      ActiveFedora.init
+    end
+    
     if defined?(Blacklight)
       solr_config = Blacklight.solr_config
     else
@@ -68,8 +72,10 @@ class Indexer
         
     if index_full_text == true
       url = solr_config['fulltext']['url']
-    else
+    elsif solr_config.has_key?(:default)
       url = solr_config['default']['url']
+    else
+      url = solr_config['url']
     end
     @connection = Solr::Connection.new(url, :autocommit => :on )
   end
@@ -137,17 +143,16 @@ class Indexer
     # create the Solr document
     solr_doc = Solr::Document.new
     
-    model_klazz_array = []
-    
-    obj.relationships[:self][:has_model].each do |cmodel_uri|
-      classname  = cmodel_uri.gsub("info:fedora/afmodel:", "")
-      
-      if class_exists?(classname)
-        model_klazz_array << Kernel.const_get(classname)
-      else
-        puts "did not find definition for #{classname}"
-      end
-    end
+    model_klazz_array = ActiveFedora::ContentModel.known_models_for( obj )
+    # obj.relationships[:self][:has_model].each do |cmodel_uri|
+    #       classname  = cmodel_uri.gsub("info:fedora/afmodel:", "")
+    #       
+    #       if class_exists?(classname)
+    #         model_klazz_array << Kernel.const_get(classname)
+    #       else
+    #         puts "did not find definition for #{classname}"
+    #       end
+    #     end
     
     # If the object was passed in as a model instance other than ActiveFedora::Base, call its to_solr method
     if obj.class != ActiveFedora::Base
@@ -185,8 +190,8 @@ class Indexer
      #puts solr_doc
      #  puts "done"
    
-    rescue Exception => e
-       p "unable to index #{obj.pid}.  Failed with #{e.inspect}"
+    # rescue Exception => e
+    #    p "unable to index #{obj.pid}.  Failed with #{e.inspect}"
     end
    
   end
