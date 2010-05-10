@@ -144,15 +144,6 @@ class Indexer
     solr_doc = Solr::Document.new
     
     model_klazz_array = ActiveFedora::ContentModel.known_models_for( obj )
-    # obj.relationships[:self][:has_model].each do |cmodel_uri|
-    #       classname  = cmodel_uri.gsub("info:fedora/afmodel:", "")
-    #       
-    #       if class_exists?(classname)
-    #         model_klazz_array << Kernel.const_get(classname)
-    #       else
-    #         puts "did not find definition for #{classname}"
-    #       end
-    #     end
     
     # If the object was passed in as a model instance other than ActiveFedora::Base, call its to_solr method
     if obj.class != ActiveFedora::Base
