@@ -4,11 +4,11 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "shelver"
+    gem.name = "solrizer"
     gem.summary = %Q{A utility for building solr indexes, usually from Fedora repository content.}
     gem.description = %Q{Use shelver to populate solr indexes from Fedora repository content or from other sources.  You can run shelver from within your apps, using the provided rake tasks, or as a JMS listener}
     gem.email = "matt.zumwalt@yourmediashelf.com"
-    gem.homepage = "http://github.com/mediashelf/shelver"
+    gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]
     gem.add_dependency "active-fedora", "> 1.1.3"
     gem.add_development_dependency "rspec", ">= 1.2.9"
@@ -40,7 +40,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "shelver #{version}"
+  rdoc.title = "solrizer #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
