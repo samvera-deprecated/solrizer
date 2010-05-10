@@ -40,7 +40,7 @@ class Indexer
   #
   def connect
     
-    unless ActiveFedora.fedora_config.has_key?(:url) 
+    if ActiveFedora.fedora_config.empty?
       ActiveFedora.init
     end
     
@@ -72,7 +72,7 @@ class Indexer
         
     if index_full_text == true
       url = solr_config['fulltext']['url']
-    elsif solr_config.has_key?(:default)
+    elsif solr_config.has_key?("default")
       url = solr_config['default']['url']
     else
       url = solr_config['url']
