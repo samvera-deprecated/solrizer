@@ -2,7 +2,7 @@
 require 'active-fedora'
 
 
-module Shelver
+module Solrizer
 class Repository
 
   #

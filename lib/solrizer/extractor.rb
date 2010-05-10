@@ -3,7 +3,7 @@ require 'rexml/document'
 require "nokogiri"
 require 'yaml'
 
-module Shelver
+module Solrizer
 class Extractor
   
   

@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "solrizer"
     gem.summary = %Q{A utility for building solr indexes, usually from Fedora repository content.}
-    gem.description = %Q{Use shelver to populate solr indexes from Fedora repository content or from other sources.  You can run shelver from within your apps, using the provided rake tasks, or as a JMS listener}
+    gem.description = %Q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
     gem.email = "matt.zumwalt@yourmediashelf.com"
     gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]

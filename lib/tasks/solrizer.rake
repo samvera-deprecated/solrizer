@@ -1,20 +1,20 @@
-namespace :shelver do
+namespace :solrizer do
   
   desc 'Index a fedora object of the given pid.'
-  task :shelve_object => :environment do 
+  task :solrize => :environment do 
     index_full_text = ENV['FULL_TEXT'] == 'true'
     if ENV['PID']
       puts "indexing #{ENV['PID'].inspect}"
-      shelver = Shelver::Shelver.new :index_full_text=> index_full_text
-      shelver.shelve_object(ENV['PID'])
+      solrizer = Solrizer::Solrizer.new :index_full_text=> index_full_text
+      solrizer.solrize(ENV['PID'])
       puts "Finished shelving #{ENV['PID']}"
     else
-      puts "You must provide a pid using the format 'shelver::shelve_object PID=sample:pid'."
+      puts "You must provide a pid using the format 'solrizer::solrize_object PID=sample:pid'."
     end
   end
   
   desc 'Index all objects in the repository.'
-  task :shelve_objects => :environment do
+  task :solrize_objects => :environment do
     index_full_text = ENV['FULL_TEXT'] == 'true'
     if ENV['INDEX_LIST']
       @@index_list = ENV['INDEX_LIST']
@@ -25,9 +25,9 @@ namespace :shelver do
     puts "Fedora Solr URL: #{ActiveFedora.solr_config[:url]}"
     puts "Blacklight Solr Config: #{Blacklight.solr_config.inspect}"
     puts "Doing full text index." if index_full_text
-    shelver = Shelver::Shelver.new :index_full_text=> index_full_text
-    shelver.shelve_objects
-    puts "Shelver task complete."
+    solrizer = Solrizer::Solrizer.new :index_full_text=> index_full_text
+    solrizer.solrize_objects
+    puts "Solrizer task complete."
   end  
   
 end

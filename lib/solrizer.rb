@@ -1,12 +1,12 @@
 require 'rubygems'
-require 'shelver/indexer.rb'
+require 'solrizer/indexer.rb'
 # require 'fastercsv'
 require "ruby-debug"
 
 
 
-module Shelver
-class Shelver
+module Solrizer
+class Solrizer
 
   attr_accessor :indexer, :index_full_text
 
@@ -25,9 +25,9 @@ class Shelver
   end
 
   #
-  # This method shelves the given Fedora object's full-text and facets into the search index
+  # This method solrizes the given Fedora object's full-text and facets into the search index
   #
-  def shelve_object( obj )
+  def solrize( obj )
     # retrieve the Fedora object based on the given unique id
       
       begin
@@ -61,9 +61,9 @@ class Shelver
   
   #
   # This method retrieves a comprehensive list of all the unique identifiers in Fedora and 
-  # shelves each object's full-text and facets into the search index
+  # solrizes each object's full-text and facets into the search index
   #
-  def shelve_objects
+  def solrize_objects
     # retrieve a list of all the pids in the fedora repository
     num_docs = 1000000   # modify this number to guarantee that all the objects are retrieved from the repository
     puts "WARNING: You have turned off indexing of Full Text content.  Be sure to re-run indexer with @@index_full_text set to true in main.rb" if index_full_text == false
@@ -74,7 +74,7 @@ class Shelver
 	     puts "Shelving #{pids.length} Fedora objects"
        pids.each do |pid|
          unless pid[0].empty? || pid[0].nil?
-          shelve_object( pid )
+          solrize( pid )
           end
         end #pids.each
      
@@ -88,14 +88,14 @@ class Shelver
           
          arr_of_pids.each do |row|
             pid = row[0]
-            shelve_object( pid )
+            solrize( pid )
 	 end #FASTERCSV
         else
           puts "#{@@index_list} does not exists!"
         end #if File.exists
      
     end #if Index_LISTS
-  end #shelve_objects
+  end #solrize_objects
 
 end #class
 end #module

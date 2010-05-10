@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'shelver'
+require 'solrizer'
 
-describe Shelver::Extractor do
+describe Solrizer::Extractor do
   
   before(:each) do
-    @extractor = Shelver::Extractor.new
+    @extractor = Solrizer::Extractor.new
   end
   
   describe ".xml_to_solr" do

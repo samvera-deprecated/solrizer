@@ -2,7 +2,7 @@ require 'fastercsv'
 REPLICATOR_LIST = false unless defined?(REPLICATOR_LIST)
 
 
-module Shelver
+module Solrizer
   class Replicator
     
     include Stanford::SaltControllerHelper

@@ -1,16 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'shelver'
+require 'solrizer'
 
-describe Shelver::Indexer do
+describe Solrizer::Indexer do
   
   before(:each) do
-    @indexer = Shelver::Indexer.new
+    @indexer = Solrizer::Indexer.new
   end
   
-  describe "shelve_object" do
+  describe "index" do
     it "should update solr with the metadata from the given object" do
       pending "Got to decide if/how to handle fixtures in this gem. Probably should just mock out Fedora & Solr entirely."
-      obj = Shelver::Repository.get_object( "druid:sb733gr4073" )
+      obj = Solrizer::Repository.get_object( "druid:sb733gr4073" )
       @indexer.index( obj )
     end
   end

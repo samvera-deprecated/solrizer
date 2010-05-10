@@ -1,9 +1,9 @@
 require 'solr'
-require 'shelver/extractor'
-require 'shelver/repository'
+require 'solrizer/extractor'
+require 'solrizer/repository'
 
 
-module Shelver
+module Solrizer
 class Indexer  
   #
   # Class variables
