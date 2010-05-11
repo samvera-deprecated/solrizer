@@ -138,23 +138,29 @@ class Indexer
   #
   # This method creates a Solr-formatted XML document
   #
-  def create_document( obj )
-        
-    # create the Solr document
+  def create_document( obj )        
+    
     solr_doc = Solr::Document.new
     
     model_klazz_array = ActiveFedora::ContentModel.known_models_for( obj )
+    model_klazz_array.delete(ActiveFedora::Base)
     
-    # If the object was passed in as a model instance other than ActiveFedora::Base, call its to_solr method
-    if obj.class != ActiveFedora::Base
+    # If the object was passed in as an ActiveFedora::Base, call to_solr in order to get the base field entries from ActiveFedora::Base
+    # Otherwise, the object was passed in as a model instance other than ActiveFedora::Base,so call its to_solr method & allow it to insert the fields from ActiveFedora::Base
+    if obj.class == ActiveFedora::Base
+      solr_doc = obj.to_solr(solr_doc)
+      puts "  added base fields from #{obj.class.to_s}"
+    else
       solr_doc = obj.to_solr(solr_doc)
       model_klazz_array.delete(obj.class)
+      puts "    added base fields from #{obj.class.to_s} and model fields from #{obj.class.to_s}"
     end
    
     # Load the object as an instance of each of its other models and get the corresponding solr fields
+    # Include :model_only=>true in the options in order to avoid adding the metadata from ActiveFedora::Base every time.
     model_klazz_array.each do |klazz|
       instance = klazz.load_instance(obj.pid)
-      solr_doc = instance.to_solr(solr_doc)
+      solr_doc = instance.to_solr(solr_doc, :model_only=>true)
       puts "  added solr fields from #{klazz.to_s}"
     end
     
