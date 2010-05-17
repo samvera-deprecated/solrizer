@@ -10,7 +10,7 @@ begin
     gem.email = "matt.zumwalt@yourmediashelf.com"
     gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]
-    gem.add_dependency "active-fedora", "> 1.1.5"
+    gem.add_dependency "active-fedora", "1.1.5"
     gem.add_development_dependency "rspec", ">= 1.2.9"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
