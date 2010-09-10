@@ -62,21 +62,19 @@ class Solrizer
   #
   # This method retrieves a comprehensive list of all the unique identifiers in Fedora and 
   # solrizes each object's full-text and facets into the search index
-  #
   def solrize_objects
     # retrieve a list of all the pids in the fedora repository
     num_docs = 1000000   # modify this number to guarantee that all the objects are retrieved from the repository
     puts "WARNING: You have turned off indexing of Full Text content.  Be sure to re-run indexer with @@index_full_text set to true in main.rb" if index_full_text == false
 
     if @@index_list == false
-     
-       pids = Repository.get_pids( num_docs )
-	     puts "Shelving #{pids.length} Fedora objects"
-       pids.each do |pid|
-         unless pid[0].empty? || pid[0].nil?
-          solrize( pid )
-          end
-        end #pids.each
+      
+      objects = Fedora::Repository.instance.find_objects(:limit=>num_docs)
+
+      puts "Shelving #{objects.length} Fedora objects"
+      objects.each do |object|
+        solrize( object )
+      end
      
     else
     
