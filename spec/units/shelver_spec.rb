@@ -32,10 +32,10 @@ describe Solrizer::Solrizer do
   end
   
   describe "solrize_objects" do
-    it "should call solrize for each pid returned by solr" do
-      pids = [["pid1"], ["pid2"], ["pid3"]]
-      Solrizer::Repository.expects(:get_pids).returns(pids)
-      pids.each {|pid| @solrizer.expects(:solrize).with( pid ) }
+    it "should call solrize for each object returned by Fedora::Repository.find_objects" do
+      objects = [["pid1"], ["pid2"], ["pid3"]]
+      Fedora::Repository.any_instance.expects(:find_objects).returns(objects)
+      objects.each {|object| @solrizer.expects(:solrize).with( object ) }
       @solrizer.solrize_objects
     end
   end
