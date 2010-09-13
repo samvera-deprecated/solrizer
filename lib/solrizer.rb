@@ -1,8 +1,10 @@
 require 'rubygems'
 require 'solrizer/indexer.rb'
+require 'solrizer/field_name_mapper.rb'
+require 'solrizer/xml.rb'
+
 # require 'fastercsv'
 require "ruby-debug"
-
 
 
 module Solrizer

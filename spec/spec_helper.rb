@@ -4,6 +4,8 @@ require 'solrizer'
 require 'spec'
 require 'spec/autorun'
 
+require 'solrizer'
+
 Spec::Runner.configure do |config|
   
   config.mock_with :mocha
