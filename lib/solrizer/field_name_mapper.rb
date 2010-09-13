@@ -27,7 +27,7 @@ module Solrizer
   # Instance Methods
   
   def solr_name(field_name, field_type)
-    Solrizer::FieldNameMapper.solr_name(field_name, field_type)
+    FieldNameMapper.solr_name(field_name, field_type)
   end
   
   def self.logger      
