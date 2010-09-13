@@ -1,7 +1,9 @@
 require 'rubygems'
 require 'solrizer/indexer.rb'
 require 'solrizer/field_name_mapper.rb'
-require 'solrizer/xml.rb'
+
+# Let people explicitly require xml support if they want it ...
+# require 'solrizer/xml.rb'
 
 # require 'fastercsv'
 require "ruby-debug"
