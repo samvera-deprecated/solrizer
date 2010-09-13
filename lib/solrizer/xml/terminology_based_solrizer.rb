@@ -68,7 +68,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      hierarchical_field_name = generate_solr_symbol(hierarchical_field_name_base, term.data_type)
+      hierarchical_field_name = self.generate_solr_symbol(hierarchical_field_name_base, term.data_type)
       solr_doc << Solr::Field.new(hierarchical_field_name => node_value)
     end
     solr_doc

@@ -1,4 +1,7 @@
-module Solrizer::FieldNameMapper
+require "yaml"
+
+module Solrizer
+  module FieldNameMapper
       
   # Module Methods & Attributes
   @@mappings = {}
@@ -12,7 +15,25 @@ module Solrizer::FieldNameMapper
       return name.to_s
     end
   end
-
+  
+  def self.mappings
+    @@mappings
+  end
+  
+  def self.mappings=(mappings)
+    @@mappings = mappings
+  end
+  
+  # Instance Methods
+  
+  def solr_name(field_name, field_type)
+    Solrizer::FieldNameMapper.solr_name(field_name, field_type)
+  end
+  
+  def self.logger      
+    @logger ||= defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new(STDOUT)
+  end
+  
   # Loads solr mappings from yml file.
   # @config_path This is the path to the directory where your mappings file is stored. @default "RAILS_ROOT/config/solr_mappings.yml"
   # @mappings_file This is the filename for your solr mappings YAML file.  @default solr_mappings.yml
@@ -35,22 +56,7 @@ module Solrizer::FieldNameMapper
     mappings["id"] = "id" unless mappings["id"]
   end
   
-  def self.mappings
-    @@mappings
-  end
-  
-  def self.mappings=(mappings)
-    @@mappings = mappings
-  end
-  
-  # Instance Methods
-  
-  def solr_name(field_name, field_type)
-    Solrizer::FieldNameMapper.solr_name(field_name, field_type)
-  end
-  
-  def self.logger      
-    @logger ||= defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new(STDOUT)
-  end
-  
-end
+  # This ensures that some mappings will always be loaded
+  self.load_mappings
+end #FieldNameMapper
+end #Solrizer

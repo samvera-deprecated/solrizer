@@ -6,7 +6,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   
   before(:all) do
     OM::Samples::ModsArticle.send(:include, Solrizer::XML::TerminologyBasedSolrizer)
-    Solrizer::FieldNameMapper.load_mappings
   end
   
   before(:each) do
@@ -14,7 +13,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     @mods_article = OM::Samples::ModsArticle.from_xml(article_xml)
   end
   
-  describe ".solrize" do
+  describe ".to_solr" do
   
     # after(:all) do
     #   # Revert to default mappings after running tests

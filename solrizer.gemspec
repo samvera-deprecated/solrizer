@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{solrizer}
-  s.version = "0.1.3"
+  s.version = "0.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Zumwalt"]
-  s.date = %q{2010-09-10}
+  s.date = %q{2010-09-13}
   s.description = %q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
   s.email = %q{matt.zumwalt@yourmediashelf.com}
   s.extra_rdoc_files = [
@@ -26,13 +26,17 @@ Gem::Specification.new do |s|
      "config/fedora.yml",
      "config/hydra_types.yml",
      "config/solr.yml",
+     "config/solr_mappings.yml",
      "lib/solrizer.rb",
      "lib/solrizer/configuration.rb",
      "lib/solrizer/extractor.rb",
+     "lib/solrizer/field_name_mapper.rb",
      "lib/solrizer/indexer.rb",
      "lib/solrizer/main.rb",
      "lib/solrizer/replicator.rb",
      "lib/solrizer/repository.rb",
+     "lib/solrizer/xml.rb",
+     "lib/solrizer/xml/terminology_based_solrizer.rb",
      "lib/tasks/solrizer.rake",
      "solrizer.gemspec",
      "spec/fixtures/druid-bv448hq0314-descMetadata.xml",
@@ -40,14 +44,18 @@ Gem::Specification.new do |s|
      "spec/fixtures/druid-cm234kq4672-extProperties.xml",
      "spec/fixtures/druid-cm234kq4672-stories.xml",
      "spec/fixtures/druid-hc513kw4806-descMetadata.xml",
+     "spec/fixtures/mods_articles/hydrangea_article1.xml",
      "spec/fixtures/rels_ext_cmodel.xml",
+     "spec/fixtures/solr_mappings_af_0.1.yml",
      "spec/integration/indexer_spec.rb",
      "spec/rcov.opts",
      "spec/spec.opts",
      "spec/spec_helper.rb",
      "spec/units/extractor_spec.rb",
+     "spec/units/field_name_mapper_spec.rb",
      "spec/units/indexer_spec.rb",
-     "spec/units/shelver_spec.rb"
+     "spec/units/shelver_spec.rb",
+     "spec/units/xml_terminology_based_solrizer_spec.rb"
   ]
   s.homepage = %q{http://github.com/projecthydra/solrizer}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -58,8 +66,10 @@ Gem::Specification.new do |s|
     "spec/integration/indexer_spec.rb",
      "spec/spec_helper.rb",
      "spec/units/extractor_spec.rb",
+     "spec/units/field_name_mapper_spec.rb",
      "spec/units/indexer_spec.rb",
-     "spec/units/shelver_spec.rb"
+     "spec/units/shelver_spec.rb",
+     "spec/units/xml_terminology_based_solrizer_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -68,13 +78,16 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<active-fedora>, [">= 1.1.5"])
+      s.add_runtime_dependency(%q<om>, [">= 1.0.0"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
     else
       s.add_dependency(%q<active-fedora>, [">= 1.1.5"])
+      s.add_dependency(%q<om>, [">= 1.0.0"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
     end
   else
     s.add_dependency(%q<active-fedora>, [">= 1.1.5"])
+    s.add_dependency(%q<om>, [">= 1.0.0"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
   end
 end

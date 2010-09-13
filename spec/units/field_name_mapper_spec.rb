@@ -13,10 +13,6 @@ end
 
 describe Solrizer::FieldNameMapper do
   
-  before(:all) do
-    Solrizer::FieldNameMapper.load_mappings
-  end
-  
   before(:each) do
     @test_instance = FieldNameMapperTest.new
   end
