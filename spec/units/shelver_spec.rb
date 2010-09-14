@@ -8,17 +8,17 @@ describe Solrizer::Solrizer do
   
   describe "solrize" do
     it "should trigger the indexer for the provided object" do
-      # sample_obj = ActiveFedora::Base.new
-      mock_object = mock("my object")
-      mock_object.expects(:kind_of?).with(ActiveFedora::Base).returns(true)
-      mock_object.stubs(:pid)
-      mock_object.stubs(:label)
-      mock_object.stubs(:datastreams).returns({'descMetadata'=>"foo","location"=>"bar"})
-      ActiveFedora::Base.expects(:load_instance).never
+      sample_obj = ActiveFedora::Base.new
+      @solrizer.indexer.expects(:index).with( sample_obj )
+      @solrizer.solrize( sample_obj )
+    end
+    it "should work with Fedora::FedoraObject objects" do
+      mock_object = Fedora::FedoraObject.new(:pid=>"my:pid", :label=>"my label")
+      ActiveFedora::Base.expects(:load_instance).with( mock_object.pid ).returns(mock_object)
       @solrizer.indexer.expects(:index).with( mock_object )
       @solrizer.solrize( mock_object )
     end
-    it "should still load the object if only a pid is provided" do
+    it "should load the object if only a pid is provided" do
       mock_object = mock("my object")
       mock_object.stubs(:pid)
       mock_object.stubs(:label)
@@ -28,6 +28,7 @@ describe Solrizer::Solrizer do
       @solrizer.indexer.expects(:index).with(mock_object)
       @solrizer.solrize("_PID_")
     end
+
   end
   
   describe "solrize_objects" do
