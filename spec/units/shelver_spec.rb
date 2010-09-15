@@ -30,6 +30,14 @@ describe Solrizer::Solrizer do
     end
 
   end
+
+  describe "solrize_delete" do
+    it "should call deleteDocument for the indexer" do
+      sample_obj = ActiveFedora::Base.new
+      @solrizer.indexer.expects(:deleteDocument).with(sample_obj.pid)
+      @solrizer.solrize_delete(sample_obj.pid)      
+    end
+  end
   
   describe "solrize_objects" do
     it "should call solrize for each object returned by Fedora::Repository.find_objects" do

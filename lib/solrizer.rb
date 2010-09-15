@@ -74,6 +74,30 @@ class Solrizer
       end #begin
   
   end
+
+  ###
+  # This method will delete an object from solr
+  ###
+  def solrize_delete( id )
+    begin
+    
+      print "\t Deleting object #{id} ... "
+      # add the keywords and facets to the search index
+      delete_start = Time.now
+      indexer.deleteDocument( id )
+         
+      delete_done = Time.now
+      delete_elapsed = delete_done - delete_start
+         
+      puts "completed. Duration:  #{delete_elapsed} ."
+        
+      
+    rescue Exception => e
+      p "unable to delete #{id}.  Failed with #{e.inspect}"
+        
+      
+    end #begin
+  end
   
   #
   # This method retrieves a comprehensive list of all the unique identifiers in Fedora and 
