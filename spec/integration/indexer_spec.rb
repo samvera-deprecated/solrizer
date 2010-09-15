@@ -27,7 +27,6 @@ describe Solrizer::Indexer do
       obj = Solrizer::Repository.get_object( @obj.pid )
       @indexer.index( obj )
       #verify it is there
-      puts "\r\n\r\n#{obj.pid}\r\n\r\n"
       id = obj.pid.gsub(/(:)/, '\\:')
       solr_results = @indexer.connection.query( "#{SOLR_DOCUMENT_ID}:#{id}" )
       solr_results.hits.size.should == 1
