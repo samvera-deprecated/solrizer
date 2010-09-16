@@ -61,26 +61,23 @@ module Solrizer::XML::TerminologyBasedSolrizer
       node_value = node.text
     end
     
+    # PPC: start here!
+puts "--------------->     term_pointer = #{term_pointer.inspect}"
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
-    generic_field_name = generate_solr_symbol(generic_field_name_base, term.data_type)
+    generic_field_name = Solrizer::FieldNameMapper.solr_name(generic_field_name_base, term.data_type)
+puts "--------------->     generic_field_name = #{generic_field_name.inspect}"
     
     solr_doc << Solr::Field.new(generic_field_name => node_value)
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      hierarchical_field_name = self.generate_solr_symbol(hierarchical_field_name_base, term.data_type)
+      hierarchical_field_name = Solrizer::FieldNameMapper.solr_name(hierarchical_field_name_base, term.data_type)
       solr_doc << Solr::Field.new(hierarchical_field_name => node_value)
     end
     solr_doc
   end
   
-  # Use Solrizer::FieldNameMapper to generate an appropriate solr field name +field_name+ and +field_type+
-  def self.generate_solr_symbol(field_name, field_type) # :nodoc:
-    Solrizer::FieldNameMapper.solr_name(field_name, field_type)
-  end
-  
   # Instance Methods
-  
   
   def to_solr(solr_doc = Solr::Document.new) # :nodoc:
     Solrizer::XML::TerminologyBasedSolrizer.solrize(self, solr_doc)
@@ -93,12 +90,6 @@ module Solrizer::XML::TerminologyBasedSolrizer
   
   def solrize_node(node, term_pointer, term, solr_doc = Solr::Document.new)
     Solrizer::XML::TerminologyBasedSolrizer.solrize_node(node, self, term_pointer, solr_doc)
-  end
-  
-  protected
-
-  def generate_solr_symbol(field_name, field_type) # :nodoc:
-    Solrizer::XML::TerminologyBasedSolrizer.generate_solr_symbol(field_name, field_type)
   end
   
 end

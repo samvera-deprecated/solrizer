@@ -4,11 +4,12 @@ module Solrizer
   module FieldNameMapper
       
   # Module Methods & Attributes
-  @@mappings = {}
+  @@data_types = {}
+  @@index_types = {}
   
   # Generates solr field names from settings in solr_mappings
   def self.solr_name(field_name, field_type)
-    name = field_name.to_s + self.mappings[field_type.to_s].to_s
+    name = field_name.to_s + self.data_types[field_type.to_s].to_s
     if field_name.kind_of?(Symbol)
       return name.to_sym
     else
@@ -17,18 +18,21 @@ module Solrizer
   end
   
   def self.mappings
-    @@mappings
+    warn 'Warning: Solrizer::FieldNameMapper.mappings is deprecated; use Solrizer::FieldNameMapper.data_types instead'
+    self.data_types
   end
   
-  def self.mappings=(mappings)
-    @@mappings = mappings
+  def self.data_types
+    @@data_types
   end
   
-  # Instance Methods
-  
-  def solr_name(field_name, field_type)
-    ::Solrizer::FieldNameMapper.solr_name(field_name, field_type)
-  end
+  def self.data_types=(mappings)
+    @@data_types = mappings
+  end  
+
+  # def solr_name(field_name, field_type)
+  #   FieldNameMapper.solr_name(field_name, field_type)
+  # end
   
   def self.logger      
     @logger ||= defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new(STDOUT)
@@ -51,12 +55,15 @@ module Solrizer
 
     logger.info("SOLRIZER: loading field name mappings from #{File.expand_path(config_path)}")
 
-    @@mappings = YAML::load(File.open(config_path))
+    config = YAML::load(File.open(config_path))
+    self.data_types = config['data_types'] || {}
+    # self.index_types = config[:index_types] || {}
 
-    mappings["id"] = "id" unless mappings["id"]
+    self.data_types["id"] ||= "id"
   end
   
   # This ensures that some mappings will always be loaded
   self.load_mappings
-end #FieldNameMapper
+  
+  end #FieldNameMapper
 end #Solrizer
