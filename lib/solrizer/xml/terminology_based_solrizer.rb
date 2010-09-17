@@ -61,18 +61,17 @@ module Solrizer::XML::TerminologyBasedSolrizer
       node_value = node.text
     end
     
-    # PPC: start here!
-puts "--------------->     term_pointer = #{term_pointer.inspect}"
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
-    generic_field_name = Solrizer::FieldNameMapper.solr_name(generic_field_name_base, term.data_type)
-puts "--------------->     generic_field_name = #{generic_field_name.inspect}"
-    
-    solr_doc << Solr::Field.new(generic_field_name => node_value)
+
+    Solrizer::FieldNameMapper.solr_names(generic_field_name_base, term.data_type).each do |field_name|
+      solr_doc << Solr::Field.new(field_name => node_value)
+    end
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      hierarchical_field_name = Solrizer::FieldNameMapper.solr_name(hierarchical_field_name_base, term.data_type)
-      solr_doc << Solr::Field.new(hierarchical_field_name => node_value)
+      Solrizer::FieldNameMapper.solr_names(hierarchical_field_name_base, term.data_type).each do |field_name|
+        solr_doc << Solr::Field.new(field_name => node_value)
+      end
     end
     solr_doc
   end
