@@ -63,13 +63,13 @@ module Solrizer::XML::TerminologyBasedSolrizer
     
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
 
-    Solrizer::FieldNameMapper.solr_names(generic_field_name_base, term.data_type).each do |field_name|
+    Solrizer::FieldNameMapper.solr_names(generic_field_name_base, term.data_type, term.index_as).each do |field_name|
       solr_doc << Solr::Field.new(field_name => node_value)
     end
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      Solrizer::FieldNameMapper.solr_names(hierarchical_field_name_base, term.data_type).each do |field_name|
+      Solrizer::FieldNameMapper.solr_names(hierarchical_field_name_base, term.data_type, term.index_as).each do |field_name|
         solr_doc << Solr::Field.new(field_name => node_value)
       end
     end

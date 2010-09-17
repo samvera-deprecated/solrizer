@@ -8,8 +8,9 @@ module Solrizer
     @@index_types = {}
     
     # Generates solr field names from settings in solr_mappings
-    def self.solr_names(field_name, field_type, index_as = [])
+    def self.solr_names(field_name, field_type, index_as = nil)
       suffixes = [mapping_lookup(data_types, field_type, field_name, 'data type')]
+      index_as ||= []
       suffixes += index_as.map do |ix|
         mapping_lookup(index_types, ix, field_name, 'index type')
       end
