@@ -142,25 +142,29 @@ module Solrizer
       end
     end
     
-  end
+    # ------ Default mapper ------
+  
+  public
 
-  class DefaultFieldMapper < FieldMapper
-    id_field 'id'
-    index_as :searchable, :default => true do |t|
-      t.date    :suffix => '_date'
-      t.string  :suffix => '_t'
-      t.text    :suffix => '_t'
-      t.symbol  :suffix => '_s'
-      t.integer :suffix => '_i'
-      t.long    :suffix => '_l'
-      t.boolean :suffix => '_b'
-      t.float   :suffix => '_f'
-      t.double  :suffix => '_d'
+    class Default < FieldMapper
+      id_field 'id'
+      index_as :searchable, :default => true do |t|
+        t.date    :suffix => '_date'
+        t.string  :suffix => '_t'
+        t.text    :suffix => '_t'
+        t.symbol  :suffix => '_s'
+        t.integer :suffix => '_i'
+        t.long    :suffix => '_l'
+        t.boolean :suffix => '_b'
+        t.float   :suffix => '_f'
+        t.double  :suffix => '_d'
+      end
+      index_as :displayable,          :suffix => '_display'
+      index_as :facetable,            :suffix => '_facet'
+      index_as :sortable,             :suffix => '_sort'
+      index_as :unstemmed_searchable, :suffix => '_unstem_search'
     end
-    index_as :displayable,          :suffix => '_display'
-    index_as :facetable,            :suffix => '_facet'
-    index_as :sortable,             :suffix => '_sort'
-    index_as :unstemmed_searchable, :suffix => '_unstem_search'
+    
   end
 
   # class CustomFieldMapper < DefaultFieldMapper

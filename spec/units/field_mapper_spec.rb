@@ -47,8 +47,11 @@ describe Solrizer::FieldMapper do
   
   # --- Tests ----
   
-  describe 'solr_name' do
+  it "should handle the id field" do
+    @mapper.id_field.should == 'ident'
+  end
   
+  describe '.solr_name' do
     it "should map based on index_as" do
       @mapper.solr_name('bar', :string, :edible).should == 'bar_food'
       @mapper.solr_name('bar', :string, :laughable).should == 'bar_haha'
@@ -79,10 +82,9 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name('foo', :fratz,   :fungible).should == 'foo_f2'  # from super
       @mapper.solr_name('foo', :date,    :fungible).should == 'foo_f3'  # super definition picks up override on index type
     end
-    
   end
   
-  describe 'solr_names_and_values' do
+  describe '.solr_names_and_values' do
     it "should map values based on index_as" do
       @mapper.solr_names_and_values('foo', 'bar', :string, [:searchable, :laughable, :edible]).should == {
         'foo_s'    => ['bar'],
@@ -132,14 +134,33 @@ describe Solrizer::FieldMapper do
     end
   end
   
-  it "should parse the id field" do
-    @mapper.id_field.should == 'ident'
-  end
-  
-  describe 'DefaultMapper' do
-    it "should called the id field 'id'"
-    it "should apply mappings for searchable by default"
-    it "should support displayable, facetable, sortable, unstemmed"
+  describe Solrizer::FieldMapper::Default do
+    before(:each) do
+      @mapper = Solrizer::FieldMapper::Default.new
+    end
+
+    after(:all) do
+    end
+    
+    it "should call the id field 'id'" do
+      @mapper.id_field.should == 'id'
+    end
+    
+    it "should apply mappings for searchable by default" do
+      # Just sanity check a couple; copy & pasting all data types is silly
+      @mapper.solr_names_and_values('foo', 'bar', :string, []).should == { 'foo_t' => ['bar'] }
+      @mapper.solr_names_and_values('foo', 'bar', :date, []).should == { 'foo_date' => ['bar'] }
+    end
+    
+    it "should support displayable, facetable, sortable, unstemmed" do
+      @mapper.solr_names_and_values('foo', 'bar', :string, [:displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
+        'foo_t' => ['bar'],
+        'foo_display' => ['bar'],
+        'foo_facet' => ['bar'],
+        'foo_sort' => ['bar'],
+        'foo_unstem_search' => ['bar'],
+      }
+    end
   end
   
   def silence
