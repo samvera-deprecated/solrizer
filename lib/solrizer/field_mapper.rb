@@ -1,11 +1,14 @@
 module Solrizer
   class FieldMapper
     
-    # Class methods
+    # ------ Class methods ------
     
     @@instance_init_actions = Hash.new { |h,k| h[k] = [] }
     
     def self.id_field(field_name)
+      add_instance_init_action do
+        @id_field = field_name
+      end
     end
     
     def self.index_as(index_type, opts = {}, &block)
@@ -14,27 +17,6 @@ module Solrizer
         mapping.opts.merge! opts
         yield DataTypeMappingBuilder.new(mapping) if block_given?
       end
-    end
-  
-    # Instance methods
-    
-    def initialize
-      @mappings = {}
-      self.class.apply_instance_init_actions(self)
-    end
-
-    def solr_name(field_name, field_type, index_type = :searchable)
-      mapping = @mappings[index_type]
-      return nil unless mapping
-      
-      data_type_mapping = mapping.data_types[field_type] || mapping.data_types[:default]
-      suffix = data_type_mapping.opts[:suffix] if data_type_mapping
-      suffix ||= mapping.opts[:suffix]
-      
-      return field_name + suffix
-    end
-
-    def solr_names_and_values(field_name, field_value, field_type, index_types)
     end
   
   private
@@ -52,6 +34,83 @@ module Solrizer
       @@instance_init_actions[self].each do |action|
         action.call(instance)
       end
+    end
+  
+  public
+    
+    # ------ Instance methods ------
+    
+    attr_reader :id_field, :default_index_types
+    
+    def initialize
+      @mappings = {}
+      self.class.apply_instance_init_actions(self)
+      @default_index_types = @mappings.select { |ix_type, mapping| mapping.opts[:default] }.map(&:first)
+    end
+
+    def solr_name(field_name, field_type, index_type = :searchable)
+      name, mapping, data_type_mapping = solr_name_and_mappings(field_name, field_type, index_type)
+      name
+    end
+
+    def solr_names_and_values(field_name, field_value, field_type, index_types)
+      # Determine the set of index types, adding defaults and removing not_xyz
+      
+      index_types += default_index_types
+      index_types.uniq!
+      index_types.dup.each do |index_type|
+        if index_type.to_s =~ /^not_(.*)/
+          index_types.delete index_type # not_foo
+          index_types.delete $1.to_sym  # foo
+        end
+      end
+      
+      # Map names and values
+      
+      results = {}
+      
+      index_types.each do |index_type|
+        name, mapping, data_type_mapping = solr_name_and_mappings(field_name, field_type, index_type)
+        next unless name
+        
+        value = if data_type_mapping && data_type_mapping.converter
+          converter = data_type_mapping.converter
+          if converter.arity == 1
+            converter.call(field_value)
+          else
+            converter.call(field_value, field_name)
+          end
+        else
+          field_value
+        end
+        
+        values = (results[name] ||= [])
+        values << value unless values.contains?(value)
+      end
+      
+      results
+    end
+  
+    def logger
+      @logger ||= defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new(STDOUT)
+    end
+    
+  private
+  
+    def solr_name_and_mappings(field_name, field_type, index_type)
+      mapping = @mappings[index_type]
+      unless mapping
+        logger.debug "Unknown index type '#{index_type}' for field #{field_name}"
+        return nil
+      end
+      
+      data_type_mapping = mapping.data_types[field_type] || mapping.data_types[:default]
+      
+      suffix = data_type_mapping.opts[:suffix] if data_type_mapping
+      suffix ||= mapping.opts[:suffix]
+      name = field_name + suffix
+      
+      [name, mapping, data_type_mapping]
     end
 
     class IndexTypeMapping
@@ -107,33 +166,15 @@ module Solrizer
   # class CustomFieldMapper < DefaultFieldMapper
   #   index_as :mungeable, :suffix => '_munge'
   #   index_as :edible, :suffix => '_tasty' do |t|
-  #     t.string, :suffix => '_tasty_string'
-  #     t.symbol, :suffix => '_tasty_string'
-  #     t.integer do |value|
+  #     t.integer :suffix => '_tastyint'
+  #     t.default do |value|
   #       'food' + value
   #     end
   #   end
-  # end
-  # 
-  # class CustomFieldMapper < DefaultFieldMapper
   #   index_as :sortable do |t|
-  #     t.default do |value|
+  #     t.date do |value|
   #       # Sort by converting time to seconds since 1970 UTC
   #       Time.parse(value).utc.to_f
-  #     end
-  #   end
-  # end
-
-
-  # class CustomFieldMapper < DefaultFieldMapper
-  #   index_as :edible, :suffix => '_x' do |t|
-  #     t.default do |value|
-  #       'food' + value
-  #     end
-  #   end
-  #   index_as :flammable, :suffix => '_x' do |t|
-  #     t.default do |value|
-  #       'flame' + value
   #     end
   #   end
   # end
