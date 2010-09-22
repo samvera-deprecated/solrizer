@@ -34,8 +34,9 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       # mock_terms = {:name1=>:term1, :name2=>:term2}
       # ActiveFedora::NokogiriDatastream.stubs(:accessors).returns(mock_accessors)
       solr_doc = Solr::Document.new
+      @mods_article.field_mapper = Solrizer::FieldMapper::Default.new
       OM::Samples::ModsArticle.terminology.terms.each_pair do |k,v|
-        @mods_article.expects(:solrize_term).with(v, solr_doc)
+        @mods_article.expects(:solrize_term).with(v, solr_doc, @mods_article.field_mapper)
       end
       @mods_article.to_solr(solr_doc)
     end

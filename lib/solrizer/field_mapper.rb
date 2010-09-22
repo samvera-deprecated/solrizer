@@ -56,6 +56,7 @@ module Solrizer
     def solr_names_and_values(field_name, field_value, field_type, index_types)
       # Determine the set of index types, adding defaults and removing not_xyz
       
+      index_types ||= []
       index_types += default_index_types
       index_types.uniq!
       index_types.dup.each do |index_type|

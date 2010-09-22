@@ -1,15 +1,19 @@
 # This module is only suitable to mix into Classes that use the OM::XML::Document Module
 module Solrizer::XML::TerminologyBasedSolrizer
   
+  def self.default_field_mapper
+    @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+  end
+  
   # Module Methods
   
   # Build a solr document from +doc+ based on its terminology
   # @doc  OM::XML::Document
   # @solr_doc (optional) Solr::Document to populate
-  def self.solrize(doc, solr_doc=Solr::Document.new)
+  def self.solrize(doc, solr_doc=Solr::Document.new, field_mapper = nil)
     unless doc.class.terminology.nil?
       doc.class.terminology.terms.each_pair do |term_name,term|
-        doc.solrize_term(term, solr_doc)     
+        doc.solrize_term(term, solr_doc, field_mapper)
         # self.solrize_by_term(accessor_name, accessor_info, :solr_doc=>solr_doc)
       end
     end
@@ -21,7 +25,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
   # term identified by +term_pointer+ within +terminology+
   # @doc OM::XML::Document or Nokogiri::XML::Node
   # @term_pointer Array pointing to the desired term in +terminology+  
-  def self.solrize_term(doc, term, solr_doc = Solr::Document.new, opts={})
+  def self.solrize_term(doc, term, solr_doc = Solr::Document.new, field_mapper = nil, opts={})
     terminology = doc.class.terminology
     parents = opts.fetch(:parents, [])
 
@@ -37,9 +41,9 @@ module Solrizer::XML::TerminologyBasedSolrizer
     nodeset.each do |node|
       # create solr fields
       
-      self.solrize_node(node, doc, term_pointer, term, solr_doc)
+      self.solrize_node(node, doc, term_pointer, term, solr_doc, field_mapper)
       term.children.each_pair do |child_term_name, child_term|
-        doc.solrize_term(child_term, solr_doc, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
+        doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
         # self.solrize_term(doc, child_term_name, child_term, opts={:solr_doc=>solr_doc, :parents=>parents+[{accessor_name=>nodeset.index(node)}] })
       end
     end
@@ -51,7 +55,8 @@ module Solrizer::XML::TerminologyBasedSolrizer
   # @doc OM::XML::Document or Nokogiri::XML::Node
   # @term_pointer Array pointing to the desired term in +terminology+
   # @solr_doc (optional) Solr::Document to populate
-  def self.solrize_node(node, doc, term_pointer, term, solr_doc = Solr::Document.new)
+  def self.solrize_node(node, doc, term_pointer, term, solr_doc = Solr::Document.new, field_mapper = nil, opts = {})
+    field_mapper ||= self.default_field_mapper
     terminology = doc.class.terminology
     # term = terminology.retrieve_term(*term_pointer)
     
@@ -62,15 +67,15 @@ module Solrizer::XML::TerminologyBasedSolrizer
     end
     
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
-
-    Solrizer::FieldNameMapper.solr_names(generic_field_name_base, term.data_type, term.index_as).each do |field_name|
-      solr_doc << Solr::Field.new(field_name => node_value)
+    
+    field_mapper.solr_names_and_values(generic_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
+      solr_doc << Solr::Field.new(field_name => field_value)
     end
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      Solrizer::FieldNameMapper.solr_names(hierarchical_field_name_base, term.data_type, term.index_as).each do |field_name|
-        solr_doc << Solr::Field.new(field_name => node_value)
+      field_mapper.solr_names_and_values(hierarchical_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
+        solr_doc << Solr::Field.new(field_name => field_value)
       end
     end
     solr_doc
@@ -78,17 +83,18 @@ module Solrizer::XML::TerminologyBasedSolrizer
   
   # Instance Methods
   
-  def to_solr(solr_doc = Solr::Document.new) # :nodoc:
-    Solrizer::XML::TerminologyBasedSolrizer.solrize(self, solr_doc)
+  attr_accessor :field_mapper
+  
+  def to_solr(solr_doc = Solr::Document.new, field_mapper = self.field_mapper) # :nodoc:
+    Solrizer::XML::TerminologyBasedSolrizer.solrize(self, solr_doc, field_mapper)
   end
   
-  
-  def solrize_term(term, solr_doc = Solr::Document.new, opts={})
-    Solrizer::XML::TerminologyBasedSolrizer.solrize_term(self, term, solr_doc, opts)    
+  def solrize_term(term, solr_doc = Solr::Document.new, field_mapper = self.field_mapper, opts={})
+    Solrizer::XML::TerminologyBasedSolrizer.solrize_term(self, term, solr_doc, field_mapper, opts)    
   end
   
-  def solrize_node(node, term_pointer, term, solr_doc = Solr::Document.new)
-    Solrizer::XML::TerminologyBasedSolrizer.solrize_node(node, self, term_pointer, solr_doc)
+  def solrize_node(node, term_pointer, term, solr_doc = Solr::Document.new, field_mapper = self.field_mapper, opts={})
+    Solrizer::XML::TerminologyBasedSolrizer.solrize_node(node, self, term_pointer, solr_doc, field_mapper, opts)
   end
   
 end
