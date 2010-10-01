@@ -61,7 +61,7 @@ module Solrizer
   #
   #   class CustomMapper < Solrizer::FieldMapper
   #     index_as :searchable, :suffix => '_search' do |type|
-  #       type.date :suffix => '_date' do |value|
+  #       type.date do |value|
   #         Time.parse(value).utc.to_i
   #       end
   #     end
@@ -96,6 +96,7 @@ module Solrizer
   # 1. type.foo
   # 2. type.default
   # 3. index_as
+  # The suffix is optional in all three places.
   #
   # Note that a single Term with multiple index types can translate into multiple Solr fields, because we may want Solr to
   # index a single field in multiple ways. However, if two different mappings generate both the same solr field name
