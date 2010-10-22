@@ -1,3 +1,8 @@
+h2. 0.3.0
+
+TerminologyBasedSolrizer
+Configurable FieldMapper
+
 h2. 0.1.2
 
 Minor: switched active-fedora gem requirement to >= 1.1.5 instead of = 1.1.5 (was breaking apps that use later versions of active-fedora)
