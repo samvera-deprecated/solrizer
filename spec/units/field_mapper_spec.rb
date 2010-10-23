@@ -82,6 +82,10 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name('foo', :fratz,   :fungible).should == 'foo_f2'  # from super
       @mapper.solr_name('foo', :date,    :fungible).should == 'foo_f3'  # super definition picks up override on index type
     end
+    
+    it "should support field names as symbols" do
+      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
+    end
   end
   
   describe '.solr_names_and_values' do

@@ -229,6 +229,7 @@ module Solrizer
   private
   
     def solr_name_and_mappings(field_name, field_type, index_type)
+      field_name = field_name.to_s
       mapping = @mappings[index_type]
       unless mapping
         logger.debug "Unknown index type '#{index_type}' for field #{field_name}"
