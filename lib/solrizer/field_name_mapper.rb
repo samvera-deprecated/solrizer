@@ -1,3 +1,4 @@
+# Re-Introduced for backwards compatibility
 module Solrizer::FieldNameMapper
   
   # Module Methods
@@ -6,17 +7,21 @@ module Solrizer::FieldNameMapper
     return {:id=>"id"}
   end
   
+  def self.default_field_mapper
+    @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+  end
+  
+  def self.default_field_mapper=(field_mapper)
+    @@default_field_mapper = field_mapper
+  end
+  
+  def self.solr_name(field_name, field_type, index_type = :searchable)
+    self.default_field_mapper.solr_name(field_name, field_type, index_type)
+  end
+  
   # Class Methods -- These methods will be available on classes that include this Module 
   
   module ClassMethods
-    
-    def default_field_mapper
-      @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
-    end
-    
-    def default_field_mapper=(field_mapper)
-      @@default_field_mapper = field_mapper
-    end
     
   end
   
@@ -30,7 +35,7 @@ module Solrizer::FieldNameMapper
   
   
   def solr_name(field_name, field_type, index_type = :searchable)   
-    self.class.default_field_mapper.solr_name(field_name, field_type, index_type)
+    Solrizer::FieldNameMapper.solr_name(field_name, field_type, index_type)
   end
   
 end
