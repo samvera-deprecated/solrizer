@@ -281,7 +281,7 @@ module Solrizer
     class Default < FieldMapper
       id_field 'id'
       index_as :searchable, :default => true do |t|
-        t.date    :suffix => '_date'
+        t.date    :suffix => '_dt'
         t.string  :suffix => '_t'
         t.text    :suffix => '_t'
         t.symbol  :suffix => '_s'
