@@ -4,7 +4,7 @@ module Solrizer::FieldNameMapper
   # Module Methods
   
   def self.mappings
-    return {:id=>"id"}
+    return {"id"=>"id"}
   end
   
   def self.default_field_mapper
