@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Solrizer::Solrizer do
+describe Solrizer::Fedora::Solrizer do
   
   before(:each) do
-    @solrizer = Solrizer::Solrizer.new
+    @solrizer = Solrizer::Fedora::Solrizer.new
   end
   
   describe "solrize" do

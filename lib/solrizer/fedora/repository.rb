@@ -1,17 +1,7 @@
-
 require 'active-fedora'
 
-
-module Solrizer
+module Solrizer::Fedora
 class Repository
-
-  #
-  # This method initializes the fedora repository and solr instance
-  #
-  def initialize_repository
-    Fedora::Repository.register( FEDORA_URL )
-    ActiveFedora::SolrService.register( FEDORA_SOLR_URL )
-  end
 
   #
   # This method retrieves a comprehensive list of unique ids in the fedora repository

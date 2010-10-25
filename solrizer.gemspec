@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{solrizer}
-  s.version = "0.2.0"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Zumwalt"]
-  s.date = %q{2010-09-15}
+  s.date = %q{2010-10-23}
   s.description = %q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
   s.email = %q{matt.zumwalt@yourmediashelf.com}
   s.extra_rdoc_files = [
@@ -26,11 +26,11 @@ Gem::Specification.new do |s|
      "config/fedora.yml",
      "config/hydra_types.yml",
      "config/solr.yml",
-     "config/solr_mappings.yml",
      "lib/solrizer.rb",
      "lib/solrizer/configuration.rb",
      "lib/solrizer/extractor.rb",
      "lib/solrizer/field_mapper.rb",
+     "lib/solrizer/field_name_mapper.rb",
      "lib/solrizer/indexer.rb",
      "lib/solrizer/main.rb",
      "lib/solrizer/replicator.rb",
@@ -52,6 +52,7 @@ Gem::Specification.new do |s|
      "spec/spec_helper.rb",
      "spec/units/extractor_spec.rb",
      "spec/units/field_mapper_spec.rb",
+     "spec/units/field_name_mapper_spec.rb",
      "spec/units/indexer_spec.rb",
      "spec/units/shelver_spec.rb",
      "spec/units/xml_terminology_based_solrizer_spec.rb"
@@ -66,6 +67,7 @@ Gem::Specification.new do |s|
      "spec/spec_helper.rb",
      "spec/units/extractor_spec.rb",
      "spec/units/field_mapper_spec.rb",
+     "spec/units/field_name_mapper_spec.rb",
      "spec/units/indexer_spec.rb",
      "spec/units/shelver_spec.rb",
      "spec/units/xml_terminology_based_solrizer_spec.rb"
