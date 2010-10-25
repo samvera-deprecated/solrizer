@@ -2,8 +2,7 @@ require 'solr'
 require 'solrizer/extractor'
 require 'solrizer/repository'
 
-
-module Solrizer
+module Solrizer::Fedora
 class Indexer  
   #
   # Class variables
@@ -24,7 +23,7 @@ class Indexer
   #
   def initialize( opts={} )
     @@index_list = false unless defined?(@@index_list)
-    @extractor = Extractor.new
+    @extractor = ::Solrizer::Extractor.new
     
     if opts[:index_full_text] == true || opts[:index_full_text] == "true"
       @index_full_text = true 
@@ -54,7 +53,7 @@ class Indexer
         solr_config = yaml[RAILS_ENV]
         puts solr_config.inspect
       else
-        config_path = File.join(File.dirname(__FILE__), "..", "..", "config")
+        config_path = File.join(File.dirname(__FILE__), "..", "..", "..", "config")
         yaml = YAML.load(File.open(File.join(config_path, "solr.yml")))
         
         
@@ -198,53 +197,6 @@ class Indexer
   #
   def query( query_str )
     response = conn.query( query_str )
-  end
-
-  #
-  # This method prints out the results of the given query string by iterating through all the hits
-  #
-  def printResults( query_str )
-    query( query_str ) do |hit|
-      puts hit.inspect
-    end
-  end
-
-  #
-  # This method deletes a document from the Solr search index by id
-  #
-  def deleteDocument( id )
-    connection.delete( id )
-  end
-  
-  # Populates a solr doc with values from a hash.  
-  # Accepts two forms of hashes:
-  # => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}
-  # or
-  # => {:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]} }
-  #
-  # Note that values for individual fields can be a single string or an array of strings.
-  def self.solrize( input_hash, solr_doc=Solr::Document.new )    
-    facets = input_hash.has_key?(:facets) ? input_hash[:facets] : input_hash
-    facets.each_pair do |facet_name, value|
-      case value.class.to_s
-      when "String"
-        solr_doc << Solr::Field.new( :"#{facet_name}_facet" => "#{value}" )
-      when "Array"
-        value.each { |v| solr_doc << Solr::Field.new( :"#{facet_name}_facet" => "#{v}" ) } 
-      end
-    end
-    
-    if input_hash.has_key?(:symbols) 
-      input_hash[:symbols].each do |symbol_name, value|
-        case value.class.to_s
-        when "String"
-          solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{value}" )
-	      when "Array"
-          value.each { |v| solr_doc << Solr::Field.new( :"#{symbol_name}_s" => "#{v}" ) } 
-        end
-      end
-    end
-    return solr_doc
   end
   
 

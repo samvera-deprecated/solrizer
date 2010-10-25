@@ -1,4 +1,6 @@
+require "solrizer"
 module Solrizer::XML
 end
+Dir[File.join(File.dirname(__FILE__),"xml","*.rb")].each {|file| require file }
 
-require "solrizer/xml/terminology_based_solrizer"
+Solrizer::Extractor.send(:include, Solrizer::XML::Extractor)

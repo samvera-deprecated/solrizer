@@ -3,48 +3,57 @@ require 'solrizer'
 
 describe Solrizer::Extractor do
   
-  before(:each) do
+  before(:all) do
     @extractor = Solrizer::Extractor.new
   end
   
-  describe ".xml_to_solr" do
-    it "should turn simple xml into a solr document" do
-      desc_meta = fixture("druid-bv448hq0314-descMetadata.xml")
-      result = @extractor.xml_to_solr(desc_meta)
-      result[:type_t].should == "text"
-      result[:medium_t].should == "Paper Document"
-      result[:rights_t].should == "Presumed under copyright. Do not publish."
-      result[:date_t].should == "1985-12-30"
-      result[:format_t].should == "application/tiff"
-      result[:title_t].should == "This is a Sample Title"
-      result[:publisher_t].should == "Sample Unversity"
-
-      # ... and a hacky way of making sure that it added a field for each of the dc:medium values
-      result.inspect.include?('@value="application/tiff"').should be_true
-      result.inspect.include?('@value="application/pdf"').should be_true
-    end
-  end
-  
-  describe "extract_rels_ext" do 
-    it "should extract the content model of the RELS-EXT datastream of a Fedora object and set hydra_type using hydra_types mapping" do
-      rels_ext = fixture("rels_ext_cmodel.xml")
-      result = @extractor.extract_rels_ext( rels_ext )
-      result[:cmodel_t].should == "info:fedora/fedora-system:ContentModel-3.0"
-      result[:hydra_type_t].should == "salt_document"
+  describe "extract_hash" do
+    it "should convert a hash to a solr doc" do
+      example_hash = {"box"=>"Box 51A", "city"=>["Ann Arbor", "Hyderabad", "Palo Alto"], "person"=>["ELLIE ENGELMORE", "Reddy", "EDWARD FEIGENBAUM"], "title"=>"Letter from Ellie Engelmore to Professor K. C. Reddy", "series"=>"eaf7000", "folder"=>"Folder 15", "technology"=>["artificial intelligence"], "year"=>"1985", "organization"=>["Heuristic Programming Project", "Mathematics and Computer/Information Sciences University of Hyderabad Central University P. O. Hyder", "Professor K. C. Reddy School of Mathematics and Computer/Information Sciences"], "collection"=>"e-a-feigenbaum-collection", "state"=>["Michigan", "California"]}
       
-      # ... and a hacky way of making sure that it added a field for each of the dc:medium values
-      result.inspect.include?('@value="info:fedora/afmodel:SaltDocument"').should be_true
-      result.inspect.include?('@value="jp2_document"').should be_true
+      example_result = @extractor.extract_hash( example_hash )
+      example_result.should be_kind_of Solr::Document
+      example_hash.each_pair do |key,values|
+        if values.class == String
+          example_result["#{key}_facet"].should == values
+        else
+          values.each do |v|
+            example_result.inspect.include?("@name=\"#{key}_facet\"").should be_true
+            example_result.inspect.include?("@value=\"#{v}\"").should be_true
+          end
+        end        
+      end
+    end
+    
+    it "should handle hashes with facets listed in a sub-hash" do
+      simple_hash = Hash[:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}]
+      result = @extractor.extract_hash( simple_hash )
+      result.should be_kind_of Solr::Document
+      result["technology_facet"].should == "t1"
+      result.inspect.include?('@boost=nil').should be_true
+      result.inspect.include?('@name="technology_facet"').should be_true
+      result.inspect.include?('@value="t2"').should be_true
+      result["company_facet"].should == "c1"
+      result["person_facet"].should == "p1"
+      result.inspect.include?('@name="person_facet"').should be_true
+      result.inspect.include?('@value="p2"').should be_true
+      
+    end
+    
+    it "should create symbols from the :symbols subhash" do
+      simple_hash = Hash[:facets => {'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}, :symbols=>{'technology'=>["t1", "t2"], 'company'=>"c1", "person"=>["p1", "p2"]}]
+      result = @extractor.extract_hash( simple_hash )
+      result.should be_kind_of Solr::Document
+      result["technology_s"].should == "t1"
+      result.inspect.include?('@name="technology_s"').should be_true
+      result.inspect.include?('@value="t2"').should be_true
+    
+      result["company_s"].should == "c1"
+      result["person_s"].should == "p1"
+      result.inspect.include?('@name="person_s"').should be_true
+      result.inspect.include?('@value="p2"').should be_true
+  
     end
   end
-  
-  describe "extract_hydra_types" do 
-    it "should extract the hydra_type of a Fedora object" do
-      rels_ext = fixture("rels_ext_cmodel.xml")
-      result = @extractor.extract_rels_ext( rels_ext )
-      result[:hydra_type_t].should == "salt_document"
-    end
-  end
-  
   
 end
