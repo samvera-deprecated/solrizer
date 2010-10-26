@@ -7,6 +7,12 @@ module Solrizer::FieldNameMapper
     return {"id"=>"id"}
   end
   
+  # @deprecated 
+  # Previously loaded solr field name mappings from a yaml file.  Doesn't do anything any more.
+  def self.load_mappings( arg="arg1")
+    puts "Solrizer::FieldNameMapper.load_mappings doesn't do anything any more.  Stop calling it."
+  end
+  
   def self.default_field_mapper
     @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
   end
