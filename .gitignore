@@ -17,3 +17,5 @@ rerun.txt
 .loadpath
 .project
 .buildpath
+
+/.bundle
