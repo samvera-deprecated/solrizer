@@ -5,6 +5,7 @@ require 'spec'
 require 'spec/autorun'
 
 require 'solrizer'
+require "ruby-debug"
 
 Spec::Runner.configure do |config|
   
