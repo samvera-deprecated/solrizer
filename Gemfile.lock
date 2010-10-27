@@ -3,7 +3,15 @@ GEM
   specs:
     columnize (0.3.1)
     facets (2.9.0)
+    gemcutter (0.6.1)
+    git (1.2.5)
+    jeweler (1.4.0)
+      gemcutter (>= 0.1.0)
+      git (>= 1.2.5)
+      rubyforge (>= 2.0.0)
+    json_pure (1.4.6)
     linecache (0.43)
+    mediashelf-loggable (0.4.0)
     mocha (0.9.9)
       rake
     nokogiri (1.4.3.1)
@@ -17,12 +25,16 @@ GEM
       ruby-debug-base (~> 0.10.3.0)
     ruby-debug-base (0.10.3)
       linecache (>= 0.3)
+    rubyforge (2.0.4)
+      json_pure (>= 1.1.7)
     solr-ruby (0.0.8)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  jeweler
+  mediashelf-loggable
   mocha
   nokogiri
   om (>= 1.0.0)

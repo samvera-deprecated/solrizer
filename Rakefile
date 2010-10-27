@@ -10,6 +10,16 @@ begin
     gem.email = "matt.zumwalt@yourmediashelf.com"
     gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]
+    gem.add_dependency "solr-ruby"
+    gem.add_dependency "nokogiri"
+    gem.add_dependency "om"
+    gem.add_dependency "nokogiri"
+    gem.add_dependency "mediashelf-loggable"
+    gem.add_development_dependency "jeweler"
+    gem.add_development_dependency 'ruby-debug'
+    gem.add_development_dependency 'ruby-debug-base'
+    gem.add_development_dependency 'rspec', '<2.0.0'
+    gem.add_development_dependency 'mocha'
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
