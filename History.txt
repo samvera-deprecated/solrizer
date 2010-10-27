@@ -1,7 +1,10 @@
 h2. 0.3.0
 
-TerminologyBasedSolrizer
-Configurable FieldMapper
+HYDRA-286 Re-structure Solrizer to separate solrizer base from fedora-solrizer 
+
+Added TerminologyBasedSolrizer
+Added Extremely Configurable FieldMapper
+Updated FieldNameMapper to use new FieldMapper
 
 h2. 0.1.2
 
