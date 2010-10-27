@@ -1,3 +1,4 @@
+require "loggable"
 module Solrizer
   
   # Maps Term names and values to Solr fields, based on the Term's data type and any index_as options.
@@ -123,6 +124,8 @@ module Solrizer
   
   class FieldMapper
     
+    include Loggable
+    
     # ------ Class methods ------
     
     @@instance_init_actions = Hash.new { |h,k| h[k] = [] }
@@ -139,6 +142,49 @@ module Solrizer
         mapping.opts.merge! opts
         yield DataTypeMappingBuilder.new(mapping) if block_given?
       end
+    end
+    
+    # Loads solr mappings from yml file.
+    # Assumes that string values are solr field name suffixes.  
+    # This is meant as a simple entry point for working with solr mappings.  For more powerful control over solr mappings, create your own subclasses of FieldMapper instead of using a yml file.
+    # @param [String] config_path This is the path to the directory where your mappings file is stored. Defaults to "RAILS_ROOT/config/solr_mappings.yml"
+    def self.load_mappings( config_path=nil )
+
+      if config_path.nil? 
+        if defined?(RAILS_ROOT)
+          config_path = File.join(RAILS_ROOT, "config", "solr_mappings.yml")
+        end
+        # Default to using the config file within the gem 
+        if !File.exist?(config_path.to_s)
+          config_path = File.join(File.dirname(__FILE__), "..", "..", "config", "solr_mappings.yml")          
+        end
+      end
+
+      logger.info("SOLRIZER: loading field name mappings from #{File.expand_path(config_path)}")
+      mappings_from_file = YAML::load(File.open(config_path))
+      
+      self.clear_mappings
+      
+      # Set id_field from file if it is available
+      id_field_from_file = mappings_from_file.delete("id")
+      if id_field_from_file.nil?
+        id_field "id"
+      else
+        id_field id_field_from_file
+      end
+      
+      default_index_type = mappings_from_file.delete("default")
+      mappings_from_file.each_pair do |index_type, type_settings| 
+        if type_settings.kind_of?(Hash)
+          index_as index_type.to_sym, :default => index_type == default_index_type do |t|
+            type_settings.each_pair do |field_type, suffix|
+              eval("t.#{field_type} :suffix=>\"#{suffix}\"")
+            end
+          end
+        else
+          index_as index_type.to_sym, :default => index_type == default_index_type, :suffix=>type_settings 
+        end
+      end      
     end
   
   private
@@ -157,12 +203,18 @@ module Solrizer
         action.call(instance)
       end
     end
+    
+    # Reset all of the mappings
+    def self.clear_mappings
+      logger.debug "resetting mappings for #{self.to_s}"
+      @@instance_init_actions[self] = []
+    end
   
   public
     
     # ------ Instance methods ------
     
-    attr_reader :id_field, :default_index_types
+    attr_reader :id_field, :default_index_types, :mappings
     
     def initialize
       @mappings = {}
@@ -221,10 +273,6 @@ module Solrizer
       
       results
     end
-  
-    def logger
-      @logger ||= defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new(STDOUT)
-    end
     
   private
   
@@ -281,6 +329,7 @@ module Solrizer
     class Default < FieldMapper
       id_field 'id'
       index_as :searchable, :default => true do |t|
+        t.default :suffix => '_t'
         t.date    :suffix => '_dt'
         t.string  :suffix => '_t'
         t.text    :suffix => '_t'
