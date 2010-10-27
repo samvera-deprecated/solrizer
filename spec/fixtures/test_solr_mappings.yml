@@ -1,0 +1,16 @@
+id: pid
+default: edible
+edible:
+  date: _edible_date
+  string: _edible_string
+  text: _edible_text
+  symbol: _edible_sym
+  integer: _edible_int
+  long: _edible_long
+  boolean: _edible_bool
+  float: _edible_float
+  double: _edible_double
+displayable: _display
+facetable: _facet
+sortable: _sort
+unstemmed_searchable: _unstem_search
