@@ -69,16 +69,26 @@ module Solrizer::XML::TerminologyBasedSolrizer
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
     
     field_mapper.solr_names_and_values(generic_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
-      solr_doc << Solr::Field.new(field_name => field_value)
+      unless field_value.join("").strip.blank?
+        solr_doc << Solr::Field.new(field_name => self.format_node_value(field_value)) 
+      end
     end
     
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
       field_mapper.solr_names_and_values(hierarchical_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
-        solr_doc << Solr::Field.new(field_name => field_value)
+        unless field_value.join("").strip.blank?
+          solr_doc << Solr::Field.new(field_name => self.format_node_value(field_value))
+        end
       end
     end
     solr_doc
+  end
+
+  # Strips the majority of whitespace from the values array and then joins them with a single blank delimitter
+  # @values Array of strings representing the values returned 
+  def self.format_node_value values
+    values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
   end
   
   # Instance Methods
