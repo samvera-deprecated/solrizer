@@ -5,17 +5,6 @@ require "xmlsimple"
 require 'yaml'
 
 module Solrizer::XML::Extractor
-  
-  def extract_tags(text)
-    doc = REXML::Document.new( text )
-    extract_tag(doc, 'archivist_tags').merge(extract_tag(doc, 'donor_tags'))
-  end
-  
-  def extract_tag(doc, type)
-    tags = doc.elements["/fields/#{type}"]
-    return {} unless tags
-    {type => tags.text.split(/,/).map {|t| t.strip}}
-  end
 
   #
   # This method extracts solr fields from simple xml
