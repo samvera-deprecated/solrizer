@@ -1,3 +1,14 @@
+h2. 1.0.0
+
+Deprecated
+
+* extract_tag
+* extract_tags
+* extract_hash
+
+All solrize and extract methods now accept and return a _Hash_ rather than a Solr::Document
+Removed dependency on outdated "solr" gem, replaced it with RSolr
+
 h2. 0.3.1
 
 fix in require statements
