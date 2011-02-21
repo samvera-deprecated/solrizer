@@ -8,7 +8,9 @@ module Solrizer::HTML::Extractor
   #
   # This method strips html tags out and returns content to be indexed in solr
   #
-  def html_to_solr( ds, solr_doc=Solr::Document.new )
+  # @param [Datastream] ds object that responds to .content with HTML content
+  # @param [Hash] solr_doc hash of values to be inserted into solr as a solr document
+  def html_to_solr( ds, solr_doc=Hash.new )
     
     text = CGI.unescapeHTML(ds.content)
     doc = Nokogiri::HTML(text)
@@ -17,7 +19,7 @@ module Solrizer::HTML::Extractor
     stories = doc.xpath('//story')
         
     stories.each do |story|
-      solr_doc << Solr::Field.new(:story_display => story.children.to_xml)
+      solr_doc.merge!({:story_display => story.children.to_xml})
     end
     
     #strip out text and put in story_t
@@ -28,7 +30,7 @@ module Solrizer::HTML::Extractor
        text << text_node.content
      end
     
-     solr_doc << Solr::Field.new(:story_t => text)
+     solr_doc.merge!({:story_t => text})
      
      return solr_doc
   end
