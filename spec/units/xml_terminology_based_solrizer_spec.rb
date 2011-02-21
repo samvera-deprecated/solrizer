@@ -92,7 +92,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   end
 
   describe ".solrize_node" do
-    it "should optionally allow you to provide the Solr::Document to add fields to and return that document when done" do
+    it "should optionally allow you to provide the Hash to add fields to and return that document when done" do
       doc = Hash.new
       # @mods_article.solrize_node(node, term_pointer, term, solr_doc).should equal(doc)
     end
