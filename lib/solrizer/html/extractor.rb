@@ -1,5 +1,3 @@
-require 'solr'
-require 'rexml/document'
 require "nokogiri"
 require 'yaml'
 
