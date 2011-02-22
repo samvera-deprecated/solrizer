@@ -10,17 +10,6 @@ module Solrizer
 # with methods specific to that implementation (ie. extract_tag, extract_rels_ext, xml_to_solr, html_to_solr)
 #
 class Extractor
-
-  # Deprecated.
-  # merges input_hash into solr_hash
-  # @param [Hash] input_hash the input hash of values
-  # @param [Hash] solr_hash the solr values hash to add the values into
-  # @return [Hash] the populated Solr values hash
-  # 
-  def extract_hash( input_hash, solr_hash=Hash.new )   
-    warn "[DEPRECATION] `extract_hash` is deprecated.  Just pass values directly into your solr values hash" 
-    return solr_hash.merge!(input_hash)
-  end
   
   # Insert +field_value+ for +field_name+ into +solr_doc+
   # Ensures that field values are always appended to arrays within the values hash. 
@@ -42,6 +31,29 @@ class Extractor
   # @param [Array] values Array of strings representing the values returned 
   def self.format_node_value values
     values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
+  end
+  
+  # Instance Methods
+  
+  # Alias for Solrizer::Extractor#insert_solr_field_value
+  def insert_solr_field_value(solr_doc, field_name, field_value)
+    Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
+  end
+  
+  # Alias for Solrizer::Extractor#format_node_value
+  def format_node_value values
+    Solrizer::Extractor.format_node_value(values)
+  end
+  
+  # Deprecated.
+  # merges input_hash into solr_hash
+  # @param [Hash] input_hash the input hash of values
+  # @param [Hash] solr_hash the solr values hash to add the values into
+  # @return [Hash] the populated Solr values hash
+  # 
+  def extract_hash( input_hash, solr_hash=Hash.new )   
+    warn "[DEPRECATION] `extract_hash` is deprecated.  Just pass values directly into your solr values hash" 
+    return solr_hash.merge!(input_hash)
   end
   
 end
