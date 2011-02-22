@@ -1,8 +1,4 @@
-require 'solr'
-require 'rexml/document'
-require "nokogiri"
 require "xmlsimple"
-require 'yaml'
 
 module Solrizer::XML::Extractor
 
