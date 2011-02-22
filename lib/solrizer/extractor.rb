@@ -22,5 +22,27 @@ class Extractor
     return solr_hash.merge!(input_hash)
   end
   
+  # Insert +field_value+ for +field_name+ into +solr_doc+
+  # Ensures that field values are always appended to arrays within the values hash. 
+  # Also ensures that values are run through format_node_value
+  # @param [Hash] solr_doc
+  # @param [String] field_name
+  # @param [String] field_value
+  def self.insert_solr_field_value(solr_doc, field_name, field_value)
+    formatted_value = self.format_node_value(field_value)
+    if solr_doc.has_key?(field_name)
+      solr_doc[field_name] << formatted_value
+    else
+      solr_doc.merge!( {field_name => [formatted_value]} ) 
+    end
+    return solr_doc
+  end
+  
+  # Strips the majority of whitespace from the values array and then joins them with a single blank delimitter
+  # @param [Array] values Array of strings representing the values returned 
+  def self.format_node_value values
+    values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
+  end
+  
 end
 end
