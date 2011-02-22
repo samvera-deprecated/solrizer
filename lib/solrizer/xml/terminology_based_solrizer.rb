@@ -72,7 +72,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
     
     field_mapper.solr_names_and_values(generic_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
       unless field_value.join("").strip.blank?
-        insert_solr_field_value(solr_doc, field_name, field_value)
+        ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
       end
     end
     
@@ -80,33 +80,11 @@ module Solrizer::XML::TerminologyBasedSolrizer
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
       field_mapper.solr_names_and_values(hierarchical_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
         unless field_value.join("").strip.blank?
-          insert_solr_field_value(solr_doc, field_name, field_value)
+          ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
         end
       end
     end
     solr_doc
-  end
-  
-  # Insert +field_value+ for +field_name+ into +solr_doc+
-  # Ensures that field values are always appended to arrays within the values hash. 
-  # Also ensures that values are run through format_node_value
-  # @param [Hash] solr_doc
-  # @param [String] field_name
-  # @param [String] field_value
-  def self.insert_solr_field_value(solr_doc, field_name, field_value)
-    formatted_value = self.format_node_value(field_value)
-    if solr_doc.has_key?(field_name)
-      solr_doc[field_name] << formatted_value
-    else
-      solr_doc.merge!( {field_name => [formatted_value]} ) 
-    end
-    return solr_doc
-  end
-
-  # Strips the majority of whitespace from the values array and then joins them with a single blank delimitter
-  # @param [Array] values Array of strings representing the values returned 
-  def self.format_node_value values
-    values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
   end
   
   # Instance Methods
