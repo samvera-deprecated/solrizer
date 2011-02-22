@@ -9,6 +9,8 @@ Deprecated
 All solrize and extract methods now accept and return a _Hash_ rather than a Solr::Document
 Removed dependency on outdated "solr" gem, replaced it with RSolr
 
+Moved #format_node_value and #insert_solr_field_value from TerminologyBasedSolrizer to Solrizer::Extractor 
+
 h2. 0.3.1
 
 fix in require statements
