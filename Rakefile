@@ -10,7 +10,6 @@ begin
     gem.email = "matt.zumwalt@yourmediashelf.com"
     gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]
-    gem.add_dependency "solr-ruby"
     gem.add_dependency "nokogiri"
     gem.add_dependency "om"
     gem.add_dependency "nokogiri"

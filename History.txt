@@ -6,8 +6,10 @@ Deprecated
 * extract_tags
 * extract_hash
 
+
 All solrize and extract methods now accept and return a _Hash_ rather than a Solr::Document
 Removed dependency on outdated "solr" gem, replaced it with RSolr
+As part of this switch, *all field names are stored as Strings, not Symbols*. If you previously accessed something as solr_doc[:title_t], now you need to access it as solr_doc["title_t"] 
 
 Moved #format_node_value and #insert_solr_field_value from TerminologyBasedSolrizer to Solrizer::Extractor 
 
