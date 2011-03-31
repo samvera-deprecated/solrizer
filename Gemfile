@@ -4,6 +4,8 @@ gem "nokogiri"
 gem "xml-simple"
 gem "om", ">= 1.0.0"  # only required by xml/terminology_based_solrizer ...
 gem "mediashelf-loggable"
+gem "stomp"
+gem "daemons"
 
 group :development, :test do
   gem "jeweler"
