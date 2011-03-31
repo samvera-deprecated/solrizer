@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'daemons'
+require 'stomp'
+
+banner=<<-EOC
+Usage: solrizerd command --hydra_home PATH [options]
+        PATH must point to a valid hydra application
+Commands:
+        start         start an instance of the application
+        stop          stop all instances of the application
+        restart       stop all instances and restart them afterwards
+        status        show status (PID) of application instances
+Options:
+        --hydra_home PATH          Load the hydra instance at this path
+        -p, --port NUM             Stomp port (default 61613)
+        -o, --host HOSTNAME        Host to connect to
+        -u, --user USERNAME        User name for stomp listener
+        -w, --password PASSWORD    Password for stomp listener
+        -d, --destination TOPIC    Topic to listen to (default: /topic/fedora.apim.update)
+        -h, --help                 Display this screen
+EOC
+
+
+# check for a valid command
+unless ['start','stop','restart','status'].include? ARGV[0]
+  puts banner
+  exit 7
+end
+
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts banner
+  exit 0
+end
+
+# Make sure --hydra_home was set for the start and restart commands
+if ARGV[0] == 'start' || ARGV[0] == 'restart'
+  unless ARGV[1] == '--hydra_home'
+    puts "ERROR: You must --hydra_home to specify the path to a valid hydra application"
+    exit 8
+  end
+
+# make sure valid path was set for hydra_home
+  unless ARGV[2] && File.exist?(File.join(ARGV[2],"config","environment.rb"))
+    puts "ERROR: the path entered does not appear to be a valid hydra instance"
+    exit 9
+  end
+end
+
+
+options = {
+  :multiple=>false,
+  :dir_mode=>:normal,
+  :dir=>'/tmp',
+  :backtrace=>true
+}
+argv_array = []
+argv_array << ARGV[0]
+argv_array << '--'
+ARGV[1..-1].each {|ele| argv_array << ele }
+options[:ARGV] = argv_array
+
+version = '>=0'
+app = Gem.bin_path('solrizer','solrizer',version)
+
+Daemons.run(app,options)
+
