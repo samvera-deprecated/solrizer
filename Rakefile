@@ -10,6 +10,7 @@ begin
     gem.email = "matt.zumwalt@yourmediashelf.com"
     gem.homepage = "http://github.com/projecthydra/solrizer"
     gem.authors = ["Matt Zumwalt"]
+    gem.executables = ["solrizer","solrizerd"]
     gem.add_dependency "nokogiri"
     gem.add_dependency "om"
     gem.add_dependency "nokogiri"
@@ -19,6 +20,7 @@ begin
     gem.add_development_dependency 'ruby-debug-base'
     gem.add_development_dependency 'rspec', '<2.0.0'
     gem.add_development_dependency 'mocha'
+    
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
