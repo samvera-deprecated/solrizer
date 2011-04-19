@@ -12,6 +12,9 @@ describe Solrizer::Extractor do
       Solrizer::Extractor.format_node_value([" test    \n   node    \t value \t"]).should == "test node value"
       Solrizer::Extractor.format_node_value([" test ", "     \n   node ", "   \t value \t"]).should == "test node value"
     end
+    it "should return an empty string if given an argument of nil" do
+      Solrizer::Extractor.format_node_value(nil).should == ""
+    end
   end
   
 end
