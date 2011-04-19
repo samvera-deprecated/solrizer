@@ -1,3 +1,7 @@
+h2. 1.0.3
+
+BUG: Extractor.format_field_values was choking when value was nil
+
 h2. 1.0.0
 
 Deprecated
