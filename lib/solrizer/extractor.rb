@@ -28,9 +28,16 @@ class Extractor
   end
   
   # Strips the majority of whitespace from the values array and then joins them with a single blank delimitter
-  # @param [Array] values Array of strings representing the values returned 
+  # Returns an empty string if values argument is nil
+  #
+  # @param [Array] values Array of strings representing the values to be formatted
+  # @return [String] 
   def self.format_node_value values
-    values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
+    if values.nil?
+      return ""
+    else
+      return values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
+    end
   end
   
   # Instance Methods
