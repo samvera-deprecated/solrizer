@@ -14,4 +14,6 @@ group :development, :test do
   gem 'rspec', '<2.0.0'
   gem 'rcov'
   gem 'mocha'
+  gem 'yard'
+  gem 'RedCloth'
 end

@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    RedCloth (4.2.7)
     columnize (0.3.2)
     daemons (1.1.2)
     git (1.2.5)
@@ -25,11 +26,13 @@ GEM
       linecache (>= 0.3)
     stomp (1.1.8)
     xml-simple (1.0.15)
+    yard (0.6.8)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  RedCloth
   daemons
   jeweler
   mediashelf-loggable
@@ -42,3 +45,4 @@ DEPENDENCIES
   ruby-debug-base
   stomp
   xml-simple
+  yard
