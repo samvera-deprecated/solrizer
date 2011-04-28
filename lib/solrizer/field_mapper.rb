@@ -268,7 +268,7 @@ module Solrizer
         
         # Add mapped name & value, unless it's a duplicate
         values = (results[name] ||= [])
-        values << value unless values.contains?(value)
+        values << value unless values.include?(value)
       end
       
       results

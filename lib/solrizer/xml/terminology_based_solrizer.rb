@@ -71,7 +71,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
     
     field_mapper.solr_names_and_values(generic_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
-      unless field_value.join("").strip.blank?
+      unless field_value.join("").strip.empty?
         ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
       end
     end
@@ -79,7 +79,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
     if term_pointer.length > 1
       hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
       field_mapper.solr_names_and_values(hierarchical_field_name_base, node_value, term.data_type, term.index_as).each do |field_name, field_value|
-        unless field_value.join("").strip.blank?
+        unless field_value.join("").strip.empty?
           ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
         end
       end
