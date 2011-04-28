@@ -16,6 +16,7 @@ GEM
       nokogiri (>= 1.4.2)
       om
     rake (0.8.7)
+    rcov (0.9.9)
     rspec (1.3.1)
     ruby-debug (0.10.4)
       columnize (>= 0.1)
@@ -35,6 +36,7 @@ DEPENDENCIES
   mocha
   nokogiri
   om (>= 1.0.0)
+  rcov
   rspec (< 2.0.0)
   ruby-debug
   ruby-debug-base

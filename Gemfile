@@ -12,5 +12,6 @@ group :development, :test do
   gem 'ruby-debug'
   gem 'ruby-debug-base'
   gem 'rspec', '<2.0.0'
+  gem 'rcov'
   gem 'mocha'
 end
