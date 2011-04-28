@@ -19,3 +19,5 @@ rerun.txt
 .buildpath
 
 /.bundle
+/.yardoc
+/doc
