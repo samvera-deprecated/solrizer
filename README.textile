@@ -2,6 +2,156 @@ h1. solrizer
 
 A lightweight, configurable tool for indexing metadata into solr.  Can be triggered from within your application, from the command line, or as a JMS listener.
 
+h2. Installation
+
+The gem is hosted on rubygems.org. The best way to manage the gems for your project is to use bundler.  Create a Gemfile in the root of your application and include the following:
+
+<pre>
+source "http://rubygems.org"
+
+gem 'solrizer'
+</pre>
+
+Then:
+
+<pre>bundle install</pre>
+
+h2. Usage
+
+h3. Fire up the console:
+
+The code snippets in the following sections can be cut/paste into your console, giving you the opportunity to play with Solrizer.
+
+Start up a console and load solrizer:
+
+<pre>
+irb
+require "rubygems"
+require "solrizer"
+</pre>
+
+
+h3. Field Mapper
+
+The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml):
+
+<pre>
+default_mapper = Solrizer::FieldMapper::Default
+
+# some of the default mappings in solrizer
+default_mapper.solr_name("foo",:string)                 # returns foo_t
+default_mapper.solr_name("foo",:date)                   # returns foo_dt
+default_mapper.solr_name("foo",:integer)                # returns foo_i
+default_mapper.solr_name("foo",:string,:facetable)      # returns foo_facet
+default_mapper.solr_name("foo",:text,:facetable)        # returns foo_facet
+default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_facet
+</pre>
+
+FieldMapper provides some defaults:
+<pre>
+default_mapper.solr_names_and_values("foo","bar",:string,[:facetable])                    # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
+default_mapper.solr_names_and_values("foo","bar",:string,[:not_searchable, :facetable])   # returns just facetable => {"foo_facet"=>["bar"]}
+</pre>
+Which can be tweaked:
+<pre>
+default_mapper.default_index_types << :facetable
+default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
+</pre>
+
+Custom Mappings can also be provided (with custom converters):
+
+<pre>
+class CustomMapper < FieldMapper
+  index_as :searchable, :suffix => "_search" do |type|
+    type.reversed :suffix => "_reverse" do |value|
+      value.reverse
+    end
+  end
+end
+</pre>
+
+<pre>
+custom_mapper = CustomMapper.new
+
+custom_mapper.solr_names_and_values("foo","bar",:string,[:searchable])      # returns {"foo_search"=>["bar"]}
+custom_mapper.solr_names_and_values("foo","bar",:reversed,[:searchable])    # returns {"foo_reverse"=>["rab"]}
+</pre>
+
+For more detailed information on custom mappings, see the documetnation for the FieldMapper class.
+
+h3. Extractor and Extractor Mixins
+
+Solrizer::Extractor provides utilities for extracting solr fields from objects or inserting solr fields into documents:
+
+<pre>
+extractor = Solrizer::Extractor.new
+
+extractor.format_node_value(["foo     ","\n      bar"])                     # returns "foo bar"
+
+solr_doc = Hash.new
+extractor.insert_node_value(solr_doc, "foo","bar")         # solr_doc is now {"foo" => ["bar"]}
+extractor.insert_solr_field_value(solr_doc,"foo","baz")    # solr_doc is now {"foo" => ["bar","baz"]}
+extractor.insert_node_value(solr_doc, "boo","hoo")         # solr_doc is now {"foo" => ["bar","baz"], "boo" => ["hoo"]}
+</pre>
+
+h4. Solrizer provides some default mixins:
+
+* Solrizer::HTML::Extractor     -=>  provides html_to_solr method
+* Solrizer::XML::Extractor      -=>  provides xml_to_solr method
+
+<pre>
+xml = "<fields><foo>bar</foo><bar>baz</bar></fields>"
+
+extractor.xml_to_solr(xml)      # returns {:foo_t=>"bar", :bar_t=>"baz"}
+</pre>
+
+h4. Solrizer::XML::TerminologyBasedSolrizer
+
+Another powerful mixin for use with classes that include the OM::XML::Document module is Solrizer::XML::TerminologyBasedSolrizer.  
+The methods provided by this module map provides a robust way of mapping terms and solr fields via om terminologies.  A notable example 
+can be found in ActiveFedora::NokogiriDatatstream.
+
+
+h2. JMS Listener for Hydra Rails Applications
+
+h3. The executables: solrizer and solrizerd
+
+The solrizer gem provides two executables:
+
+ * solrizer is a stomp consumer which listens for fedora.apim.updates and solrizes (or de-solrizes) objects accordingly. 
+ * solrizerd is a wrapper script that spawns a daemonized version of solrizer and handles start|stop|restart|status requests. 
+
+h3. Usage 
+
+The usage for solrizerd is as follows: 
+
+<pre>
+ solrizerd command --hydra_home PATH [options] 
+</pre>
+
+The commands are as follows:
+ *  start      start an instance of the application 
+ *  stop       stop all instances of the application 
+ *  restart    stop all instances and restart them afterwards 
+ *  status     show status (PID) of application instances 
+
+Required parameters:
+
+--hydra_home: this is the path to your hydra rails applications' root directory.  Solrizerd needs this in order to load all your models and corresponding terminoligies.
+
+The options:
+ *  -p, --port         Stomp port  61613 
+ *  -o, --host         Host to connect to  localhost 
+ *  -u, --user         User name for stomp listener  
+ *  -w, --password     Password for stomp listener  
+ *  -d, --destination  Topic to listen to (default: /topic/fedora.apim.update) 
+ *  -h, --help         Display this screen 
+
+Note:
+
+Since the solrizer script must fire up your hydra rails application, it must have all the gems installed that your hydra instance needs.
+
+
 h2. Note on Patches/Pull Requests
  
 * Fork the project.
