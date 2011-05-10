@@ -6,8 +6,9 @@ module Solrizer
 # Provides utilities for extracting solr fields from a variety of objects and/or creating solr documents from a given object
 # Note: These utilities are optional.  You can implement .to_solr directly on your classes if you want to bypass using Extractors.
 #
-# Each of the Solrizer implementations provides its own Extractor module that extends the behaviors of Solrizer::Extractor
-# with methods specific to that implementation (ie. extract_tag, extract_rels_ext, xml_to_solr, html_to_solr)
+# Each of the Solrizer implementations (ie. solrizer-fedora) provides its own Extractor module that extends the behaviors of Solrizer::Extractor
+# with methods specific to that implementation (ie. extract_tag, extract_rels_ext, xml_to_solr, html_to_solr).  
+# By convention, the solrizer implementations will mix their own Extractors' behaviors into this class when you load them into an application.
 #
 class Extractor
   
