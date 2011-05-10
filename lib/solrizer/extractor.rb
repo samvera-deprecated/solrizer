@@ -12,6 +12,7 @@ module Solrizer
 class Extractor
   
   # Insert +field_value+ for +field_name+ into +solr_doc+
+  # Handles inserting new values into a Hash while ensuring that you don't destroy or overwrite any existing values in the hash.
   # Ensures that field values are always appended to arrays within the values hash. 
   # Also ensures that values are run through format_node_value
   # @param [Hash] solr_doc
