@@ -2,6 +2,12 @@ h1. solrizer
 
 A lightweight, configurable tool for indexing metadata into solr.  Can be triggered from within your application, from the command line, or as a JMS listener.
 
+Solrizer provides the baseline and structures for the process of solrizing.  In order to actually read objects from a 
+datasource and write solr documents into a solr instance, you need to use an implementation specific gem, such as 
+"solrizer-fedora":https://github.com/projecthydra/solrizer-fedora, which provides the
+mechanics for reading from a fedora repository and writing to a solr instance. 
+
+
 h2. Installation
 
 The gem is hosted on rubygems.org. The best way to manage the gems for your project is to use bundler.  Create a Gemfile in the root of your application and include the following:
@@ -20,7 +26,10 @@ h2. Usage
 
 h3. Fire up the console:
 
-The code snippets in the following sections can be cut/paste into your console, giving you the opportunity to play with Solrizer.
+The code snippets in the following sections can be cut/paste into your console, giving you the opportunity to play with Solrizer 
+and demonstrate the functionality underlying the implementation-specific gems, such as solrizer-fedora.
+
+
 
 Start up a console and load solrizer:
 
