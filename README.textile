@@ -45,7 +45,7 @@ h3. Field Mapper
 The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml):
 
 <pre>
-default_mapper = Solrizer::FieldMapper::Default
+default_mapper = Solrizer::FieldMapper::Default.new
 
 # some of the default mappings in solrizer
 default_mapper.solr_name("foo",:string)                 # returns foo_t
@@ -70,7 +70,7 @@ default_mapper.solr_names_and_values("foo","bar",:string,[])                    
 Custom Mappings can also be provided (with custom converters):
 
 <pre>
-class CustomMapper < FieldMapper
+class CustomMapper < Solrizer::FieldMapper
   index_as :searchable, :suffix => "_search" do |type|
     type.reversed :suffix => "_reverse" do |value|
       value.reverse
@@ -98,9 +98,9 @@ extractor = Solrizer::Extractor.new
 extractor.format_node_value(["foo     ","\n      bar"])                     # returns "foo bar"
 
 solr_doc = Hash.new
-extractor.insert_node_value(solr_doc, "foo","bar")         # solr_doc is now {"foo" => ["bar"]}
+extractor.insert_solr_field_value(solr_doc, "foo","bar")         # solr_doc is now {"foo" => ["bar"]}
 extractor.insert_solr_field_value(solr_doc,"foo","baz")    # solr_doc is now {"foo" => ["bar","baz"]}
-extractor.insert_node_value(solr_doc, "boo","hoo")         # solr_doc is now {"foo" => ["bar","baz"], "boo" => ["hoo"]}
+extractor.insert_solr_field_value(solr_doc, "boo","hoo")         # solr_doc is now {"foo" => ["bar","baz"], "boo" => ["hoo"]}
 </pre>
 
 h4. Solrizer provides some default mixins:
