@@ -1,0 +1,9 @@
+h1. Solrizing OM Documents
+
+*!! This page is a work in progress !!*
+
+Methods to know:
+
+* index_as
+* field_mapper
+* solr_mappings
