@@ -147,12 +147,12 @@ module Solrizer
     # Loads solr mappings from yml file.
     # Assumes that string values are solr field name suffixes.  
     # This is meant as a simple entry point for working with solr mappings.  For more powerful control over solr mappings, create your own subclasses of FieldMapper instead of using a yml file.
-    # @param [String] config_path This is the path to the directory where your mappings file is stored. Defaults to "RAILS_ROOT/config/solr_mappings.yml"
+    # @param [String] config_path This is the path to the directory where your mappings file is stored. Defaults to "Rails.root/config/solr_mappings.yml"
     def self.load_mappings( config_path=nil )
 
       if config_path.nil? 
-        if defined?(RAILS_ROOT)
-          config_path = File.join(RAILS_ROOT, "config", "solr_mappings.yml")
+        if defined?(Rails.root) && !Rails.root.nil?
+          config_path = File.join(Rails.root, "config", "solr_mappings.yml")
         end
         # Default to using the config file within the gem 
         if !File.exist?(config_path.to_s)
