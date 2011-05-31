@@ -1,35 +1,11 @@
+require 'bundler'
 require 'rubygems'
 require 'rake'
 
 # load rake tasks in lib/tasks
 Dir.glob('lib/tasks/*.rake').each { |r| import r }
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "solrizer"
-    gem.summary = %Q{A utility for building solr indexes, usually from Fedora repository content.}
-    gem.description = %Q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
-    gem.email = "matt.zumwalt@yourmediashelf.com"
-    gem.homepage = "http://github.com/projecthydra/solrizer"
-    gem.authors = ["Matt Zumwalt"]
-    gem.executables = ["solrizer","solrizerd"]
-    gem.add_dependency "nokogiri"
-    gem.add_dependency "om"
-    gem.add_dependency "nokogiri"
-    gem.add_dependency "mediashelf-loggable"
-    gem.add_development_dependency "jeweler"
-    gem.add_development_dependency 'ruby-debug'
-    gem.add_development_dependency 'ruby-debug-base'
-    gem.add_development_dependency 'rspec', '<2.0.0'
-    gem.add_development_dependency 'mocha'
-    
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
-end
+Bundler::GemHelper.install_tasks
 
 require 'spec/rake/spectask'
 Spec::Rake::SpecTask.new(:spec) do |spec|

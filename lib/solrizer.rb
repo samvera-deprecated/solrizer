@@ -1,5 +1,9 @@
 require 'rubygems'
-module Solrizer;end
+module Solrizer
+  def self.version
+    Solrizer::VERSION
+  end
+end
 
 require "solrizer/extractor"
 # Dir[File.join(File.dirname(__FILE__),"solrizer","*.rb")].each {|file| require file }
