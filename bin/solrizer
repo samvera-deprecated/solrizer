@@ -61,7 +61,7 @@ if options[:hydra_home]
 
   puts "app loaded"
 else
-   "The --hydra_home PATH option is mandatory. Please provide the path to the root of a valid Hydra instance."
+  $stderr.puts "The --hydra_home PATH option is mandatory. Please provide the path to the root of a valid Hydra instance."
   exit 1
 end
 
