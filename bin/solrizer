@@ -89,11 +89,13 @@ begin
 
       puts @msg.headers.inspect
       puts "\nPID: #{@msg.headers["pid"]}\n"
-      if ["addDatastream", "addRelationship","ingest","modifyDatastream","modifyObject","purgeDatastream","urgeRelationship"].include? method
+      if ["addDatastream", "addRelationship","ingest","modifyDatastream","modifyDatastreamByReference","modifyObject","purgeDatastream","purgeRelationship"].include? method
         solrizer = Solrizer::Fedora::Solrizer.new
         solrizer.solrize @msg.headers["pid"]
       elsif method == "purgeObject"
         ActiveFedora::SolrService.instance.conn.delete(pid)
+      else
+        $stderr.puts "Unknown Method: #{method}"
       end
       puts  "updated solr index for #{@msg.headers["pid"]}\n"
       @conn.ack @msg.headers["message-id"]

@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
 
   s.add_dependency "nokogiri"
-  s.add_dependency "om", ">=1.0.0"
+  s.add_dependency "om", ">=1.4.0"
   s.add_dependency "xml-simple"
   s.add_dependency "mediashelf-loggable"
   s.add_dependency "stomp"

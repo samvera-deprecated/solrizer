@@ -31,21 +31,16 @@ module Solrizer::XML::TerminologyBasedSolrizer
     parents = opts.fetch(:parents, [])
 
     term_pointer = parents+[term.name]
-  
-    # term = terminology.retrieve_term(term_pointer)
-
-    # prep children hash
-    # child_accessors = accessor_info.fetch(:children, {})
-    # xpath = term.xpath_for(*term_pointer)
     nodeset = doc.find_by_terms(*term_pointer)
     
     nodeset.each do |node|
       # create solr fields
       
       self.solrize_node(node, doc, term_pointer, term, solr_doc, field_mapper)
-      term.children.each_pair do |child_term_name, child_term|
-        doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
-        # self.solrize_term(doc, child_term_name, child_term, opts={:solr_doc=>solr_doc, :parents=>parents+[{accessor_name=>nodeset.index(node)}] })
+      unless term.kind_of? OM::XML::NamedTermProxy
+        term.children.each_pair do |child_term_name, child_term|
+          doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
+        end
       end
     end
     solr_doc

@@ -1,3 +1,10 @@
+h2. 1.1.1
+
+BUG: Trying to index the children of proxy terms (can't access them in OM).  Added a check to make sure it doesn't do this.
+BUG: Not responding to messages of type: "modifyDatastreamByReference"
+BUG: Not logging unavailable message types
+
+
 h2. 1.0.3
 
 BUG: Extractor.format_field_values was choking when value was nil

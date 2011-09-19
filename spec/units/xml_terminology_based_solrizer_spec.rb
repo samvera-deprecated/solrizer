@@ -80,7 +80,10 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
 
     it "should add multiple fields based on index_as" do
       fake_solr_doc = {}
-      @mods_article.solrize_term(OM::Samples::ModsArticle.terminology.retrieve_term(:name), fake_solr_doc)
+      term = OM::Samples::ModsArticle.terminology.retrieve_term(:name)
+      term.children[:namePart].index_as = [:displayable, :facetable]
+
+      @mods_article.solrize_term(term, fake_solr_doc)
       
       expected_names = ["DR.", "FAMILY NAME", "GIVEN NAMES"]
       %w(_t _display _facet).each do |suffix|
