@@ -89,7 +89,7 @@ begin
 
       puts @msg.headers.inspect
       puts "\nPID: #{@msg.headers["pid"]}\n"
-      if ["addDatastream", "addRelationship","ingest","modifyDatastream","modifyDatastreamByReference","modifyObject","purgeDatastream","purgeRelationship"].include? method
+      if ["addDatastream", "addRelationship","ingest","modifyDatastreamByValue","modifyDatastreamByReference","modifyObject","purgeDatastream","purgeRelationship"].include? method
         solrizer = Solrizer::Fedora::Solrizer.new
         solrizer.solrize @msg.headers["pid"]
       elsif method == "purgeObject"
