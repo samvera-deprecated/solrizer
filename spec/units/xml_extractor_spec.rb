@@ -1,5 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'solrizer'
+require 'spec_helper'
 
 describe Solrizer::XML::Extractor do
   
