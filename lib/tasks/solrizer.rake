@@ -40,13 +40,15 @@ namespace :solrizer do
   task :solrize_objects do
     puts "Nobody here.  Possibly you meant to run rake solrizer:fedora:solrize_objects"
   end
-    
-  Spec::Rake::SpecTask.new(:rspec) do |t|
-    t.spec_files = FileList['spec/**/*_spec.rb']
-    t.rcov = true
-    t.rcov_opts = lambda do
-      IO.readlines("spec/rcov.opts").map {|l| l.chomp.split " "}.flatten
-    end
+
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new(:rspec) do |spec|
+    spec.pattern = FileList['spec/**/*_spec.rb']
   end
 
+  RSpec::Core::RakeTask.new(:rcov) do |spec|
+     spec.pattern = FileList['spec/**/*_spec.rb']
+     spec.rcov = true
+     spec.rcov_opts = %q[--exclude "spec/*,gems/*" --rails]
+  end
 end
