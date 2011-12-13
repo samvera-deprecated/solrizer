@@ -38,6 +38,7 @@ class Extractor
     if values.nil?
       return ""
     else
+      values = [values] unless values.respond_to? :map
       return values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
     end
   end

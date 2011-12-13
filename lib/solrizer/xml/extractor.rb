@@ -19,7 +19,7 @@ module Solrizer::XML::Extractor
         elsif value.length > 1
           solr_doc.merge!({:"#{name}_t" => value})
         else
-          solr_doc.merge!({:"#{name}_t" => "#{value}"})
+          solr_doc.merge!({:"#{name}_t" => "#{value.first}"})
         end
       else
         solr_doc.merge!({:"#{name}_t" => "#{value}"})

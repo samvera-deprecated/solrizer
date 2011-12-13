@@ -14,6 +14,10 @@ describe Solrizer::Extractor do
     it "should return an empty string if given an argument of nil" do
       Solrizer::Extractor.format_node_value(nil).should == ""
     end
+
+    it "should strip white space out of a string" do
+      Solrizer::Extractor.format_node_value("raw  string\n with whitespace").should == "raw string with whitespace"
+    end
   end
   
 end
