@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "daemons"
   s.add_development_dependency 'ruby-debug'
   s.add_development_dependency 'ruby-debug-base'
-  s.add_development_dependency 'rspec', '<2.0.0'
+  s.add_development_dependency 'rspec', '~>2.0'
   s.add_development_dependency 'rcov'
   s.add_development_dependency 'mocha'
   s.add_development_dependency 'yard'
