@@ -4,8 +4,7 @@ A lightweight, configurable tool for indexing metadata into solr.  Can be trigge
 
 Solrizer provides the baseline and structures for the process of solrizing.  In order to actually read objects from a 
 datasource and write solr documents into a solr instance, you need to use an implementation specific gem, such as 
-"solrizer-fedora":https://github.com/projecthydra/solrizer-fedora, which provides the
-mechanics for reading from a fedora repository and writing to a solr instance. 
+"solrizer-fedora":https://github.com/projecthydra/solrizer-fedora, which provides the mechanics for reading from a fedora repository and writing to a solr instance. 
 
 
 h2. Installation
@@ -57,11 +56,14 @@ default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_facet
 </pre>
 
 FieldMapper provides some defaults:
+
 <pre>
 default_mapper.solr_names_and_values("foo","bar",:string,[:facetable])                    # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
 default_mapper.solr_names_and_values("foo","bar",:string,[:not_searchable, :facetable])   # returns just facetable => {"foo_facet"=>["bar"]}
 </pre>
+
 Which can be tweaked:
+
 <pre>
 default_mapper.default_index_types << :facetable
 default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
@@ -167,7 +169,7 @@ h2. Note on Patches/Pull Requests
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a
   future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
+* Commit, do not mess with rake file, version, or history.
   (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
