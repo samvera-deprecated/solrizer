@@ -1,7 +1,7 @@
 desc "Task to execute builds on a Hudson Continuous Integration Server."
 task :hudson do
   Rake::Task["doc"].invoke
-  Rake::Task["solrizer:rspec"].invoke
+  Rake::Task["solrizer:rcov"].invoke
 end
 
 # Use yard to build docs
@@ -49,6 +49,6 @@ namespace :solrizer do
   RSpec::Core::RakeTask.new(:rcov) do |spec|
      spec.pattern = FileList['spec/**/*_spec.rb']
      spec.rcov = true
-     spec.rcov_opts = %q[--exclude "spec/*,gems/*" --rails]
+     spec.rcov_opts = %q[--exclude "spec,gems"]
   end
 end
