@@ -7,10 +7,10 @@ Gem::Specification.new do |s|
   s.version     = Solrizer::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Matt Zumwalt"]
-  s.email       = %q{matt.zumwalt@yourmediashelf.com}
+  s.email       = %q{hydra-tech@googlegroups.com}
   s.homepage    = %q{http://github.com/projecthydra/solrizer}
-  s.summary     = %q{A utility for building solr indexes, usually from Fedora repository content.}
-  s.description = %q{Use solrizer to populate solr indexes from Fedora repository content or from other sources.  You can run solrizer from within your apps, using the provided rake tasks, or as a JMS listener}
+  s.summary     = %q{A utility for building solr indexes, usually from Fedora repository content with solrizer-fedora extension gem.}
+  s.description = %q{Use solrizer to populate solr indexes.  You can run solrizer from within your app, using the provided rake tasks, or as a JMS listener}
 
   s.add_dependency "nokogiri"
   s.add_dependency "om", ">=1.5.0"
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'RedCloth'
     
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.extra_rdoc_files = [
     "LICENSE",
