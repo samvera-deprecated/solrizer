@@ -160,7 +160,7 @@ module Solrizer
         end
       end
 
-      logger.info("SOLRIZER: loading field name mappings from #{File.expand_path(config_path)}")
+      logger.debug("SOLRIZER: loading field name mappings from #{File.expand_path(config_path)}")
       mappings_from_file = YAML::load(File.open(config_path))
       
       self.clear_mappings
