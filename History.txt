@@ -1,3 +1,8 @@
+h2. 1.2.1
+BUG: name mappings message is a "debug" message, not "info"
+fixed rake tasks to include coverage properly
+changed email, summary, description in gemspec
+
 h2. 1.2.0
 Upgrade to om 1.5.
 Now works with ruby 1.9
