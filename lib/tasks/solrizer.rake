@@ -1,7 +1,29 @@
 desc "Task to execute builds on a Hudson Continuous Integration Server."
 task :hudson do
   Rake::Task["doc"].invoke
-  Rake::Task["solrizer:rcov"].invoke
+  Rake::Task["coverage:ci"].invoke
+end
+
+desc "Execute specs with coverage"
+task :coverage do 
+  # Put spec opts in a file named .rspec in root
+  ruby_engine = defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"
+  ENV['COVERAGE'] = 'true' unless ruby_engine == 'jruby'
+
+
+  Rake::Task['solrizer:rspec'].invoke
+end
+
+namespace :coverage do
+desc "Execute ci build with coverage"
+task :ci do 
+  # Put spec opts in a file named .rspec in root
+  ruby_engine = defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"
+  ENV['COVERAGE'] = 'true' unless ruby_engine == 'jruby'
+
+
+  Rake::Task['hudson'].invoke
+end
 end
 
 # Use yard to build docs
@@ -47,8 +69,6 @@ namespace :solrizer do
   end
 
   RSpec::Core::RakeTask.new(:rcov) do |spec|
-     spec.pattern = FileList['spec/**/*_spec.rb']
-     spec.rcov = true
-     spec.rcov_opts = %q[--exclude "spec,gems"]
+    Rake::Task['coverage']
   end
 end
