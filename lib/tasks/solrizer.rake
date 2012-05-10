@@ -22,7 +22,7 @@ task :ci do
   ENV['COVERAGE'] = 'true' unless ruby_engine == 'jruby'
 
 
-  Rake::Task['hudson'].invoke
+  Rake::Task['coverage'].invoke
 end
 end
 
