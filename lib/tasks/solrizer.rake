@@ -1,7 +1,7 @@
 desc "Task to execute builds on a Hudson Continuous Integration Server."
 task :hudson do
   Rake::Task["doc"].invoke
-  Rake::Task["coverage:ci"].invoke
+  Rake::Task["coverage"].invoke
 end
 
 desc "Execute specs with coverage"
@@ -12,18 +12,6 @@ task :coverage do
 
 
   Rake::Task['solrizer:rspec'].invoke
-end
-
-namespace :coverage do
-desc "Execute ci build with coverage"
-task :ci do 
-  # Put spec opts in a file named .rspec in root
-  ruby_engine = defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"
-  ENV['COVERAGE'] = 'true' unless ruby_engine == 'jruby'
-
-
-  Rake::Task['coverage'].invoke
-end
 end
 
 # Use yard to build docs
