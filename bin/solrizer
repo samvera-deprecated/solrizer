@@ -76,13 +76,13 @@ begin
   @clientid = "fedora_stomper"
   @destination = options[:destination]
 
-
-  $stderr.print "Connecting to stomp://#{@host}:#{@port} as #{@user}\n"
-  @conn = Stomp::Connection.open(@user, @password, @host, @port, @reliable, 5, {"client-id" => @clientid} )
-  $stderr.print "Getting output from #{@destination}\n"
-  
-  @conn.subscribe(@destination, {"activemq.subscriptionName" => @clientid, :ack =>"client" })
   while true
+      $stderr.print "Connecting to stomp://#{@host}:#{@port} as #{@user}\n"
+      @conn = Stomp::Connection.open(@user, @password, @host, @port, @reliable, 5, {"client-id" => @clientid} )
+      $stderr.print "Getting output from #{@destination}\n"
+  
+      @conn.subscribe(@destination, {"activemq.subscriptionName" => @clientid, :ack =>"client" })
+      #while true
       @msg = @conn.receive
       pid = @msg.headers["pid"]
       method = @msg.headers["methodName"]
@@ -99,8 +99,11 @@ begin
       end
       puts  "updated solr index for #{@msg.headers["pid"]}\n"
       @conn.ack @msg.headers["message-id"]
+      @conn.join
+      @conn.close
+      sleep 20
   end
-  @conn.join
+  #@conn.join
 
 rescue Exception => e
 p e
