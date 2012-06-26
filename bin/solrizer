@@ -93,7 +93,7 @@ begin
         solrizer = Solrizer::Fedora::Solrizer.new
         solrizer.solrize @msg.headers["pid"]
       elsif method == "purgeObject"
-        ActiveFedora::SolrService.instance.conn.delete(pid)
+        ActiveFedora::SolrService.instance.conn.delete_by_id(pid)
       else
         $stderr.puts "Unknown Method: #{method}"
       end
