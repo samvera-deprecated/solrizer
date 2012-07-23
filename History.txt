@@ -1,3 +1,6 @@
+h2. 1.2.2
+BUG: RSolr::Client doesn't have a delete method.  Changed to delete_by_id. (only affects solrizer shell script)  Thanks to mkorcy.
+
 h2. 1.2.1
 BUG: name mappings message is a "debug" message, not "info"
 fixed rake tasks to include coverage properly
