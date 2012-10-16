@@ -1,3 +1,6 @@
+h2. 2.0.0
+HYDRA-827 DO NOT index terms by default
+
 h2. 1.2.2
 BUG: RSolr::Client doesn't have a delete method.  Changed to delete_by_id. (only affects solrizer shell script)  Thanks to mkorcy.
 
