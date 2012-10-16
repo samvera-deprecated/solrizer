@@ -1,5 +1,6 @@
 .DS_Store
 nohup.out
+Gemfile.lock
 
 *.sqlite3
 *.log
