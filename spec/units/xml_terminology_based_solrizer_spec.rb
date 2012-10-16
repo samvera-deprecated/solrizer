@@ -1,15 +1,15 @@
 require 'spec_helper'
-require 'solrizer/xml'
+require 'fixtures/mods_article'
 
 describe Solrizer::XML::TerminologyBasedSolrizer do
   
   before(:all) do
-    OM::Samples::ModsArticle.send(:include, Solrizer::XML::TerminologyBasedSolrizer)
+    Samples::ModsArticle.send(:include, Solrizer::XML::TerminologyBasedSolrizer)
   end
   
   before(:each) do
     article_xml = fixture( File.join("mods_articles", "hydrangea_article1.xml") )
-    @mods_article = OM::Samples::ModsArticle.from_xml(article_xml)
+    @mods_article = Samples::ModsArticle.from_xml(article_xml)
   end
   
   describe ".to_solr" do
@@ -34,7 +34,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       # ActiveFedora::NokogiriDatastream.stubs(:accessors).returns(mock_accessors)
       solr_doc = Hash.new
       @mods_article.field_mapper = Solrizer::FieldMapper::Default.new
-      OM::Samples::ModsArticle.terminology.terms.each_pair do |k,v|
+      Samples::ModsArticle.terminology.terms.each_pair do |k,v|
         @mods_article.expects(:solrize_term).with(v, solr_doc, @mods_article.field_mapper)
       end
       @mods_article.to_solr(solr_doc)
@@ -49,21 +49,16 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc["abstract_t"].should == ["ABSTRACT"]
       solr_doc["title_info_1_language_t"].should == ["finnish"]
       solr_doc["person_1_role_0_text_t"].should == ["teacher"]
+      # No index_as on the code field.
+      solr_doc["person_1_role_0_code_t"].should be_nil 
       solr_doc["person_last_name_t"].sort.should == ["FAMILY NAME", "Gautama"]
-      # This next line will fail until om > 1.0.2 is released
-      # solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC1", "TOPIC2"]
+      solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
       
       # These are a holdover from an old verison of OM
-      # solr_doc[:finnish_title_info_language_t].should == "finnish"
-      # solr_doc[:finnish_title_info_main_title_t].should == "Artikkelin otsikko Hydrangea artiklan 1"
+      puts "DOC: #{solr_doc.length}"
+      solr_doc['journal_0_issue_0_publication_date_t'].should == ["FEB. 2007"]
 
-      # solr_doc[:mydate_date].should == "fake-date"
-      # 
-      # solr_doc[:publisher_t].should be_nil
-      # solr_doc[:coverage_t].should be_nil
-      # solr_doc[:creation_date_dt].should be_nil
-      # solr_doc.should == ""
-    
+      
     end
     
   end
@@ -72,14 +67,14 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   
     it "should add fields to a solr document for all nodes corresponding to the given term and its children" do
       solr_doc = Hash.new
-      result = @mods_article.solrize_term(OM::Samples::ModsArticle.terminology.retrieve_term(:title_info), solr_doc)
+      result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:title_info), solr_doc)
       result.should == solr_doc
-      # @mods_article.solrize_term(:title_info, OM::Samples::ModsArticle.terminology.retrieve_term(:title_info), :solr_doc=>solr_doc).should == ""
+      # @mods_article.solrize_term(:title_info, Samples::ModsArticle.terminology.retrieve_term(:title_info), :solr_doc=>solr_doc).should == ""
     end
 
     it "should add multiple fields based on index_as" do
       fake_solr_doc = {}
-      term = OM::Samples::ModsArticle.terminology.retrieve_term(:name)
+      term = Samples::ModsArticle.terminology.retrieve_term(:name)
       term.children[:namePart].index_as = [:displayable, :facetable]
 
       @mods_article.solrize_term(term, fake_solr_doc)

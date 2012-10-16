@@ -48,14 +48,17 @@ module Solrizer::XML::TerminologyBasedSolrizer
   
   # Populate a solr document with solr fields corresponding to the given xml node
   # Field names are generated using settings from the term in the +doc+'s terminology corresponding to +term_pointer+
+  # If the supplied term does not have an index_as attribute, no indexing will be performed.
   # @param [Nokogiri::XML::Node] node to solrize
   # @param [OM::XML::Document] doc document the node came from
   # @param [Array] term_pointer Array pointing to the term that should be used for solrization settings
+  # @param [Term] term the term to be solrized
   # @param [Hash] (optional) solr_doc (values hash) to populate
+  # @return [Hash] the solr doc
   def self.solrize_node(node, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
+    return solr_doc unless term.index_as
     field_mapper ||= self.default_field_mapper
     terminology = doc.class.terminology
-    # term = terminology.retrieve_term(*term_pointer)
     
     if term.path.kind_of?(Hash) && term.path.has_key?(:attribute)
       node_value = node.value
