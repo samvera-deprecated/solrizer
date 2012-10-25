@@ -56,7 +56,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
   # @param [Hash] (optional) solr_doc (values hash) to populate
   # @return [Hash] the solr doc
   def self.solrize_node(node, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
-    return solr_doc unless term.index_as
+    return solr_doc unless term.index_as && !term.index_as.empty?
     field_mapper ||= self.default_field_mapper
     terminology = doc.class.terminology
     

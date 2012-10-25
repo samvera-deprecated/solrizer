@@ -55,7 +55,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
       
       # These are a holdover from an old verison of OM
-      puts "DOC: #{solr_doc.length}"
       solr_doc['journal_0_issue_0_publication_date_t'].should == ["FEB. 2007"]
 
       
@@ -84,6 +83,25 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
         {suffix => actual_names}.should == {suffix => expected_names}
       end
+    end
+
+    it "shouldn't index terms where index_as is an empty array" do
+      fake_solr_doc = {}
+      term = Samples::ModsArticle.terminology.retrieve_term(:name)
+      term.children[:namePart].index_as = []# [:displayable, :facetable]
+
+      @mods_article.solrize_term(term, fake_solr_doc)
+      fake_solr_doc["name_0_namePart_t"].should be_nil
+    end
+
+    it "shouldn't index terms where index_as is searchable" do
+      fake_solr_doc = {}
+      term = Samples::ModsArticle.terminology.retrieve_term(:name)
+      term.children[:namePart].index_as = [:searchable]
+
+      @mods_article.solrize_term(term, fake_solr_doc)
+      
+      fake_solr_doc["name_0_namePart_t"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
     end
     
   end
