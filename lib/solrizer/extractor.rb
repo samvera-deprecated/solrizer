@@ -21,11 +21,8 @@ class Extractor
   # @param [String] field_value
   def self.insert_solr_field_value(solr_doc, field_name, field_value)
     formatted_value = self.format_node_value(field_value)
-    if solr_doc.has_key?(field_name)
-      solr_doc[field_name] << formatted_value
-    else
-      solr_doc.merge!( {field_name => [formatted_value]} ) 
-    end
+    solr_doc[field_name] ||= []
+    solr_doc[field_name] << formatted_value
     return solr_doc
   end
   
