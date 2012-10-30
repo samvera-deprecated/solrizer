@@ -55,7 +55,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
       
       # These are a holdover from an old verison of OM
-      solr_doc['journal_0_issue_0_publication_date_t'].should == ["FEB. 2007"]
+      solr_doc['journal_0_issue_0_publication_date_dt'].should == ["FEB. 2007"]
 
       
     end
@@ -83,6 +83,18 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
         {suffix => actual_names}.should == {suffix => expected_names}
       end
+    end
+
+    it "should add fields based on type using proxy" do
+      solr_doc = Hash.new
+      result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:pub_date), solr_doc)
+      solr_doc["pub_date_dt"].should == ["FEB. 2007"]
+    end
+
+      it "should add fields based on type using ref" do
+      solr_doc = Hash.new
+      result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:issue_date), solr_doc)
+      solr_doc["issue_date_dt"].should == ["DATE"]
     end
 
     it "shouldn't index terms where index_as is an empty array" do
