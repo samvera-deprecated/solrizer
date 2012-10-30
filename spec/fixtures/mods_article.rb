@@ -54,7 +54,7 @@ module Samples
         t.title_info(:index_as=>[:facetable],:ref=>[:title_info])
         t.origin_info(:path=>"originInfo") {
           t.publisher
-          t.date_issued(:path=>"dateIssued")
+          t.date_issued(:path=>"dateIssued", :type => :date, :index_as => [:searchable])
           t.issuance(:index_as=>[:facetable])
         }
         t.issn(:path=>"identifier", :attributes=>{:type=>"issn"})
@@ -68,7 +68,7 @@ module Samples
           }
           t.start_page(:proxy=>[:pages, :start])
           t.end_page(:proxy=>[:pages, :end])
-          t.publication_date(:path=>"date", :index_as=>[:searchable])
+          t.publication_date(:path=>"date", :type => :date, :index_as => [:searchable])
         }
       }
       t.note
@@ -78,6 +78,8 @@ module Samples
       t.publication_url(:proxy=>[:location,:url])
       t.title(:proxy=>[:title_info, :main_title])
       t.journal_title(:proxy=>[:journal, :title_info, :main_title])
+      t.pub_date(:proxy=>[:journal, :issue, :publication_date])
+      t.issue_date(:ref=>[:journal, :origin_info, :date_issued])
     end
     
     # Changes from OM::Properties implementation
