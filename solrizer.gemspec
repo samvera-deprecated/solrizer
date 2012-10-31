@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "daemons"
   s.add_development_dependency 'rspec', '~>2.0'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'mocha'
+#  s.add_development_dependency 'mocha'
   s.add_development_dependency 'yard'
     
   s.files         = `git ls-files`.split("\n")
