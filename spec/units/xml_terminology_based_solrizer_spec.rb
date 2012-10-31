@@ -35,7 +35,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc = Hash.new
       @mods_article.field_mapper = Solrizer::FieldMapper::Default.new
       Samples::ModsArticle.terminology.terms.each_pair do |k,v|
-        @mods_article.expects(:solrize_term).with(v, solr_doc, @mods_article.field_mapper)
+        @mods_article.should_receive(:solrize_term).with(v, solr_doc, @mods_article.field_mapper)
       end
       @mods_article.to_solr(solr_doc)
     end

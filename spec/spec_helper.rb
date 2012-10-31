@@ -13,7 +13,6 @@ require 'rspec'
 require 'solrizer'
 
 RSpec.configure do |config|
-  config.mock_with :mocha
 end
 
 def fixture(file)
