@@ -14,13 +14,11 @@ Gem::Specification.new do |s|
 
   s.add_dependency "nokogiri"
   s.add_dependency "om", ">=1.5.0"
-  s.add_dependency "xml-simple"
   s.add_dependency "mediashelf-loggable", "~>0.4.7"
   s.add_dependency "stomp"
   s.add_dependency "daemons"
   s.add_development_dependency 'rspec', '~>2.0'
   s.add_development_dependency 'rake'
-#  s.add_development_dependency 'mocha'
   s.add_development_dependency 'yard'
     
   s.files         = `git ls-files`.split("\n")
