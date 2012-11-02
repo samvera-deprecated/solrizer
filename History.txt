@@ -1,12 +1,9 @@
 h2. 2.0.0
 HYDRA-827 DO NOT index terms by default
 HYDRA-863 Null pointer exception fixed.
-
-BUG: Replaced data_type method with type which was causing the :type option in OM terms not to work.  This makes certain tests
-     not pass under Ruby 1.8.7, specifically when using :type option with a proxied term in OM.
-
-Test fixes such as properly testing solr field suffixes when using the :type option in OM as well as using correct
-ISO.8601 dates in our fixtures
+BUG: Replaced data_type method with type which was causing the :type option in OM terms not to work.  This makes certain tests not pass under Ruby 1.8.7, specifically when using :type option with a proxied term in OM.
+BUG: Fixed TerminologyBasedSolrizer#solrize_node instance method to call class method correctly, and changed #solrize_term to call instance method #solrize_node so that it can be overridden by subclasses
+Test fixes such as properly testing solr field suffixes when using the :type option in OM as well as using correct ISO.8601 dates in our fixtures
 
 h2. 1.2.2
 BUG: RSolr::Client doesn't have a delete method.  Changed to delete_by_id. (only affects solrizer shell script)  Thanks to mkorcy.
