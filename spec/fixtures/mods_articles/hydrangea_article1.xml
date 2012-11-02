@@ -61,7 +61,7 @@
         </titleInfo>
         <originInfo>
             <publisher>PUBLISHER</publisher>
-            <dateIssued>DATE</dateIssued>
+            <dateIssued>2007-02-15</dateIssued>
         </originInfo>
         <identifier type="issn">0013-8908</identifier>    
         <part>
@@ -75,7 +75,7 @@
                 <start>195</start>
                 <end>230</end>
             </extent>
-            <date>FEB. 2007</date>
+            <date>2007-02-01</date>
         </part>            
     </relatedItem>
 
