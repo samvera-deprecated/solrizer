@@ -36,7 +36,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
     nodeset.each do |node|
       # create solr fields
       
-      self.solrize_node(node, doc, term_pointer, term, solr_doc, field_mapper)
+      doc.solrize_node(node, term_pointer, term, solr_doc, field_mapper)
       unless term.kind_of? OM::XML::NamedTermProxy
         term.children.each_pair do |child_term_name, child_term|
           doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
@@ -98,7 +98,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
   end
   
   def solrize_node(node, term_pointer, term, solr_doc = Hash.new, field_mapper = self.field_mapper, opts={})
-    Solrizer::XML::TerminologyBasedSolrizer.solrize_node(node, self, term_pointer, solr_doc, field_mapper, opts)
+    Solrizer::XML::TerminologyBasedSolrizer.solrize_node(node, self, term_pointer, term, solr_doc, field_mapper, opts)
   end
   
 end
