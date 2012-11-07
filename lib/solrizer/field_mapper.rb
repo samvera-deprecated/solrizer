@@ -330,7 +330,9 @@ module Solrizer
       id_field 'id'
       index_as :searchable, :default => true do |t|
         t.default :suffix => '_t'
-        t.date    :suffix => '_dt'
+        t.date :suffix => '_dt' do |value|
+          Time.parse(value).utc.iso8601
+        end
         t.string  :suffix => '_t'
         t.text    :suffix => '_t'
         t.symbol  :suffix => '_s'

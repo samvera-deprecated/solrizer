@@ -201,7 +201,7 @@ describe Solrizer::FieldMapper do
     it "should apply mappings for searchable by default" do
       # Just sanity check a couple; copy & pasting all data types is silly
       @mapper.solr_names_and_values('foo', 'bar', :string, []).should == { 'foo_t' => ['bar'] }
-      @mapper.solr_names_and_values('foo', 'bar', :date, []).should == { 'foo_dt' => ['bar'] }
+      @mapper.solr_names_and_values('foo', "2012-11-06", :date, []).should == { 'foo_dt' =>["2012-11-06T05:00:00Z"] }
     end
     
     it "should support displayable, facetable, sortable, unstemmed" do

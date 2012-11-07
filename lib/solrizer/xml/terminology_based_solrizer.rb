@@ -14,32 +14,30 @@ module Solrizer::XML::TerminologyBasedSolrizer
     unless doc.class.terminology.nil?
       doc.class.terminology.terms.each_pair do |term_name,term|
         doc.solrize_term(term, solr_doc, field_mapper)
-        # self.solrize_by_term(accessor_name, accessor_info, :solr_doc=>solr_doc)
       end
     end
 
     return solr_doc
   end
   
-  # Populate a solr document with fields based on nodes in +xml+ corresponding to the 
-  # term identified by +term_pointer+ within +terminology+
+  # Populate a solr document with fields based on nodes in +xml+ 
+  # Values for a term are gathered by to +term_pointer+ using OM::XML::TermValueOperators.term_values 
+  # and are deserialized by OM according to :type, as determined in its terminology.
+  # The content of the actual field in solr is each +node+ of the +nodeset+ returned by OM,
+  # rendered to a string.
   # @param [OM::XML::Document] doc xml document to extract values from
   # @param [OM::XML::Term] term corresponding to desired xml values
   # @param [Hash] (optional) solr_doc (values hash) to populate
   def self.solrize_term(doc, term, solr_doc = Hash.new, field_mapper = nil, opts={})
-    terminology = doc.class.terminology
     parents = opts.fetch(:parents, [])
-
     term_pointer = parents+[term.name]
-    nodeset = doc.find_by_terms(*term_pointer)
+    nodeset = doc.term_values(*term_pointer)
     
-    nodeset.each do |node|
-      # create solr fields
-      
-      doc.solrize_node(node, term_pointer, term, solr_doc, field_mapper)
+    nodeset.each do |node|      
+      doc.solrize_node(node.to_s, term_pointer, term, solr_doc, field_mapper)
       unless term.kind_of? OM::XML::NamedTermProxy
         term.children.each_pair do |child_term_name, child_term|
-          doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node)}]})
+          doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node.to_s)}]})
         end
       end
     end
@@ -55,16 +53,9 @@ module Solrizer::XML::TerminologyBasedSolrizer
   # @param [Term] term the term to be solrized
   # @param [Hash] (optional) solr_doc (values hash) to populate
   # @return [Hash] the solr doc
-  def self.solrize_node(node, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
+  def self.solrize_node(node_value, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
     return solr_doc unless term.index_as && !term.index_as.empty?
     field_mapper ||= self.default_field_mapper
-    terminology = doc.class.terminology
-    
-    if term.path.kind_of?(Hash) && term.path.has_key?(:attribute)
-      node_value = node.value
-    else
-      node_value = node.text
-    end
     
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
     
