@@ -331,7 +331,7 @@ module Solrizer
       index_as :searchable, :default => true do |t|
         t.default :suffix => '_t'
         t.date :suffix => '_dt' do |value|
-          Time.parse(value).utc.iso8601
+          value.is_a?(Date) ? Time.parse(value.to_s).utc.iso8601 : Time.parse(value).utc.iso8601
         end
         t.string  :suffix => '_t'
         t.text    :suffix => '_t'
