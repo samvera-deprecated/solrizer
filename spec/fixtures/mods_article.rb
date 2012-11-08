@@ -79,7 +79,7 @@ module Samples
       t.title(:proxy=>[:title_info, :main_title])
       t.journal_title(:proxy=>[:journal, :title_info, :main_title])
       t.pub_date(:proxy=>[:journal, :issue, :publication_date])
-      t.issue_date(:ref=>[:journal, :origin_info, :date_issued])
+      t.issue_date(:ref=>[:journal, :origin_info, :date_issued], :type=> :date)
     end
     
     # Changes from OM::Properties implementation

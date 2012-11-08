@@ -38,7 +38,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
       # TODO: Solrizer::FieldMapper::Default is supposed to translate dates into full ISO 8601 formatted strings.
       # However, there an integration issue with ActiveFedora using OM: it ignores the default field mapper given
       # in this gem that does this. So, the following is a workaround until it is fixed.
-      node = n.is_a?(Date) ? Time.parse(n.to_s).utc.iso8601 : n.to_s      
+      node = n.is_a?(Date) ? DateTime.parse(n.to_s).to_time.utc.iso8601 : n.to_s
       
       doc.solrize_node(node.to_s, term_pointer, term, solr_doc, field_mapper)
       unless term.kind_of? OM::XML::NamedTermProxy
