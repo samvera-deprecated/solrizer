@@ -208,6 +208,7 @@ describe Solrizer::FieldMapper do
       @mapper.solr_names_and_values('foo', "2012-11-06",              :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
       @mapper.solr_names_and_values('foo', "November 6th, 2012",      :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
       @mapper.solr_names_and_values('foo', Date.parse("6 Nov. 2012"), :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', '', :date, []).should == { 'foo_dt' => [] }
     end
     
     it "should support displayable, facetable, sortable, unstemmed" do

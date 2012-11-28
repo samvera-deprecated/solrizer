@@ -268,7 +268,7 @@ module Solrizer
         
         # Add mapped name & value, unless it's a duplicate
         values = (results[name] ||= [])
-        values << value unless values.include?(value)
+        values << value unless value.nil? || values.include?(value)
       end
       
       results
@@ -331,7 +331,11 @@ module Solrizer
       index_as :searchable, :default => true do |t|
         t.default :suffix => '_t'
         t.date :suffix => '_dt' do |value|
-          value.is_a?(Date) ? DateTime.parse(value.to_s).to_time.utc.iso8601 : DateTime.parse(value).to_time.utc.iso8601
+          if value.is_a?(Date) 
+            DateTime.parse(value.to_s).to_time.utc.iso8601 
+          elsif !value.empty?
+            DateTime.parse(value).to_time.utc.iso8601
+          end
         end
         t.string  :suffix => '_t'
         t.text    :suffix => '_t'
