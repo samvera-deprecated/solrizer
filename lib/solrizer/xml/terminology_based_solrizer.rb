@@ -61,25 +61,25 @@ module Solrizer::XML::TerminologyBasedSolrizer
   # @return [Hash] the solr doc
   def self.solrize_node(node_value, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
     return solr_doc unless term.index_as && !term.index_as.empty?
-    field_mapper ||= self.default_field_mapper
     
     generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
+    create_and_insert_terms(generic_field_name_base, node_value, term, solr_doc)
+
     
-    field_mapper.solr_names_and_values(generic_field_name_base, node_value, term.type, term.index_as).each do |field_name, field_value|
+    if term_pointer.length > 1
+      hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
+      create_and_insert_terms(hierarchical_field_name_base, node_value, term, solr_doc)
+    end
+    solr_doc
+  end
+
+  def self.create_and_insert_terms(field_name_base, value, term, solr_doc)
+    field_mapper ||= self.default_field_mapper
+    field_mapper.solr_names_and_values(field_name_base, value, term.type, term.index_as).each do |field_name, field_value|
       unless field_value.join("").strip.empty?
         ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
       end
     end
-    
-    if term_pointer.length > 1
-      hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-      field_mapper.solr_names_and_values(hierarchical_field_name_base, node_value, term.type, term.index_as).each do |field_name, field_value|
-        unless field_value.join("").strip.empty?
-          ::Solrizer::Extractor.insert_solr_field_value(solr_doc, field_name, field_value)
-        end
-      end
-    end
-    solr_doc
   end
   
   # Instance Methods
