@@ -10,6 +10,7 @@ module Solrizer
   def self.default_field_mapper=(field_mapper)
     @@default_field_mapper = field_mapper
   end
+
 end
 
 require "solrizer/extractor"

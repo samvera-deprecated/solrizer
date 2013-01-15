@@ -29,4 +29,11 @@ describe Solrizer::Common do
     Foo.create_and_insert_terms('my_name', Date.parse('2013-01-10'), directive, solr_doc)
     solr_doc.should == {'my_name_display' => ['2013-01-10']}
   end
+
+  it "should handle dates that are sortable" do
+    solr_doc = {}
+    directive = Solrizer::Directive.new(:date, [:sortable])
+    Foo.create_and_insert_terms('my_name', Date.parse('2013-01-10'), directive, solr_doc)
+    solr_doc.should == {'my_name_sort' => ['2013-01-10']}
+  end
 end

@@ -1,4 +1,5 @@
 require "loggable"
+require 'active_support'
 module Solrizer
   
   # Maps Term names and values to Solr fields, based on the Term's data type and any index_as options.
@@ -186,6 +187,12 @@ module Solrizer
         end
       end      
     end
+
+    # Reset all of the mappings
+    def self.clear_mappings
+      logger.debug "resetting mappings for #{self.to_s}"
+      @@instance_init_actions[self] = []
+    end
   
   private
   
@@ -204,11 +211,6 @@ module Solrizer
       end
     end
     
-    # Reset all of the mappings
-    def self.clear_mappings
-      logger.debug "resetting mappings for #{self.to_s}"
-      @@instance_init_actions[self] = []
-    end
   
   public
     
@@ -326,38 +328,61 @@ module Solrizer
   
   public
 
-    class Default < FieldMapper
-      id_field 'id'
-      index_as :searchable do |t|
-        t.default :suffix => '_t'
-        t.date :suffix => '_dt' do |value|
-          begin 
-            if value.is_a?(Date) 
-              DateTime.parse(value.to_s).to_time.utc.iso8601 
-            elsif !value.empty?
-              DateTime.parse(value).to_time.utc.iso8601
-            end
-          rescue ArgumentError => e
-            raise ArgumentError, "Unable to parse `#{value}' as a date-time object"
+    module Defaults
+      extend ActiveSupport::Concern
+      included do 
+        id_field 'id'
+        index_as :searchable do |t|
+          t.default :suffix => '_t'
+          t.date :suffix => '_dt' do |value|
+            iso8601_date(value)
+          end
+          t.string  :suffix => '_t'
+          t.text    :suffix => '_t'
+          t.symbol  :suffix => '_s'
+          t.integer :suffix => '_i'
+          t.long    :suffix => '_l'
+          t.boolean :suffix => '_b'
+          t.float   :suffix => '_f'
+          t.double  :suffix => '_d'
+        end
+        index_as :displayable, :suffix => '_display' do |t|
+          t.date do |value|
+            value.to_s
           end
         end
-        t.string  :suffix => '_t'
-        t.text    :suffix => '_t'
-        t.symbol  :suffix => '_s'
-        t.integer :suffix => '_i'
-        t.long    :suffix => '_l'
-        t.boolean :suffix => '_b'
-        t.float   :suffix => '_f'
-        t.double  :suffix => '_d'
-      end
-      index_as :displayable, :suffix => '_display' do |t|
-        t.date do |value|
-          value.to_s
+        index_as :facetable, :suffix => '_facet' do |t|
+          t.date do |value|
+            value.to_s
+          end
         end
+
+        index_as :sortable, :suffix => '_sort' do |t|
+          t.date do |value|
+            value.to_s
+          end
+        end
+
+        index_as :unstemmed_searchable, :suffix => '_unstem_search'
       end
-      index_as :facetable,            :suffix => '_facet'
-      index_as :sortable,             :suffix => '_sort'
-      index_as :unstemmed_searchable, :suffix => '_unstem_search'
+    end
+
+    class Default < FieldMapper
+      include Defaults
+    end
+
+    protected
+
+    def self.iso8601_date(value)
+      begin 
+        if value.is_a?(Date) 
+          DateTime.parse(value.to_s).to_time.utc.iso8601 
+        elsif !value.empty?
+          DateTime.parse(value).to_time.utc.iso8601
+        end
+      rescue ArgumentError => e
+        raise ArgumentError, "Unable to parse `#{value}' as a date-time object"
+      end
     end
     
   end
