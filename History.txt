@@ -3,6 +3,7 @@ h2. 2.1.0
 Extract create_and_insert_terms into Solrizer::Common.  This can be used for RDF datastreams
 Raise helpful error message if date can't be parsed.
 Don't add searchable terms when another kind of field is added (continuation of HYDRA-827)
+** Upgrade note: Delete your config/solr_mappings.yml file, unless you have customized it. It's presence disables Solrizer::FieldMapper::Default **
 
 h2. 2.0.0
 HYDRA-827 DO NOT index terms by default
