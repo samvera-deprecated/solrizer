@@ -64,7 +64,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     it "should add multiple fields based on index_as" do
       fake_solr_doc = {}
       term = Samples::ModsArticle.terminology.retrieve_term(:name)
-      term.children[:namePart].index_as = [:displayable, :facetable]
+      term.children[:namePart].index_as = [:searchable, :displayable, :facetable]
 
       @mods_article.solrize_term(term, fake_solr_doc)
       

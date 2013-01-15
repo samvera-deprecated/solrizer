@@ -1,5 +1,4 @@
 id: id
-default: searchable
 searchable: 
   default: _t
   date: _dt

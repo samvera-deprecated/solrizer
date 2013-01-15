@@ -328,7 +328,7 @@ module Solrizer
 
     class Default < FieldMapper
       id_field 'id'
-      index_as :searchable, :default => true do |t|
+      index_as :searchable do |t|
         t.default :suffix => '_t'
         t.date :suffix => '_dt' do |value|
           begin 
@@ -350,7 +350,11 @@ module Solrizer
         t.float   :suffix => '_f'
         t.double  :suffix => '_d'
       end
-      index_as :displayable,          :suffix => '_display'
+      index_as :displayable, :suffix => '_display' do |t|
+        t.date do |value|
+          value.to_s
+        end
+      end
       index_as :facetable,            :suffix => '_facet'
       index_as :sortable,             :suffix => '_sort'
       index_as :unstemmed_searchable, :suffix => '_unstem_search'

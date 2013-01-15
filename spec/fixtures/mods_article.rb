@@ -13,7 +13,7 @@ module Samples
         }
         t.french_title(:ref=>[:title_info,:main_title], :attributes=>{"xml:lang"=>"fre"})
         
-        t.language(:index_as=>[:facetable],:path=>{:attribute=>"lang"})
+        t.language(:index_as=>[:facetable, :searchable],:path=>{:attribute=>"lang"})
       } 
       t.language{
         t.lang_code(:index_as=>[:facetable], :path=>"languageTerm", :attributes=>{:type=>"code"})
@@ -22,7 +22,7 @@ module Samples
       t.subject {
         t.topic(:index_as=>[:facetable])
       }      
-      t.topic_tag(:proxy=>[:subject, :topic])    
+      t.topic_tag(:proxy=>[:subject, :topic], :index_as=>[:searchable])    
       # t.topic_tag(:index_as=>[:facetable],:path=>"subject", :default_content_path=>"topic")
       # This is a mods:name.  The underscore is purely to avoid namespace conflicts.
       t.name_ {
