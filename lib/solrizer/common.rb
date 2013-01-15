@@ -23,11 +23,11 @@ module Solrizer
     module ClassMethods
 
       def default_field_mapper
-        @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+        Solrizer.default_field_mapper
       end
 
       def default_field_mapper=(obj)
-        @@default_field_mapper = obj 
+        Solrizer.default_field_mapper = obj
       end
   
       def create_and_insert_terms(field_name_base, value, directive, solr_doc)

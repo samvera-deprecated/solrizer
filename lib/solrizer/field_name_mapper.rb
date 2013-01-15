@@ -24,11 +24,11 @@ module Solrizer::FieldNameMapper
     end
     
     def default_field_mapper
-      @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+      Solrizer.default_field_mapper
     end
 
-    def default_field_mapper=(field_mapper)
-      @@default_field_mapper = field_mapper
+    def default_field_mapper=(obj)
+      Solrizer.default_field_mapper = obj
     end
   end
   

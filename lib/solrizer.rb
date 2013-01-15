@@ -3,6 +3,14 @@ module Solrizer
   def self.version
     Solrizer::VERSION
   end
+
+  def self.default_field_mapper
+    @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+  end
+
+  def self.default_field_mapper=(field_mapper)
+    @@default_field_mapper = field_mapper
+  end
 end
 
 require "solrizer/extractor"

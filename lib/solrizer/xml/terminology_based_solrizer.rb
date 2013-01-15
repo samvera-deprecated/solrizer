@@ -4,7 +4,6 @@ module Solrizer::XML::TerminologyBasedSolrizer
     klass.send(:include, Solrizer::Common)
     klass.send(:extend, ClassMethods)
   end
-
   
   # Module Methods
   module ClassMethods
