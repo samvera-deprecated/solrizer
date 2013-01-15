@@ -51,10 +51,6 @@ module Solrizer::XML::TerminologyBasedSolrizer
       solr_doc
     end
 
-    def term_to_solrizer_directive(term)
-      Solrizer::Directive.new(term.type, term.index_as)
-    end
-    
     # Populate a solr document with solr fields corresponding to the given xml node
     # Field names are generated using settings from the term in the +doc+'s terminology corresponding to +term_pointer+
     # If the supplied term does not have an index_as attribute, no indexing will be performed.
@@ -79,6 +75,13 @@ module Solrizer::XML::TerminologyBasedSolrizer
       end
       solr_doc
     end
+
+    private
+
+    def term_to_solrizer_directive(term)
+      Solrizer::Directive.new(term.type, term.index_as)
+    end
+    
   end
 
   

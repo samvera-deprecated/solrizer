@@ -14,11 +14,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   
   describe ".to_solr" do
   
-    # after(:all) do
-    #   # Revert to default mappings after running tests
-    #   ActiveFedora::SolrService.load_mappings
-    # end
-  
     it "should provide .to_solr and return a SolrDocument" do
       @mods_article.should respond_to(:to_solr)
       @mods_article.to_solr.should be_kind_of(Hash)
@@ -30,8 +25,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     end
   
     it "should iterate through the terminology terms, calling .solrize_term on each and passing in the solr doc" do
-      # mock_terms = {:name1=>:term1, :name2=>:term2}
-      # ActiveFedora::NokogiriDatastream.stubs(:accessors).returns(mock_accessors)
       solr_doc = Hash.new
       @mods_article.field_mapper = Solrizer::FieldMapper::Default.new
       Samples::ModsArticle.terminology.terms.each_pair do |k,v|
@@ -43,8 +36,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     it "should use Solr mappings to generate field names" do
 
       solr_doc =  @mods_article.to_solr
-      #should have these
-      
       solr_doc["abstract"].should be_nil
       solr_doc["abstract_t"].should == ["ABSTRACT"]
       solr_doc["title_info_1_language_t"].should == ["finnish"]
@@ -68,7 +59,6 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc = Hash.new
       result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:title_info), solr_doc)
       result.should == solr_doc
-      # @mods_article.solrize_term(:title_info, Samples::ModsArticle.terminology.retrieve_term(:title_info), :solr_doc=>solr_doc).should == ""
     end
 
     it "should add multiple fields based on index_as" do
@@ -102,7 +92,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     it "shouldn't index terms where index_as is an empty array" do
       fake_solr_doc = {}
       term = Samples::ModsArticle.terminology.retrieve_term(:name)
-      term.children[:namePart].index_as = []# [:displayable, :facetable]
+      term.children[:namePart].index_as = []
 
       @mods_article.solrize_term(term, fake_solr_doc)
       fake_solr_doc["name_0_namePart_t"].should be_nil
@@ -121,11 +111,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   end
 
   describe ".solrize_node" do
-    it "should optionally allow you to provide the Hash to add fields to and return that document when done" do
-      doc = Hash.new
-      # @mods_article.solrize_node(node, term_pointer, term, solr_doc).should equal(doc)
-    end
-    
+    it "should optionally allow you to provide the Hash to add fields to and return that document when done"
     it "should create a solr field containing node.text"
     it "should create hierarchical field entries if parents is not empty"
     it "should only create one node if parents is empty"
