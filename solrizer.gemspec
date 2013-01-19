@@ -13,13 +13,13 @@ Gem::Specification.new do |s|
   s.description = %q{Use solrizer to populate solr indexes.  You can run solrizer from within your app, using the provided rake tasks, or as a JMS listener}
 
   s.add_dependency "nokogiri"
-  s.add_dependency "om", ">=1.5.0"
+  s.add_dependency "om", "~> 2.0.0.pre1"
   s.add_dependency "xml-simple"
   s.add_dependency "mediashelf-loggable", "~>0.4.7"
   s.add_dependency "stomp"
   s.add_dependency "daemons"
   s.add_dependency "activesupport"
-  s.add_development_dependency 'rspec', '~>2.0'
+  s.add_development_dependency 'rspec'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'RedCloth' # yard depends on redcloth
