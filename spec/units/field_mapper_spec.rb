@@ -3,39 +3,135 @@ require 'spec_helper'
 describe Solrizer::FieldMapper do
   
   # --- Test Mappings ----
-  
   class TestMapper0 < Solrizer::FieldMapper
     id_field 'ident'
-    index_as :searchable, :suffix => '_s',    :default => true
-    index_as :edible,     :suffix => '_food'
-    index_as :laughable,  :suffix => '_haha', :default => true do |type|
-      type.integer :suffix => '_ihaha' do |value, field_name|
-        "How many #{field_name}s does it take to screw in a light bulb? #{value.capitalize}."
+    module Descriptors0
+      # Produces a _s suffix (overrides _tim)
+      def self.unstemmed_searchable
+        @unstemmed_searchable ||= UnstemmedDescriptor.new()
       end
-      type.default do |value|
-        "Knock knock. Who's there? #{value.capitalize}. #{value.capitalize} who?"
+
+      # Produces a _s suffix (overrides _tim)
+      def self.searchable
+        @searchable ||= SearchableDescriptor.new()
+      end
+
+      def self.edible
+        @edible ||= EdibleDescriptor.new()
+      end
+
+      def self.fungible
+        @fungible ||= FungibleDescriptor.new()
+      end
+
+      def self.laughable
+        @laughable ||= LaughableDescriptor.new()
+      end
+
+      class UnstemmedDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + '_s', lambda { |value| field_type == :date ? "#{value} o'clock" : value }]
+        end
+      end
+
+      class SearchableDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + '_s']
+        end
+      end
+
+      class EdibleDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + '_food']
+        end
+      end
+
+      class FungibleDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + fungible_type(field_type)]
+        end
+        def fungible_type(type)
+          case type
+          when :integer
+            '_f1'
+          when :date
+            '_f0'
+          else
+            '_f2'
+          end
+        end
+      end
+
+      class LaughableDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + laughable_type(field_type), laughable_converter(field_type)]
+        end
+
+        def laughable_type(type)
+          case type
+          when :integer
+            '_ihaha'
+          else
+            '_haha'
+          end
+        end
+
+        def laughable_converter(type)
+          case type
+          when :integer
+            lambda do |value, field_name| 
+              "How many #{field_name}s does it take to screw in a light bulb? #{value.capitalize}."
+            end
+          else
+            lambda do |value| 
+              "Knock knock. Who's there? #{value.capitalize}. #{value.capitalize} who?"
+            end
+          end
+        end
       end
     end
-    index_as :fungible, :suffix => '_f0' do |type|
-      type.integer :suffix => '_f1'
-      type.date
-      type.default :suffix => '_f2'
-    end
-    index_as :unstemmed_searchable, :suffix => '_s' do |type|
-      type.date do |value|
-        "#{value} o'clock"
-      end
-    end
+
+    self.descriptors = [Descriptors0, Solrizer::DefaultDescriptors]
   end
   
   class TestMapper1 < TestMapper0
-    index_as :searchable do |type|
-      type.date :suffix => '_d'
+    module Descriptors1
+      def self.fungible
+        @fungible ||= FungibleDescriptor.new()
+      end
+
+      def self.simple
+        @simple ||= SimpleDescriptor.new(lambda {|field_type| [field_type, :indexed]})
+      end
+
+      class SimpleDescriptor < Solrizer::Descriptor
+        def name_and_converter(field_name, field_type)
+          if field_type == :date
+            [field_name + '_d']
+          else
+            super
+          end
+        end
+      end
+
+      class FungibleDescriptor < TestMapper0::Descriptors0::FungibleDescriptor
+        def name_and_converter(field_name, field_type)
+          [field_name + fungible_type(field_type)]
+        end
+
+        def fungible_type(type)
+            case type
+            when :garble
+              '_f4'
+            when :integer
+              '_f5'
+            else
+              super
+            end
+        end
+      end
     end
-    index_as :fungible, :suffix => '_f3' do |type|
-      type.garble  :suffix => '_f4'
-      type.integer :suffix => '_f5'
-    end
+    self.descriptors = [Descriptors1, Descriptors0, Solrizer::DefaultDescriptors]
   end
   
   before(:each) do
@@ -58,7 +154,7 @@ describe Solrizer::FieldMapper do
     end
 
     it "should default the index_type to :searchable" do
-      @mapper.solr_name('foo', :string).should == 'foo_s'
+      @mapper.solr_name('foo', :string).should == 'foo_si'
     end
     
     it "should map based on data type" do
@@ -68,28 +164,28 @@ describe Solrizer::FieldMapper do
     end
   
     it "should return nil for an unknown index types" do
-      silence do
-        @mapper.solr_name('foo', :string, :blargle).should == nil
-      end
+      lambda { 
+        @mapper.solr_name('foo', :string, :blargle)
+      }.should raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
     end
     
     it "should allow subclasses to selectively override suffixes" do
       @mapper = TestMapper1.new
       @mapper.solr_name('foo', :date).should == 'foo_d'   # override
-      @mapper.solr_name('foo', :string).should == 'foo_s' # from super
+      @mapper.solr_name('foo', :string).should == 'foo_si' # from super
       @mapper.solr_name('foo', :integer, :fungible).should == 'foo_f5'  # override on data type
       @mapper.solr_name('foo', :garble,  :fungible).should == 'foo_f4'  # override on data type
       @mapper.solr_name('foo', :fratz,   :fungible).should == 'foo_f2'  # from super
-      @mapper.solr_name('foo', :date,    :fungible).should == 'foo_f3'  # super definition picks up override on index type
+      @mapper.solr_name('foo', :date,    :fungible).should == 'foo_f0'  # super definition picks up override on index type
     end
     
     it "should support field names as symbols" do
-      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
+      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_si"
     end
     
     it "should support scenarios where field_type is nil" do
       mapper = Solrizer::FieldMapper::Default.new
-      mapper.solr_name(:heifer, nil, :searchable).should == "heifer_t"
+      lambda { mapper.solr_name(:heifer, nil, :searchable)}.should raise_error Solrizer::InvalidIndexDescriptor
     end
   end
   
@@ -102,18 +198,6 @@ describe Solrizer::FieldMapper do
       }
     end
     
-    it "should apply default index_as mapping unless excluded with not_" do
-      @mapper.solr_names_and_values('foo', 'bar', :string, []).should == {
-        'foo_s' => ['bar'],
-        'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
-      }
-      @mapper.solr_names_and_values('foo', 'bar', :string, [:edible, :not_laughable]).should == {
-        'foo_s' => ['bar'],
-        'foo_food' => ['bar']
-      }
-      @mapper.solr_names_and_values('foo', 'bar', :string, [:not_searchable, :not_laughable]).should == {}
-    end
-  
     it "should apply mappings based on data type" do
       @mapper.solr_names_and_values('foo', 'bar', :integer, [:searchable, :laughable]).should == {
         'foo_s'     => ['bar'],
@@ -121,23 +205,20 @@ describe Solrizer::FieldMapper do
       }
     end
     
-    it "should skip unknown index types" do
-      silence do
-        @mapper.solr_names_and_values('foo', 'bar', :string, [:blargle]).should == {
-          'foo_s' => ['bar'],
-          'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
-        }
-      end
+    it "should raise error on unknown index types" do
+      lambda { 
+        @mapper.solr_names_and_values('foo', 'bar', :string, [:blargle])
+      }.should raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
     end
     
     it "should generate multiple mappings when two return the _same_ solr name but _different_ values" do
-      @mapper.solr_names_and_values('roll', 'rock', :date, [:unstemmed_searchable, :not_laughable]).should == {
+      @mapper.solr_names_and_values('roll', 'rock', :date, [:unstemmed_searchable, :searchable]).should == {
         'roll_s' => ["rock o'clock", 'rock']
       }
     end
     
     it "should not generate multiple mappings when two return the _same_ solr name and the _same_ value" do
-      @mapper.solr_names_and_values('roll', 'rock', :string, [:unstemmed_searchable, :not_laughable]).should == {
+      @mapper.solr_names_and_values('roll', 'rock', :string, [:unstemmed_searchable, :searchable]).should == {
         'roll_s' => ['rock'],
       }
     end
@@ -205,30 +286,19 @@ describe Solrizer::FieldMapper do
     end
 
     it "should support full ISO 8601 dates" do
-      @mapper.solr_names_and_values('foo', "2012-11-06",              :date, [:searchable]).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "November 6th, 2012",      :date, [:searchable]).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', Date.parse("6 Nov. 2012"), :date, [:searchable]).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', '', :date, [:searchable]).should == { 'foo_dt' => [] }
+      @mapper.solr_names_and_values('foo', "2012-11-06",              :date, [:searchable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', "November 6th, 2012",      :date, [:searchable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', Date.parse("6 Nov. 2012"), :date, [:searchable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', '', :date, [:searchable]).should == { 'foo_dtsi' => [] }
     end
     
     it "should support displayable, facetable, sortable, unstemmed" do
       @mapper.solr_names_and_values('foo', 'bar', :string, [:searchable, :displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
-        'foo_t' => ['bar'],
-        'foo_display' => ['bar'],
-        'foo_facet' => ['bar'],
-        'foo_sort' => ['bar'],
-        'foo_unstem_search' => ['bar'],
+        "foo_tesim" => ["bar"], #searchable
+        "foo_sim" => ["bar"], #displayable, facetable
+        "foo_ssi" => ["bar"], #sortable
+        "foo_tim" => ["bar"] #unstemmed_searchable
       }
-    end
-  end
-  
-  def silence
-    old_level = @mapper.logger.level
-    @mapper.logger.level = 100
-    begin
-      yield
-    ensure
-      @mapper.logger.level = old_level
     end
   end
 end

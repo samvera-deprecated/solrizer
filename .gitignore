@@ -5,7 +5,7 @@ Gemfile.lock
 *.sqlite3
 *.log
 *~
-*.swp
+*.sw[pon]
 
 pkg/
 coverage/*

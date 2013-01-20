@@ -1,7 +1,11 @@
 require "loggable"
 require 'active_support'
+require 'active_support/core_ext/class/attribute'
 module Solrizer
-  
+
+  class SolrizerError < RuntimeError; end #nodoc#
+  class InvalidIndexDescriptor < SolrizerError; end #nodoc# 
+  class UnknownIndexMacro < SolrizerError; end #nodoc# 
   # Maps Term names and values to Solr fields, based on the Term's data type and any index_as options.
   #
   # The basic structure of a mapper is:
@@ -217,6 +221,9 @@ module Solrizer
     # ------ Instance methods ------
     
     attr_reader :id_field, :default_index_types, :mappings
+    class_attribute :descriptors
+    self.descriptors = [DefaultDescriptors]
+
     
     def initialize
       @mappings = {}
@@ -226,9 +233,41 @@ module Solrizer
 
     # Given a specific field name, data type, and index type, returns the corresponding solr name.
     
-    def solr_name(field_name, field_type, index_type = :searchable)
-      name, mapping, data_type_mapping = solr_name_and_mappings(field_name, field_type, index_type)
-      name
+    # TODO field type is the input format, maybe we could just detect that?
+    # @param index_type is a FieldDescriptor
+    def solr_name(field_name, field_type, index_type = nil)
+      # if they don't provide an index type, give them a basic indexed field for that type.
+      # This is primarily to provide backward compatibility.  TODO deprecate this behavior
+      index_type = index_type_macro(:simple) if index_type.nil?
+      solr_name_and_converter(field_name, field_type, index_type).first
+    end
+
+    # @param index_type [Symbol]
+    # search through the descriptors (class attribute) until a module is found that responds to index_type, then call it.
+    def index_type_macro(index_type)
+      klass = self.class.descriptors.find { |klass| klass.respond_to? index_type}
+      if klass
+        klass.send(index_type)
+      else
+        raise UnknownIndexMacro, "Unable to find `#{index_type}' in #{self.class.descriptors}"
+      end
+    end
+
+    # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
+    def solr_name_and_converter(field_name, field_type, index_type)
+      index_type = case index_type
+      when Symbol
+        index_type_macro(index_type)
+      when Array
+        raise "It's not yet supposed to be an array"
+        #IndexDescriptors::Descriptor.new(*index_type)
+      else
+        index_type
+      end
+
+
+      raise InvalidIndexDescriptor, "index type should be an IndexDescriptor, you passed: #{index_type}" unless index_type.kind_of? Descriptor
+      index_type.name_and_converter(field_name, field_type)
     end
 
     # Given a field name-value pair, a data type, and an array of index types, returns a hash of
@@ -238,7 +277,6 @@ module Solrizer
       # Determine the set of index types, adding defaults and removing not_xyz
       
       index_types ||= []
-      index_types += default_index_types
       index_types.uniq!
       index_types.dup.each do |index_type|
         if index_type.to_s =~ /^not_(.*)/
@@ -253,19 +291,20 @@ module Solrizer
       
       index_types.each do |index_type|
         # Get mapping for field
-        name, mapping, data_type_mapping = solr_name_and_mappings(field_name, field_type, index_type)
+        name, converter = solr_name_and_converter(field_name, field_type, index_type)
         next unless name
         
         # Is there a custom converter?
-        value = if data_type_mapping && data_type_mapping.converter
-          converter = data_type_mapping.converter
+        # TODO instead of a custom converter, look for input data type and output data type. Create a few methods that can do that cast.
+
+        value = if converter
           if converter.arity == 1
             converter.call(field_value)
           else
             converter.call(field_value, field_name)
           end
         else
-          field_value
+          field_value.to_s
         end
         
         # Add mapped name & value, unless it's a duplicate
@@ -277,23 +316,6 @@ module Solrizer
     end
     
   private
-  
-    def solr_name_and_mappings(field_name, field_type, index_type)
-      field_name = field_name.to_s
-      mapping = @mappings[index_type]
-      unless mapping
-        logger.debug "Unknown index type '#{index_type}' for field #{field_name}"
-        return nil
-      end
-      
-      data_type_mapping = mapping.data_types[field_type] || mapping.data_types[:default]
-      
-      suffix = data_type_mapping.opts[:suffix] if data_type_mapping
-      suffix ||= mapping.opts[:suffix]
-      name = field_name + suffix
-      
-      [name, mapping, data_type_mapping]
-    end
 
     class IndexTypeMapping
       attr_accessor :opts, :data_types

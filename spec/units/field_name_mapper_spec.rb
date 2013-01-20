@@ -16,13 +16,13 @@ describe Solrizer::FieldNameMapper do
   
   describe '#solr_name' do
     it "should generate solr field names" do
-      TestFieldNameMapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
+      TestFieldNameMapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_ssim"
     end
   end
   
   describe ".solr_name" do
     it "should generate solr field names" do
-      TestFieldNameMapper.new.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
+      TestFieldNameMapper.new.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_ssim"
     end
   end
 end
