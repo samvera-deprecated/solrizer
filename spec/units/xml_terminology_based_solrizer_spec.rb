@@ -26,7 +26,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   
     it "should iterate through the terminology terms, calling .solrize_term on each and passing in the solr doc" do
       solr_doc = Hash.new
-      @mods_article.field_mapper = Solrizer::FieldMapper::Default.new
+      @mods_article.field_mapper = Solrizer::FieldMapper.new
       Samples::ModsArticle.terminology.terms.each_pair do |k,v|
         @mods_article.should_receive(:solrize_term).with(v, solr_doc, @mods_article.field_mapper)
       end
@@ -95,7 +95,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       term.children[:namePart].index_as = []
 
       @mods_article.solrize_term(term, fake_solr_doc)
-      fake_solr_doc["name_0_namePart_t"].should be_nil
+      fake_solr_doc["name_0_namePart_tesim"].should be_nil
     end
 
     it "shouldn't index terms where index_as is searchable" do
@@ -107,14 +107,5 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       
       fake_solr_doc["name_0_namePart_tesim"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
     end
-    
   end
-
-  describe ".solrize_node" do
-    it "should optionally allow you to provide the Hash to add fields to and return that document when done"
-    it "should create a solr field containing node.text"
-    it "should create hierarchical field entries if parents is not empty"
-    it "should only create one node if parents is empty"
-  end
-
 end

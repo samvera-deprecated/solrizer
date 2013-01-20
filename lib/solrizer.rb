@@ -4,7 +4,7 @@ module Solrizer
   end
 
   def self.default_field_mapper
-    @@default_field_mapper ||= Solrizer::FieldMapper::Default.new
+    @@default_field_mapper ||= Solrizer::FieldMapper.new
   end
 
   def self.default_field_mapper=(field_mapper)

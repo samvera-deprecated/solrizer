@@ -4,7 +4,7 @@ describe Solrizer::FieldMapper do
   
   # --- Test Mappings ----
   class TestMapper0 < Solrizer::FieldMapper
-    id_field 'ident'
+    self.id_field= 'ident'
     module Descriptors0
       # Produces a _s suffix (overrides _tim)
       def self.unstemmed_searchable
@@ -183,8 +183,8 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_si"
     end
     
-    it "should support scenarios where field_type is nil" do
-      mapper = Solrizer::FieldMapper::Default.new
+    it "should raise an error when field_type is nil" do
+      mapper = Solrizer::FieldMapper.new
       lambda { mapper.solr_name(:heifer, nil, :searchable)}.should raise_error Solrizer::InvalidIndexDescriptor
     end
   end
@@ -224,55 +224,9 @@ describe Solrizer::FieldMapper do
     end
   end
 
-  describe "#load_mappings" do 
+  describe Solrizer::FieldMapper do
     before(:each) do
-      class TestMapperLoading < Solrizer::FieldMapper
-      end
-    end
-    it "should take mappings file as an optional argument" do
-      file_path = File.join(File.dirname(__FILE__), "..", "fixtures","test_solr_mappings.yml")
-  	  TestMapperLoading.load_mappings(file_path)
-  	  mapper = TestMapperLoading.new
-      mappings_from_file = YAML::load(File.open(file_path))
-      mapper.id_field.should == "pid"
-      mapper.mappings[:edible].opts[:default].should == true
-      mapper.mappings[:edible].data_types[:boolean].opts[:suffix].should == "_edible_bool"
-      mappings_from_file["edible"].each_pair do |k,v|
-        mapper.mappings[:edible].data_types[k.to_sym].opts[:suffix].should == v        
-      end
-      mapper.mappings[:displayable].opts[:suffix].should == mappings_from_file["displayable"]
-      mapper.mappings[:facetable].opts[:suffix].should == mappings_from_file["facetable"]
-      mapper.mappings[:sortable].opts[:suffix].should == mappings_from_file["sortable"]
-	  end
-	  it 'should default to using the mappings from config/solr_mappings.yml' do
-	    TestMapperLoading.load_mappings
-  	  mapper = TestMapperLoading.new
-  	  default_file_path = File.join(File.dirname(__FILE__), "..", "..","config","solr_mappings.yml")
-      mappings_from_file = YAML::load(File.open(default_file_path))
-      mapper.id_field.should == mappings_from_file["id"]
-      mappings_from_file["searchable"].each_pair do |k,v|
-        mapper.mappings[:searchable].data_types[k.to_sym].opts[:suffix].should == v        
-      end
-      mapper.mappings[:displayable].opts[:suffix].should == mappings_from_file["displayable"]
-      mapper.mappings[:facetable].opts[:suffix].should == mappings_from_file["facetable"]
-      mapper.mappings[:sortable].opts[:suffix].should == mappings_from_file["sortable"]
-    end
-    it "should wipe out pre-existing mappings without affecting other FieldMappers" do
-      TestMapperLoading.load_mappings
-      file_path = File.join(File.dirname(__FILE__), "..", "fixtures","test_solr_mappings.yml")
-  	  TestMapperLoading.load_mappings(file_path)
-  	  mapper = TestMapperLoading.new
-  	  mapper.mappings[:searchable].should be_nil
-  	  default_mapper = Solrizer::FieldMapper::Default.new
-  	  default_mapper.mappings[:searchable].should_not be_nil
-  	end
-  	it "should raise an informative error if the yaml file is structured improperly"
-  	it "should raise an informative error if there is no YAML file"
-	end
-  
-  describe Solrizer::FieldMapper::Default do
-    before(:each) do
-      @mapper = Solrizer::FieldMapper::Default.new
+      @mapper = Solrizer::FieldMapper.new
     end
   	
     it "should call the id field 'id'" do

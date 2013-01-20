@@ -22,8 +22,9 @@ describe Solrizer::Extractor do
 
   describe "#insert_solr_field_value" do
     it "should initialize a solr doc list if it is nil" do
-       solr_doc = {'title_t' => nil }
-       Solrizer::Extractor.insert_solr_field_value(solr_doc, 'title_t', 'Frank')
+       solr_doc = {'title_tesim' => nil }
+       Solrizer::Extractor.insert_solr_field_value(solr_doc, 'title_tesim', 'Frank')
+       solr_doc.should == {"title_tesim"=>["Frank"]}
     end
   end
   
