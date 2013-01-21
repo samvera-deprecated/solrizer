@@ -93,7 +93,7 @@ module Solrizer
     
     # ------ Instance methods ------
     
-    attr_reader :id_field, :default_index_types, :mappings
+    attr_reader :id_field, :default_index_types
     class_attribute :id_field
     class_attribute :descriptors
     # set defaults
@@ -102,7 +102,6 @@ module Solrizer
 
     
     def initialize
-      @mappings = {}
       self.id_field = self.class.id_field
     end
 
@@ -185,23 +184,5 @@ module Solrizer
       
       results
     end
-    
-  public
-
-    protected
-
-    def self.iso8601_date(value)
-      begin 
-        if value.is_a?(Date) 
-          DateTime.parse(value.to_s).to_time.utc.iso8601 
-        elsif !value.empty?
-          DateTime.parse(value).to_time.utc.iso8601
-        end
-      rescue ArgumentError => e
-        raise ArgumentError, "Unable to parse `#{value}' as a date-time object"
-      end
-    end
-    
   end
-    
 end
