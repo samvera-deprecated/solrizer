@@ -20,9 +20,9 @@ module Solrizer
       @sortable ||= Descriptor.new(:string, :indexed, :stored)
     end
 
-    # Produces a _sim suffix
+    # Produces a _ssm suffix
     def self.displayable
-      @displayable ||= Descriptor.new(:string, :indexed, :multivalued)
+      @displayable ||= Descriptor.new(:string, :stored, :multivalued)
     end
 
     # Produces a _tim suffix (used to be _unstem)

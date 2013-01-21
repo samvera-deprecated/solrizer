@@ -249,7 +249,8 @@ describe Solrizer::FieldMapper do
     it "should support displayable, facetable, sortable, unstemmed" do
       @mapper.solr_names_and_values('foo', 'bar', :string, [:searchable, :displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
         "foo_tesim" => ["bar"], #searchable
-        "foo_sim" => ["bar"], #displayable, facetable
+        "foo_sim" => ["bar"], #facetable
+        "foo_ssm" => ["bar"], #displayable
         "foo_ssi" => ["bar"], #sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
       }
