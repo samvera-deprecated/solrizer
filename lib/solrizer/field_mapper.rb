@@ -110,10 +110,7 @@ module Solrizer
     
     # TODO field type is the input format, maybe we could just detect that?
     # @param index_type is a FieldDescriptor
-    def solr_name(field_name, field_type, index_type = nil)
-      # if they don't provide an index type, give them a basic indexed field for that type.
-      # This is primarily to provide backward compatibility.  TODO deprecate this behavior
-      index_type = index_type_macro(:simple) if index_type.nil?
+    def solr_name(field_name, field_type, index_type = :searchable)
       solr_name_and_converter(field_name, field_type, index_type).first
     end
 
@@ -139,7 +136,6 @@ module Solrizer
       else
         index_type
       end
-
 
       raise InvalidIndexDescriptor, "index type should be an IndexDescriptor, you passed: #{index_type}" unless index_type.kind_of? Descriptor
       index_type.name_and_converter(field_name, field_type)

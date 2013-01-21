@@ -36,7 +36,7 @@ describe Solrizer::FieldMapper do
 
       class SearchableDescriptor < Solrizer::Descriptor
         def name_and_converter(field_name, field_type)
-          [field_name + '_s']
+          [field_name.to_s + '_s']
         end
       end
 
@@ -154,7 +154,11 @@ describe Solrizer::FieldMapper do
     end
 
     it "should default the index_type to :searchable" do
-      @mapper.solr_name('foo', :string).should == 'foo_si'
+      @mapper.solr_name('foo', :string).should == 'foo_s'
+    end
+
+    it "should support field names as symbols" do
+      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
     end
     
     it "should map based on data type" do
@@ -171,17 +175,14 @@ describe Solrizer::FieldMapper do
     
     it "should allow subclasses to selectively override suffixes" do
       @mapper = TestMapper1.new
-      @mapper.solr_name('foo', :date).should == 'foo_d'   # override
-      @mapper.solr_name('foo', :string).should == 'foo_si' # from super
+      @mapper.solr_name('foo', :date).should == 'foo_s'
+      @mapper.solr_name('foo', :string).should == 'foo_s'
       @mapper.solr_name('foo', :integer, :fungible).should == 'foo_f5'  # override on data type
       @mapper.solr_name('foo', :garble,  :fungible).should == 'foo_f4'  # override on data type
       @mapper.solr_name('foo', :fratz,   :fungible).should == 'foo_f2'  # from super
       @mapper.solr_name('foo', :date,    :fungible).should == 'foo_f0'  # super definition picks up override on index type
     end
     
-    it "should support field names as symbols" do
-      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_si"
-    end
     
     it "should raise an error when field_type is nil" do
       mapper = Solrizer::FieldMapper.new
@@ -231,6 +232,14 @@ describe Solrizer::FieldMapper do
   	
     it "should call the id field 'id'" do
       @mapper.id_field.should == 'id'
+    end
+
+    it "should default the index_type to :searchable" do
+      @mapper.solr_name('foo', :string).should == 'foo_tesim'
+    end
+    
+    it "should support field names as symbols" do
+      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_ssim"
     end
     
     it "should not apply mappings for searchable by default" do
