@@ -5,13 +5,23 @@ module Solrizer
       if args.last.kind_of? Hash
         opts = args.pop
         @converter = opts[:converter] 
+        @type_required = opts[:requires_type] 
       end
       @index_type = args
       raise Solrizer::InvalidIndexDescriptor, "Invalid index type passed to Sorizer.solr_name.  It should be an array like [:string, :indexed, :stored, :multivalued]. You provided: `#{@index_type}'" unless index_type.kind_of? Array
     end
 
-    def name_and_converter(field_name, field_type)
+    def name_and_converter(field_name, args=nil)
+      args ||= {}
+      field_type = args[:type]
+      if type_required?
+        raise "Must provide a :type argument when index_type is `#{self}'" unless field_type
+      end
       [field_name.to_s + suffix(field_type), converter(field_type)]
+    end
+
+    def type_required?
+      @type_required
     end
 
     protected

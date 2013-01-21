@@ -12,7 +12,12 @@ module Solrizer
     #  _dtsim - for dates
     #  _isim - for integers
     def self.searchable
-      @searchable ||= Descriptor.new(searchable_field_definition, converter: searchable_converter)
+      @searchable ||= Descriptor.new(searchable_field_definition, converter: searchable_converter, requires_type: true)
+    end
+
+    # Produces a _ssim suffix
+    def self.symbol
+      @symbol ||= Descriptor.new(:string, :stored, :indexed, :multivalued)
     end
 
     # Produces a _ssi suffix

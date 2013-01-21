@@ -109,8 +109,16 @@ module Solrizer
     
     # TODO field type is the input format, maybe we could just detect that?
     # @param index_type is a FieldDescriptor
-    def solr_name(field_name, field_type, index_type = :searchable)
-      solr_name_and_converter(field_name, field_type, index_type).first
+    def solr_name(field_name, *opts)
+      index_type, args = if opts.first.kind_of? Hash
+        [:searchable, opts.first]
+      elsif opts.empty?
+        [:searchable, {type: :text}]
+      else
+        [opts[0], opts[1] || {}]
+      end
+
+      indexer(index_type).name_and_converter(field_name, args).first
     end
 
     # @param index_type [Symbol]
@@ -124,8 +132,8 @@ module Solrizer
       end
     end
 
-    # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
-    def solr_name_and_converter(field_name, field_type, index_type)
+    # # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
+    def indexer(index_type)
       index_type = case index_type
       when Symbol
         index_type_macro(index_type)
@@ -137,7 +145,7 @@ module Solrizer
       end
 
       raise InvalidIndexDescriptor, "index type should be an IndexDescriptor, you passed: #{index_type}" unless index_type.kind_of? Descriptor
-      index_type.name_and_converter(field_name, field_type)
+      index_type
     end
 
     # Given a field name-value pair, a data type, and an array of index types, returns a hash of
@@ -161,7 +169,8 @@ module Solrizer
       
       index_types.each do |index_type|
         # Get mapping for field
-        name, converter = solr_name_and_converter(field_name, field_type, index_type)
+        name, converter = indexer(index_type).name_and_converter(field_name, type: field_type)
+        #name, converter = solr_name_and_converter(field_name, index_type, field_type)
         next unless name
         
         # Is there a custom converter?
