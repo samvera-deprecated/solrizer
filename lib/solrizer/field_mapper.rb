@@ -151,6 +151,7 @@ module Solrizer
 
     def extract_type(value)
       case value
+      when NilClass
       when Fixnum
         :integer
       else
