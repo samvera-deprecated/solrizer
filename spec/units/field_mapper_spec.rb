@@ -221,6 +221,10 @@ describe Solrizer::FieldMapper do
         'roll_s' => ['rock'],
       }
     end
+
+    it "should return an empty hash when value is nil" do
+      @mapper.solr_names_and_values('roll', nil, [:another_searchable, :searchable]).should == { }
+    end
   end
 
   describe Solrizer::FieldMapper do

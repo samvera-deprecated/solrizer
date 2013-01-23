@@ -163,8 +163,9 @@ module Solrizer
     # mapped names and values. The values in the hash are _arrays_, and may contain multiple values.
     
     def solr_names_and_values(field_name, field_value, index_types)
-      # Determine the set of index types, adding defaults and removing not_xyz
+      return {} unless field_value
       
+      # Determine the set of index types, adding defaults and removing not_xyz
       index_types ||= []
       index_types.uniq!
       index_types.dup.each do |index_type|
