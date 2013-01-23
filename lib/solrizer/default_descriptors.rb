@@ -14,6 +14,13 @@ module Solrizer
     def self.searchable
       @searchable ||= Descriptor.new(searchable_field_definition, converter: searchable_converter, requires_type: true)
     end
+    
+    # Takes fields which are stored as strings, but we want indexed as dates.  (e.g. "November 6th, 2012")
+    # produces suffixes:
+    #  _dtsi - for dates
+    def self.dateable
+      @dateable ||= Descriptor.new(:date, :stored, :indexed, converter: dateable_converter)
+    end
 
     # Produces a _ssim suffix
     def self.symbol
@@ -54,6 +61,18 @@ module Solrizer
         case type
         when :date
           lambda { |val| iso8601_date(val)}
+        end
+      end
+    end
+
+    def self.dateable_converter
+      lambda do |type|
+        lambda do |val| 
+          begin
+            iso8601_date(Date.parse(val))
+          rescue ArgumentError
+            nil 
+          end
         end
       end
     end

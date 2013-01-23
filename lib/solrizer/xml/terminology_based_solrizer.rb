@@ -35,16 +35,10 @@ module Solrizer::XML::TerminologyBasedSolrizer
       nodeset = doc.term_values(*term_pointer)
       
       nodeset.each do |n|
-        
-        # TODO: Solrizer::FieldMapper::Default is supposed to translate dates into full ISO 8601 formatted strings.
-        # However, there an integration issue with ActiveFedora using OM: it ignores the default field mapper given
-        # in this gem that does this. So, the following is a workaround until it is fixed.
-        node = n.is_a?(Date) ? DateTime.parse(n.to_s).to_time.utc.iso8601 : n.to_s
-        
-        doc.solrize_node(node.to_s, term_pointer, term, solr_doc, field_mapper)
+        doc.solrize_node(n, term_pointer, term, solr_doc, field_mapper)
         unless term.kind_of? OM::XML::NamedTermProxy
           term.children.each_pair do |child_term_name, child_term|
-            doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node.to_s)}]})
+            doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(n)}]})
           end
         end
       end
@@ -62,26 +56,17 @@ module Solrizer::XML::TerminologyBasedSolrizer
     # @return [Hash] the solr doc
     def solrize_node(node_value, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
       return solr_doc unless term.index_as && !term.index_as.empty?
-
-      directive = term_to_solrizer_directive(term)
       
       generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
-      create_and_insert_terms(generic_field_name_base, node_value, directive, solr_doc)
-
+      create_and_insert_terms(generic_field_name_base, node_value, term.index_as, solr_doc)
       
       if term_pointer.length > 1
         hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
-        create_and_insert_terms(hierarchical_field_name_base, node_value, directive, solr_doc)
+        create_and_insert_terms(hierarchical_field_name_base, node_value, term.index_as, solr_doc)
       end
       solr_doc
     end
 
-    private
-
-    def term_to_solrizer_directive(term)
-      Solrizer::Directive.new(term.type, term.index_as)
-    end
-    
   end
 
   

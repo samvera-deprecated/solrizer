@@ -1,5 +1,6 @@
 require "loggable"
 require 'active_support/core_ext/class/attribute'
+require 'active_support/core_ext/string/inflections'
 module Solrizer
 
   class SolrizerError < RuntimeError; end #nodoc#
@@ -148,10 +149,19 @@ module Solrizer
       index_type
     end
 
+    def extract_type(value)
+      case value
+      when Fixnum
+        :integer
+      else
+        value.class.to_s.underscore.to_sym
+      end
+    end
+
     # Given a field name-value pair, a data type, and an array of index types, returns a hash of
     # mapped names and values. The values in the hash are _arrays_, and may contain multiple values.
     
-    def solr_names_and_values(field_name, field_value, field_type, index_types)
+    def solr_names_and_values(field_name, field_value, index_types)
       # Determine the set of index types, adding defaults and removing not_xyz
       
       index_types ||= []
@@ -169,7 +179,7 @@ module Solrizer
       
       index_types.each do |index_type|
         # Get mapping for field
-        name, converter = indexer(index_type).name_and_converter(field_name, type: field_type)
+        name, converter = indexer(index_type).name_and_converter(field_name, type: extract_type(field_value))
         #name, converter = solr_name_and_converter(field_name, index_type, field_type)
         next unless name
         
