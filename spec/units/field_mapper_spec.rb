@@ -138,6 +138,16 @@ describe Solrizer::FieldMapper do
   it "should handle the id field" do
     @mapper.id_field.should == 'ident'
   end
+
+
+  describe "extract_type" do
+    it "should map objects to symbols" do
+      @mapper.extract_type(7).should == :integer
+      @mapper.extract_type(nil).should == nil
+      @mapper.extract_type(Date.today).should == :date
+      @mapper.extract_type("Hi").should == :string
+    end
+  end
   
   describe '.solr_name' do
     it "should map based on index_as" do
