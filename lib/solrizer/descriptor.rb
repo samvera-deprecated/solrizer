@@ -15,7 +15,7 @@ module Solrizer
       args ||= {}
       field_type = args[:type]
       if type_required?
-        raise "Must provide a :type argument when index_type is `#{self}'" unless field_type
+        raise "Must provide a :type argument when index_type is `#{self}' for #{field_name}" unless field_type
       end
       [field_name.to_s + suffix(field_type), converter(field_type)]
     end
