@@ -15,7 +15,5 @@ end
 
 require "solrizer/extractor"
 Dir[File.join(File.dirname(__FILE__),"solrizer","*.rb")].each do |file| 
-  require "solrizer/"+File.basename(file, File.extname(file)) unless file.match(/railtie.rb$/)
+  require "solrizer/"+File.basename(file, File.extname(file))
 end
-
-require 'solrizer/railtie' if defined?(Rails) && Rails.version >= '3.0'
