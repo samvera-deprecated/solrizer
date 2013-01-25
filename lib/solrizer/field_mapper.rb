@@ -89,7 +89,7 @@ module Solrizer
   #   end
   
   class FieldMapper
-    
+
     include Loggable
     
     # ------ Instance methods ------
