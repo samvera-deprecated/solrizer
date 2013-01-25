@@ -1,6 +1,6 @@
 h2. 3.0.0
 suffix changes:  
-  _s -> _si
+  _s -> _sim
   _t -> _tesim
   _dt -> _dtsi
   _i  -> _isim
