@@ -33,7 +33,7 @@ module Solrizer
       index_datatype = evaluated_type.first
       raise Solrizer::InvalidIndexDescriptor, "Missing datatype for #{evaluated_type}" unless index_datatype
       type_suffix = config[:type_suffix].call(index_datatype)
-      raise Solrizer::InvalidIndexDescriptor, "Invalid datatype `#{index_datatype.inspect}'. Must be one of: :date, :text, :text_en, :string, :integer" unless type_suffix
+      raise Solrizer::InvalidIndexDescriptor, "Invalid datatype `#{index_datatype.inspect}'. Must be one of: :date, :time, :text, :text_en, :string, :integer" unless type_suffix
 
       suffix = [config[:suffix_delimiter], type_suffix, stored_suffix, index_suffix, multivalued_suffix].join
     end
@@ -54,7 +54,7 @@ module Solrizer
           't'
         when :text_en
           'te'
-        when :date
+        when :date, :time
           'dt'
         when :integer
           'i'

@@ -165,8 +165,7 @@ module Solrizer
     def solr_names_and_values(field_name, field_value, index_types)
       return {} unless field_value
       
-      # Determine the set of index types, adding defaults and removing not_xyz
-      index_types ||= []
+      # Determine the set of index types
       index_types.uniq!
       index_types.dup.each do |index_type|
         if index_type.to_s =~ /^not_(.*)/
@@ -178,31 +177,36 @@ module Solrizer
       # Map names and values
       
       results = {}
+
+      # Time seems to extend enumerable, so wrap it so we don't interate over each of its elements.
+      field_value = [field_value] if field_value.kind_of? Time
       
       index_types.each do |index_type|
-        # Get mapping for field
-        name, converter = indexer(index_type).name_and_converter(field_name, type: extract_type(field_value))
-        #name, converter = solr_name_and_converter(field_name, index_type, field_type)
-        next unless name
-        
-        # Is there a custom converter?
-        # TODO instead of a custom converter, look for input data type and output data type. Create a few methods that can do that cast.
+        Array(field_value).each do |single_value|
+          # Get mapping for field
+          name, converter = indexer(index_type).name_and_converter(field_name, type: extract_type(single_value))
+          #name, converter = solr_name_and_converter(field_name, index_type, field_type)
+          next unless name
+          
+          # Is there a custom converter?
+          # TODO instead of a custom converter, look for input data type and output data type. Create a few methods that can do that cast.
 
-        value = if converter
-          if converter.arity == 1
-            converter.call(field_value)
+          value = if converter
+            if converter.arity == 1
+              converter.call(single_value)
+            else
+              converter.call(single_value, field_name)
+            end
           else
-            converter.call(field_value, field_name)
+            single_value.to_s
           end
-        else
-          field_value.to_s
+          
+          # Add mapped name & value, unless it's a duplicate
+          values = (results[name] ||= [])
+          values << value unless value.nil? || values.include?(value)
         end
-        
-        # Add mapped name & value, unless it's a duplicate
-        values = (results[name] ||= [])
-        values << value unless value.nil? || values.include?(value)
       end
-      
+        
       results
     end
   end

@@ -145,6 +145,7 @@ describe Solrizer::FieldMapper do
       @mapper.extract_type(7).should == :integer
       @mapper.extract_type(nil).should == nil
       @mapper.extract_type(Date.today).should == :date
+      @mapper.extract_type(Time.now).should == :time
       @mapper.extract_type("Hi").should == :string
     end
   end
@@ -256,7 +257,7 @@ describe Solrizer::FieldMapper do
       @mapper.solr_names_and_values('foo', "6 Nov. 2012", [:dateable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
       @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsi' => [] }
     end
-    
+
     it "should support displayable, facetable, sortable, unstemmed" do
       @mapper.solr_names_and_values('foo', 'bar', [:searchable, :displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
         "foo_tesim" => ["bar"], #searchable

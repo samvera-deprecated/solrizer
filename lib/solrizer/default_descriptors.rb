@@ -51,7 +51,7 @@ module Solrizer
       lambda do |type|
         type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
         vals = [type, :indexed, :stored]
-        vals << :multivalued unless type == :date
+        vals << :multivalued unless [:date, :time].include? type
         vals
       end
     end
@@ -59,7 +59,7 @@ module Solrizer
     def self.searchable_converter
       lambda do |type|
         case type
-        when :date
+        when :date, :time
           lambda { |val| iso8601_date(val)}
         end
       end
@@ -80,7 +80,7 @@ module Solrizer
 
     def self.iso8601_date(value)
       begin 
-        if value.is_a?(Date) 
+        if value.is_a?(Date) || value.is_a?(Time)
           DateTime.parse(value.to_s).to_time.utc.iso8601 
         elsif !value.empty?
           DateTime.parse(value).to_time.utc.iso8601
