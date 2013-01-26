@@ -37,4 +37,14 @@ describe Solrizer do
       end
     end
   end
+  describe ".set_field" do
+    describe "on a document with values" do
+      before{ @doc = {'foo_ssi' => ['A name'], 'foo_sim' => ['A name']}}
+
+      it "should overwrite values that exist before" do
+        Solrizer.set_field(@doc, 'foo', 'B name', :sortable, :facetable)
+        @doc.should == {'foo_ssi' => ['B name'], 'foo_sim' => ['B name']}
+      end
+    end
+  end
 end

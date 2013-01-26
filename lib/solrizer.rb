@@ -37,4 +37,16 @@ module Solrizer
     end
     doc
   end
+
+  # @params [Hash] doc the hash to insert the value into
+  # @params [String] name the name of the field (without the suffix)
+  # @params [String,Date] value the value to be inserted
+  # @params [Array,Hash] indexer_args the arguments that find the indexer
+  # @returns [Hash] doc the document that was provided with the new field (replacing any field with the same name) 
+  def self.set_field(doc, name, value, *indexer_args)
+    # adding defaults indexer 
+    indexer_args = [:searchable] if indexer_args.empty?
+    doc.merge! default_field_mapper.solr_names_and_values(name, value, indexer_args)
+    doc
+  end
 end
