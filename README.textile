@@ -25,10 +25,7 @@ h2. Usage
 
 h3. Fire up the console:
 
-The code snippets in the following sections can be cut/paste into your console, giving you the opportunity to play with Solrizer 
-and demonstrate the functionality underlying the implementation-specific gems, such as solrizer-fedora.
-
-
+The code snippets in the following sections can be cut/pasted into your console, giving you the opportunity to play with Solrizer.
 
 Start up a console and load solrizer:
 
@@ -41,54 +38,118 @@ require "solrizer"
 
 h3. Field Mapper
 
-The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml):
+The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml) to dynamic field types defined in the Hydra Solr schema.xml file.  A copy of that is available :
+  https://github.com/projecthydra/hydra-head/blob/master/hydra-core/lib/generators/hydra/templates/solr_conf/conf/schema.xml
+	
+More information on the conventions followed for the dynamic solr fields is here:
+  https://github.com/projecthydra/hydra-head/wiki/Solr-Schema
 
 <pre>
 default_mapper = Solrizer::FieldMapper::Default.new
 
 # some of the default mappings in solrizer
-default_mapper.solr_name("foo",:string)                 # returns foo_t
-default_mapper.solr_name("foo",:date)                   # returns foo_dt
-default_mapper.solr_name("foo",:integer)                # returns foo_i
-default_mapper.solr_name("foo",:string,:facetable)      # returns foo_facet
-default_mapper.solr_name("foo",:text,:facetable)        # returns foo_facet
-default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_facet
+default_mapper.solr_name("foo",:string,:searchable)     # returns foo_tesim
+default_mapper.solr_name("foo",:date,:searchable)       # returns foo_dtsim
+default_mapper.solr_name("foo",:integer,:searchable     # returns foo_isim
+default_mapper.solr_name("foo",:string,:facetable)      # returns foo_sim
+default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_iim
+default_mapper.solr_name("foo",:string,:sortable)       # returns foo_si
+default_mapper.solr_name("foo",:string,:displayable)    # returns foo_ssm
 </pre>
 
-FieldMapper provides some defaults:
+## Using default indexing strategies
 
 <pre>
-default_mapper.solr_names_and_values("foo","bar",:string,[:facetable])                    # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
-default_mapper.solr_names_and_values("foo","bar",:string,[:not_searchable, :facetable])   # returns just facetable => {"foo_facet"=>["bar"]}
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'title', 'whatever', :searchable) 
+=> {"title_tesim"=>["whatever"]}
+
+Solrizer.insert_field(solr_doc, 'pub_date', 'Nov 2012', :sortable, :displayable) 
+=> {"title_tesim"=>["whatever"], "pub_date_ssi"=>["Nov 2012"], "pub_date_ssm"=>["Nov 2012"]}
 </pre>
 
-Which can be tweaked:
-
+#### You can also index dates
 <pre>
-default_mapper.default_index_types << :facetable
-default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
+# as a date
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'pub_date', Date.parse('Nov 7th 2012'), :searchable)
+=> {"pub_date_dtsi"=>["2012-11-07T00:00:00Z"]}
+
+# or as a string
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'pub_date', Date.parse('Nov 7th 2012'), :sortable, :displayable)
+=> {"pub_date_ssi"=>["2012-11-07"], "pub_date_ssm"=>["2012-11-07"]}
+
+# or a string that is stored as a date
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'pub_date', 'Jan 29th 2013', :dateable)
+=> {"pub_date_dtsi"=>["2013-01-29T00:00:00Z"]}
 </pre>
 
-Custom Mappings can also be provided (with custom converters):
 
+## Using a custom indexing strategy
+All you have to do is create your own index descriptor:
 <pre>
-class CustomMapper < Solrizer::FieldMapper
-  index_as :searchable, :suffix => "_search" do |type|
-    type.reversed :suffix => "_reverse" do |value|
-      value.reverse
+solr_doc = {}
+displearchable = Solrizer::Descriptor.new(:integer, :indexed, :stored)
+Solrizer.insert_field(solr_doc, 'some_count', 45, displearchable)
+{"some_count_isi"=>["45"]}
+</pre>
+
+## Changing the behavior of a default descriptor
+
+Simply override the methods within Solrizer::DefaultDescriptors
+<pre>
+# before
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'title', 'foobar', :facetable)
+=> {"title_sim"=>["foobar"]}
+
+# redefine facetable:
+module Solrizer
+  module DefaultDescriptors
+    def self.facetable
+      Descriptor.new(:string, :indexed, :stored)
     end
   end
 end
+
+# after
+solr_doc = {}
+Solrizer.insert_field(solr_doc, 'title', 'foobar', :facetable)
+=> {"title_ssi"=>["foobar"]}
 </pre>
 
+
+## Creating your own Indexers
 <pre>
-custom_mapper = CustomMapper.new
+module MyMappers
+  def self.mapper_one
+    Solrizer::Descriptor.new(:string, :indexed, :stored)
+  end
+end
 
-custom_mapper.solr_names_and_values("foo","bar",:string,[:searchable])      # returns {"foo_search"=>["bar"]}
-custom_mapper.solr_names_and_values("foo","bar",:reversed,[:searchable])    # returns {"foo_reverse"=>["rab"]}
+solr_doc = {}
+
+Solrizer::FieldMapper.descriptors = [MyMappers]
+=> [MyMappers]
+
+Solrizer.insert_field(solr_doc, 'title', 'foobar', :mapper_one)
+=> {"title_ssi"=>["foobar"]}
 </pre>
 
-For more detailed information on custom mappings, see the documetnation for the FieldMapper class.
+## Using OM
+Same as it ever was:
+<pre>
+    t.main_title(:index_as=>[:facetable],:path=>"title", :label=>"title") { ... }
+</pre>
+
+But now you may also pass an Descriptor instance if that works for you:
+<pre>
+    indexer = Solrizer::Descriptor.new(:integer, :indexed, :stored)
+    t.main_title(:index_as=>[indexer],:path=>"title", :label=>"title") { ... }
+
+</pre>
 
 h3. Extractor and Extractor Mixins
 
@@ -113,7 +174,7 @@ h4. Solrizer provides some default mixins:
 <pre>
 xml = "<fields><foo>bar</foo><bar>baz</bar></fields>"
 
-extractor.xml_to_solr(xml)      # returns {:foo_t=>"bar", :bar_t=>"baz"}
+extractor.xml_to_solr(xml)      # returns {:foo_teim=>"bar", :bar_t=>"baz"}
 </pre>
 
 h4. Solrizer::XML::TerminologyBasedSolrizer
