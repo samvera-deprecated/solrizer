@@ -174,7 +174,7 @@ h4. Solrizer provides some default mixins:
 <pre>
 xml = "<fields><foo>bar</foo><bar>baz</bar></fields>"
 
-extractor.xml_to_solr(xml)      # returns {:foo_teim=>"bar", :bar_t=>"baz"}
+extractor.xml_to_solr(xml)      # returns {:foo_tesim=>"bar", :bar_tesim=>"baz"}
 </pre>
 
 h4. Solrizer::XML::TerminologyBasedSolrizer
