@@ -151,7 +151,7 @@ describe Solrizer::FieldMapper do
   end
   
   describe '.solr_name' do
-    it "should map based on index_as" do
+    it "should map based on passed descriptors" do
       @mapper.solr_name('bar', :edible).should == 'bar_food'
       @mapper.solr_name('bar', :laughable, type: :string).should == 'bar_haha'
     end
@@ -190,7 +190,7 @@ describe Solrizer::FieldMapper do
   end
   
   describe '.solr_names_and_values' do
-    it "should map values based on index_as" do
+    it "should map values based on passed descriptors" do
       @mapper.solr_names_and_values('foo', 'bar', [:searchable, :laughable, :edible]).should == {
         'foo_s'    => ['bar'],
         'foo_food' => ['bar'],
@@ -258,11 +258,11 @@ describe Solrizer::FieldMapper do
       @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsim' => [] }
     end
 
-    it "should support displayable, facetable, sortable, unstemmed" do
+    it "should support searchable, displayable, facetable, sortable, unstemmed" do
       @mapper.solr_names_and_values('foo', 'bar', [:searchable, :displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
         "foo_tesim" => ["bar"], #searchable
-        "foo_sim" => ["bar"], #facetable
         "foo_ssm" => ["bar"], #displayable
+        "foo_sim" => ["bar"], #facetable
         "foo_si" => ["bar"], #sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
       }

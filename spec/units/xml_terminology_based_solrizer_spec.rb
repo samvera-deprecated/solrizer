@@ -71,7 +71,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       expected_names = ["DR.", "FAMILY NAME", "GIVEN NAMES"]
       %w(_tesim _sim).each do |suffix|
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
-        {suffix => actual_names}.should == {suffix => expected_names}
+        actual_names.should == expected_names
       end
     end
 
@@ -98,7 +98,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       fake_solr_doc["name_0_namePart_tesim"].should be_nil
     end
 
-    it "shouldn't index terms where index_as is searchable" do
+    it "should index terms where index_as is searchable" do
       fake_solr_doc = {}
       term = Samples::ModsArticle.terminology.retrieve_term(:name)
       term.children[:namePart].index_as = [:searchable]
