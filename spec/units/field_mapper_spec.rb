@@ -252,10 +252,10 @@ describe Solrizer::FieldMapper do
     end
 
     it "should support full ISO 8601 dates" do
-      @mapper.solr_names_and_values('foo', "2012-11-06",  [:dateable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "November 6th, 2012",  [:dateable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "6 Nov. 2012", [:dateable]).should == { 'foo_dtsi' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsi' => [] }
+      @mapper.solr_names_and_values('foo', "2012-11-06",  [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', "November 6th, 2012",  [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', "6 Nov. 2012", [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsim' => [] }
     end
 
     it "should support displayable, facetable, sortable, unstemmed" do
@@ -263,7 +263,7 @@ describe Solrizer::FieldMapper do
         "foo_tesim" => ["bar"], #searchable
         "foo_sim" => ["bar"], #facetable
         "foo_ssm" => ["bar"], #displayable
-        "foo_ssi" => ["bar"], #sortable
+        "foo_si" => ["bar"], #sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
       }
     end

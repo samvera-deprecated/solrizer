@@ -46,7 +46,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc["topic_tag_tesim"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
       
       # These are a holdover from an old verison of OM
-      solr_doc['journal_0_issue_0_publication_date_dtsi'].should == ["2007-02-01T00:00:00Z"]
+      solr_doc['journal_0_issue_0_publication_date_dtsim'].should == ["2007-02-01T00:00:00Z"]
 
       
     end
@@ -79,14 +79,14 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       unless RUBY_VERSION.match("1.8.7")
         solr_doc = Hash.new
         result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:pub_date), solr_doc)
-        solr_doc["pub_date_dtsi"].should == ["2007-02-01T00:00:00Z"]
+        solr_doc["pub_date_dtsim"].should == ["2007-02-01T00:00:00Z"]
       end
     end
 
     it "should add fields based on type using ref" do
       solr_doc = Hash.new
       result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:issue_date), solr_doc)
-      solr_doc["issue_date_dtsi"].should == ["2007-02-15T00:00:00Z"]
+      solr_doc["issue_date_dtsim"].should == ["2007-02-15T00:00:00Z"]
     end
 
     it "shouldn't index terms where index_as is an empty array" do

@@ -1,16 +1,13 @@
 module Solrizer
   module DefaultDescriptors
 
-    # Produces a _sim suffix
-    def self.facetable
-      @facetable ||= Descriptor.new(:string, :indexed, :multivalued)
-    end
-
-    # Most interesting case because the suffixe produced depends on the type parameter 
-    # produces suffixes:
+    # The suffix produced depends on the type parameter -- produces suffixes:
     #  _tesim - for strings or text fields
     #  _dtsim - for dates
     #  _isim - for integers
+    # Note that searchable fields are also stored for backwards compatibilitiy 
+    #   TODO:  make a searchable and stored field type  ("searchable_and_displayable" like "search and destroy"?  "displearchable" ?)
+    #     and then make searchable not stored.
     def self.searchable
       @searchable ||= Descriptor.new(searchable_field_definition, converter: searchable_converter, requires_type: true)
     end
@@ -19,25 +16,30 @@ module Solrizer
     # produces suffixes:
     #  _dtsi - for dates
     def self.dateable
-      @dateable ||= Descriptor.new(:date, :stored, :indexed, converter: dateable_converter)
+      @dateable ||= Descriptor.new(:date, :stored, :indexed, :multivalued, converter: dateable_converter)
     end
 
-    # Produces a _ssim suffix
+    # Produces _sim suffix
+    def self.facetable
+      @facetable ||= Descriptor.new(:string, :indexed, :multivalued)
+    end
+
+    # Produces _ssim suffix;  should probably be deprecated
     def self.symbol
       @symbol ||= Descriptor.new(:string, :stored, :indexed, :multivalued)
     end
 
-    # Produces a _ssi suffix
+    # Produces _si suffix
     def self.sortable
-      @sortable ||= Descriptor.new(:string, :indexed, :stored)
+      @sortable ||= Descriptor.new(:string, :indexed)
     end
 
-    # Produces a _ssm suffix
+    # Produces _ssm suffix
     def self.displayable
       @displayable ||= Descriptor.new(:string, :stored, :multivalued)
     end
 
-    # Produces a _tim suffix (used to be _unstem)
+    # Produces _tim suffix (used to be _unstem)
     def self.unstemmed_searchable
       @unstemmed_searchable ||= Descriptor.new(:text, :indexed, :multivalued)
     end
@@ -47,11 +49,11 @@ module Solrizer
     end
     protected
 
+    # note that searchable fields are also stored.  Probably should change that at some point
     def self.searchable_field_definition
       lambda do |type|
         type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
-        vals = [type, :indexed, :stored]
-        vals << :multivalued unless [:date, :time].include? type
+        vals = [type, :indexed, :stored, :multivalued]
         vals
       end
     end
@@ -77,7 +79,6 @@ module Solrizer
       end
     end
     
-
     def self.iso8601_date(value)
       begin 
         if value.is_a?(Date) || value.is_a?(Time)

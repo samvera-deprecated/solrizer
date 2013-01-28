@@ -48,7 +48,7 @@ module Solrizer
       {suffix_delimiter: '_',
       type_suffix: lambda do |type|  
         case type
-        when :string, :symbol # TODO `:symbol' useage ought to be deprecated
+        when :string, :symbol # TODO `:symbol' usage ought to be deprecated
           's'
         when :text
           't'
