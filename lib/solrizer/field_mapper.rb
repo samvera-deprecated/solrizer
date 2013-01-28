@@ -106,10 +106,11 @@ module Solrizer
       self.id_field = self.class.id_field
     end
 
-    # Given a specific field name, data type, and index type, returns the corresponding solr name.
-    
+    # Given a field name, inndex_type, etc., returns the corresponding Solr name.
     # TODO field type is the input format, maybe we could just detect that?
-    # @param index_type is a FieldDescriptor
+    # @param [String] field_name the ruby (term) name which will get a suffix appended to become a Solr field name
+    # @param opts - index_type is only needed if the FieldDescriptor requires it (e.g. :searcahble)
+    # @return [String] name of the solr field, based on the params
     def solr_name(field_name, *opts)
       index_type, args = if opts.first.kind_of? Hash
         [:searchable, opts.first]
@@ -133,7 +134,7 @@ module Solrizer
       end
     end
 
-    # # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
+    # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
     def indexer(index_type)
       index_type = case index_type
       when Symbol
