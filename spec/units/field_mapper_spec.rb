@@ -267,5 +267,12 @@ describe Solrizer::FieldMapper do
         "foo_tim" => ["bar"] #unstemmed_searchable
       }
     end
+
+    it "should support stored_sortable" do
+      time = Time.iso8601("2012-11-06T15:16:17Z")
+      @mapper.solr_names_and_values('foo', time, :stored_sortable).should == {"foo_dtsi" => ["2012-11-06T15:16:17Z"]} 
+      @mapper.solr_names_and_values('foo', 'bar', :stored_sortable).should == {"foo_ssi" => ["bar"]} 
+
+    end
   end
 end

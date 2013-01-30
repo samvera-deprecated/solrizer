@@ -34,6 +34,13 @@ module Solrizer
       @sortable ||= Descriptor.new(:string, :indexed)
     end
 
+    # Fields that are both stored and sortable
+    # Produces _ssi suffix if field_type is string
+    # Produces _dtsi suffix if field_type is date
+    def self.stored_sortable
+      @stored_sortable ||= Descriptor.new(lambda {|field_type| [field_type, :stored, :indexed]}, converter: searchable_converter)
+    end
+
     # Produces _ssm suffix
     def self.displayable
       @displayable ||= Descriptor.new(:string, :stored, :multivalued)

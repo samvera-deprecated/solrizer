@@ -167,6 +167,7 @@ module Solrizer
       return {} unless field_value
       
       # Determine the set of index types
+      index_types = Array(index_types)
       index_types.uniq!
       index_types.dup.each do |index_type|
         if index_type.to_s =~ /^not_(.*)/
