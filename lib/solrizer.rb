@@ -23,6 +23,11 @@ module Solrizer
     @@default_field_mapper = field_mapper
   end
 
+
+  def self.solr_name(*args)
+    default_field_mapper.solr_name(*args)
+  end
+
   # @params [Hash] doc the hash to insert the value into
   # @params [String] name the name of the field (without the suffix)
   # @params [String,Date] value the value to be inserted

@@ -48,4 +48,11 @@ describe Solrizer do
       end
     end
   end
+
+  describe ".solr_name" do
+    it "should delegate to default_field_mapper" do
+        Solrizer.solr_name('foo', type: :string).should == "foo_tesim"
+        Solrizer.solr_name('foo', :sortable).should == "foo_ssi"
+    end
+  end
 end
