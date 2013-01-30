@@ -13,16 +13,16 @@ module Samples
         }
         t.french_title(:ref=>[:title_info,:main_title], :attributes=>{"xml:lang"=>"fre"})
         
-        t.language(:index_as=>[:facetable, :searchable],:path=>{:attribute=>"lang"})
+        t.language(:index_as=>[:facetable, :stored_searchable],:path=>{:attribute=>"lang"})
       } 
       t.language{
         t.lang_code(:index_as=>[:facetable], :path=>"languageTerm", :attributes=>{:type=>"code"})
       }
-      t.abstract(:index_as=>[:searchable])
+      t.abstract(:index_as=>[:stored_searchable])
       t.subject {
         t.topic(:index_as=>[:facetable])
       }      
-      t.topic_tag(:proxy=>[:subject, :topic], :index_as=>[:searchable])    
+      t.topic_tag(:proxy=>[:subject, :topic], :index_as=>[:stored_searchable])    
       # t.topic_tag(:index_as=>[:facetable],:path=>"subject", :default_content_path=>"topic")
       # This is a mods:name.  The underscore is purely to avoid namespace conflicts.
       t.name_ {
@@ -35,7 +35,7 @@ module Samples
         t.role(:ref=>[:role])
         t.description(:index_as=>[:facetable])
         t.date(:path=>"namePart", :attributes=>{:type=>"date"})
-        t.last_name(:path=>"namePart", :attributes=>{:type=>"family"}, :index_as=>[:searchable])
+        t.last_name(:path=>"namePart", :attributes=>{:type=>"family"}, :index_as=>[:stored_searchable])
         t.first_name(:path=>"namePart", :attributes=>{:type=>"given"}, :label=>"first name")
         t.terms_of_address(:path=>"namePart", :attributes=>{:type=>"termsOfAddress"})
         t.computing_id
@@ -47,14 +47,14 @@ module Samples
       t.organization(:ref=>:name, :attributes=>{:type=>"corporate"}, :index_as=>[:facetable])
       t.conference(:ref=>:name, :attributes=>{:type=>"conference"}, :index_as=>[:facetable])
       t.role {
-        t.text(:path=>"roleTerm",:attributes=>{:type=>"text"}, :index_as=>[:searchable])
+        t.text(:path=>"roleTerm",:attributes=>{:type=>"text"}, :index_as=>[:stored_searchable])
         t.code(:path=>"roleTerm",:attributes=>{:type=>"code"})
       }
       t.journal(:path=>'relatedItem', :attributes=>{:type=>"host"}) {
         t.title_info(:index_as=>[:facetable],:ref=>[:title_info])
         t.origin_info(:path=>"originInfo") {
           t.publisher
-          t.date_issued(:path=>"dateIssued", :type => :date, :index_as => [:searchable])
+          t.date_issued(:path=>"dateIssued", :type => :date, :index_as => [:stored_searchable])
           t.issuance(:index_as=>[:facetable])
         }
         t.issn(:path=>"identifier", :attributes=>{:type=>"issn"})
@@ -68,7 +68,7 @@ module Samples
           }
           t.start_page(:proxy=>[:pages, :start])
           t.end_page(:proxy=>[:pages, :end])
-          t.publication_date(:path=>"date", :type => :date, :index_as => [:searchable])
+          t.publication_date(:path=>"date", :type => :date, :index_as => [:stored_searchable])
         }
       }
       t.note

@@ -5,16 +5,21 @@ module Solrizer
     #  _tesim - for strings or text fields
     #  _dtsim - for dates
     #  _isim - for integers
-    # Note that searchable fields are also stored for backwards compatibilitiy 
-    #   TODO:  make a searchable and stored field type  ("searchable_and_displayable" like "search and destroy"?  "displearchable" ?)
-    #     and then make searchable not stored.
+    def self.stored_searchable
+      @stored_searchable ||= Descriptor.new(stored_searchable_field_definition, converter: searchable_converter, requires_type: true)
+    end
+    
+    # The suffix produced depends on the type parameter -- produces suffixes:
+    #  _teim - for strings or text fields
+    #  _dtim - for dates
+    #  _iim - for integers
     def self.searchable
       @searchable ||= Descriptor.new(searchable_field_definition, converter: searchable_converter, requires_type: true)
     end
     
     # Takes fields which are stored as strings, but we want indexed as dates.  (e.g. "November 6th, 2012")
     # produces suffixes:
-    #  _dtsi - for dates
+    #  _dtsim - for dates
     def self.dateable
       @dateable ||= Descriptor.new(:date, :stored, :indexed, :multivalued, converter: dateable_converter)
     end
@@ -54,10 +59,18 @@ module Solrizer
     def self.simple
       @simple ||= Descriptor.new(lambda {|field_type| [field_type, :indexed]})
     end
+    
     protected
 
-    # note that searchable fields are also stored.  Probably should change that at some point
     def self.searchable_field_definition
+      lambda do |type|
+        type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
+        vals = [type, :indexed, :multivalued]
+        vals
+      end
+    end
+
+    def self.stored_searchable_field_definition
       lambda do |type|
         type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
         vals = [type, :indexed, :stored, :multivalued]

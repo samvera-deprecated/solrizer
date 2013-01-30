@@ -5,7 +5,7 @@ describe Solrizer do
   describe ".insert_field" do
     describe "on an empty document" do
       let(:doc) { Hash.new }
-      it "should insert a field with the default (searchable) indexer" do
+      it "should insert a field with the default (stored_searchable) indexer" do
         Solrizer.insert_field(doc, 'foo', 'A name')
         doc.should == {'foo_tesim' => ['A name']}
       end

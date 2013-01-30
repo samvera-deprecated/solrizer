@@ -11,14 +11,14 @@ describe Solrizer::FieldMapper do
         @unstemmed_searchable ||= UnstemmedDescriptor.new()
       end
 
-      # Produces a _s suffix (overrides _tim)
-      def self.searchable
-        @searchable ||= SearchableDescriptor.new()
+      # Produces a _s suffix (overrides _tesim)
+      def self.stored_searchable
+        @searchable ||= StoredSearchableDescriptor.new()
       end
 
-      # Produces a _s suffix (overrides _tim)
-      def self.another_searchable
-        @another_searchable ||= SearchableDescriptor.new()
+      # Produces a _s suffix (overrides _tesim)
+      def self.another_stored_searchable
+        @another_searchable ||= StoredSearchableDescriptor.new()
       end
 
       def self.edible
@@ -39,7 +39,7 @@ describe Solrizer::FieldMapper do
         end
       end
 
-      class SearchableDescriptor < Solrizer::Descriptor
+      class StoredSearchableDescriptor < Solrizer::Descriptor
         def name_and_converter(field_name, args)
           [field_name.to_s + '_s']
         end
@@ -156,7 +156,7 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name('bar', :laughable, type: :string).should == 'bar_haha'
     end
 
-    it "should default the index_type to :searchable" do
+    it "should default the index_type to :stored_searchable" do
       @mapper.solr_name('foo').should == 'foo_s'
     end
 
@@ -191,7 +191,7 @@ describe Solrizer::FieldMapper do
   
   describe '.solr_names_and_values' do
     it "should map values based on passed descriptors" do
-      @mapper.solr_names_and_values('foo', 'bar', [:searchable, :laughable, :edible]).should == {
+      @mapper.solr_names_and_values('foo', 'bar', [:stored_searchable, :laughable, :edible]).should == {
         'foo_s'    => ['bar'],
         'foo_food' => ['bar'],
         'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
@@ -199,7 +199,7 @@ describe Solrizer::FieldMapper do
     end
     
     it "should apply mappings based on data type" do
-      @mapper.solr_names_and_values('foo', 7, [:searchable, :laughable]).should == {
+      @mapper.solr_names_and_values('foo', 7, [:stored_searchable, :laughable]).should == {
         'foo_s'     => ['7'],
         'foo_ihaha' => ["How many foos does it take to screw in a light bulb? 7."]
       }
@@ -212,19 +212,19 @@ describe Solrizer::FieldMapper do
     end
     
     it "should generate multiple mappings when two return the _same_ solr name but _different_ values" do
-      @mapper.solr_names_and_values('roll', 'rock', [:unstemmed_searchable, :searchable]).should == {
+      @mapper.solr_names_and_values('roll', 'rock', [:unstemmed_searchable, :stored_searchable]).should == {
         'roll_s' => ["rock o'clock", 'rock']
       }
     end
     
     it "should not generate multiple mappings when two return the _same_ solr name and the _same_ value" do
-      @mapper.solr_names_and_values('roll', 'rock', [:another_searchable, :searchable]).should == {
+      @mapper.solr_names_and_values('roll', 'rock', [:another_stored_searchable, :stored_searchable]).should == {
         'roll_s' => ['rock'],
       }
     end
 
     it "should return an empty hash when value is nil" do
-      @mapper.solr_names_and_values('roll', nil, [:another_searchable, :searchable]).should == { }
+      @mapper.solr_names_and_values('roll', nil, [:another_stored_searchable, :stored_searchable]).should == { }
     end
   end
 
@@ -237,7 +237,7 @@ describe Solrizer::FieldMapper do
       @mapper.id_field.should == 'id'
     end
 
-    it "should default the index_type to :searchable" do
+    it "should default the index_type to :stored_searchable" do
       @mapper.solr_name('foo', :type=>:string).should == 'foo_tesim'
     end
     
@@ -258,12 +258,15 @@ describe Solrizer::FieldMapper do
       @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsim' => [] }
     end
 
-    it "should support searchable, displayable, facetable, sortable, unstemmed" do
-      @mapper.solr_names_and_values('foo', 'bar', [:searchable, :displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
-        "foo_tesim" => ["bar"], #searchable
+    it "should support searchable, stored_searchable, displayable, facetable, sortable, stored_sortable, unstemmed" do
+      descriptors = [:searchable, :stored_searchable, :displayable, :facetable, :sortable, :stored_sortable, :unstemmed_searchable]
+      @mapper.solr_names_and_values('foo', 'bar', descriptors).should == {
+        "foo_teim" => ["bar"], #searchable
+        "foo_tesim" => ["bar"], #stored_searchable
         "foo_ssm" => ["bar"], #displayable
         "foo_sim" => ["bar"], #facetable
         "foo_si" => ["bar"], #sortable
+        "foo_ssi" => ["bar"], #stored_sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
       }
     end
@@ -272,7 +275,6 @@ describe Solrizer::FieldMapper do
       time = Time.iso8601("2012-11-06T15:16:17Z")
       @mapper.solr_names_and_values('foo', time, :stored_sortable).should == {"foo_dtsi" => ["2012-11-06T15:16:17Z"]} 
       @mapper.solr_names_and_values('foo', 'bar', :stored_sortable).should == {"foo_ssi" => ["bar"]} 
-
     end
   end
 end

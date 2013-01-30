@@ -20,7 +20,6 @@ describe Solrizer::XML::Extractor do
       result[:format_tesim].should include("application/jp2000")
       result[:title_tesim].should == "This is a Sample Title"
       result[:publisher_tesim].should == "Sample Unversity"
-
     end
   end
   

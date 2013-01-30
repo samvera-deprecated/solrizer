@@ -35,7 +35,7 @@ module Solrizer
   # @returns [Hash] doc the document that was provided with the new field inserted
   def self.insert_field(doc, name, value, *indexer_args)
     # adding defaults indexer 
-    indexer_args = [:searchable] if indexer_args.empty?
+    indexer_args = [:stored_searchable] if indexer_args.empty?
     default_field_mapper.solr_names_and_values(name, value, indexer_args).each do |k, v|
       doc[k] ||= []
       doc[k] += v
@@ -50,7 +50,7 @@ module Solrizer
   # @returns [Hash] doc the document that was provided with the new field (replacing any field with the same name) 
   def self.set_field(doc, name, value, *indexer_args)
     # adding defaults indexer 
-    indexer_args = [:searchable] if indexer_args.empty?
+    indexer_args = [:stored_searchable] if indexer_args.empty?
     doc.merge! default_field_mapper.solr_names_and_values(name, value, indexer_args)
     doc
   end

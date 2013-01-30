@@ -1,5 +1,5 @@
 id: id
-default: searchable
+default: stored_searchable
 searchable:
   date: _date
   string: _field

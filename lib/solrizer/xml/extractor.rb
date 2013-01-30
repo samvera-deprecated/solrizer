@@ -15,14 +15,14 @@ module Solrizer::XML::Extractor
       if value.kind_of?(Array) 
         if value.first.kind_of?(Hash)
           # This deals with the way xml-simple handles nodes with attributes
-          solr_doc.merge!({mapper.solr_name(name, :searchable, :type=>:text).to_sym => "#{value.first["content"]}"})
+          solr_doc.merge!({mapper.solr_name(name, :stored_searchable, :type=>:text).to_sym => "#{value.first["content"]}"})
         elsif value.length > 1
-          solr_doc.merge!({mapper.solr_name(name, :searchable, :type=>:text).to_sym => value})
+          solr_doc.merge!({mapper.solr_name(name, :stored_searchable, :type=>:text).to_sym => value})
         else
-          solr_doc.merge!({mapper.solr_name(name, :searchable, :type=>:text).to_sym => "#{value.first}"})
+          solr_doc.merge!({mapper.solr_name(name, :stored_searchable, :type=>:text).to_sym => "#{value.first}"})
         end
       else
-        solr_doc.merge!({mapper.solr_name(name, :searchable, :type=>:text).to_sym => "#{value}"})
+        solr_doc.merge!({mapper.solr_name(name, :stored_searchable, :type=>:text).to_sym => "#{value}"})
       end
     end
 

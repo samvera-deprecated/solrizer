@@ -1,6 +1,7 @@
 id: id
+default: stored_searchable
 searchable: 
-  default: _t
+#  default: _t
   date: _dt
   string: _t
   text: _t

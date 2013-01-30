@@ -113,9 +113,9 @@ module Solrizer
     # @return [String] name of the solr field, based on the params
     def solr_name(field_name, *opts)
       index_type, args = if opts.first.kind_of? Hash
-        [:searchable, opts.first]
+        [:stored_searchable, opts.first]
       elsif opts.empty?
-        [:searchable, {type: :text}]
+        [:stored_searchable, {type: :text}]
       else
         [opts[0], opts[1] || {}]
       end

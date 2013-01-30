@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'fixtures/mods_article'
 
+# TODO:  there should be no dependencies on OM in Solrizer
 describe Solrizer::XML::TerminologyBasedSolrizer do
   
   before(:all) do
@@ -34,9 +35,9 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     end
   
     it "should use Solr mappings to generate field names" do
-
       solr_doc =  @mods_article.to_solr
       solr_doc["abstract"].should be_nil
+      # NOTE:  OM's old default expected stored and indexed;  this is a change.
       solr_doc["abstract_tesim"].should == ["ABSTRACT"]
       solr_doc["title_info_1_language_tesim"].should == ["finnish"]
       solr_doc["person_1_role_0_text_tesim"].should == ["teacher"]
@@ -44,13 +45,10 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       solr_doc["person_1_role_0_code_tesim"].should be_nil 
       solr_doc["person_last_name_tesim"].sort.should == ["FAMILY NAME", "Gautama"]
       solr_doc["topic_tag_tesim"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
-      
       # These are a holdover from an old verison of OM
       solr_doc['journal_0_issue_0_publication_date_dtsim'].should == ["2007-02-01T00:00:00Z"]
-
-      
     end
-    
+
   end
 
   describe ".solrize_term" do
@@ -69,7 +67,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       @mods_article.solrize_term(term, fake_solr_doc)
       
       expected_names = ["DR.", "FAMILY NAME", "GIVEN NAMES"]
-      %w(_tesim _sim).each do |suffix|
+      %w(_teim _sim).each do |suffix|
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
         actual_names.should == expected_names
       end
@@ -95,7 +93,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       term.children[:namePart].index_as = []
 
       @mods_article.solrize_term(term, fake_solr_doc)
-      fake_solr_doc["name_0_namePart_tesim"].should be_nil
+      fake_solr_doc["name_0_namePart_teim"].should be_nil
     end
 
     it "should index terms where index_as is searchable" do
@@ -105,7 +103,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
 
       @mods_article.solrize_term(term, fake_solr_doc)
       
-      fake_solr_doc["name_0_namePart_tesim"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
+      fake_solr_doc["name_0_namePart_teim"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
     end
   end
 end
