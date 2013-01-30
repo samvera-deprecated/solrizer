@@ -36,6 +36,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
       
       nodeset.each do |n|
         doc.solrize_node(n, term_pointer, term, solr_doc, field_mapper)
+# FIXME:  there should be no dependencies on OM in Solrizer
         unless term.kind_of? OM::XML::NamedTermProxy
           term.children.each_pair do |child_term_name, child_term|
             doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(n)}]})
@@ -57,10 +58,12 @@ module Solrizer::XML::TerminologyBasedSolrizer
     def solrize_node(node_value, doc, term_pointer, term, solr_doc = Hash.new, field_mapper = nil, opts = {})
       return solr_doc unless term.index_as && !term.index_as.empty?
       
+# FIXME:  there should be no dependencies on OM in Solrizer
       generic_field_name_base = OM::XML::Terminology.term_generic_name(*term_pointer)
       create_and_insert_terms(generic_field_name_base, node_value, term.index_as, solr_doc)
       
       if term_pointer.length > 1
+# FIXME:  there should be no dependencies on OM in Solrizer
         hierarchical_field_name_base = OM::XML::Terminology.term_hierarchical_name(*term_pointer)
         create_and_insert_terms(hierarchical_field_name_base, node_value, term.index_as, solr_doc)
       end
