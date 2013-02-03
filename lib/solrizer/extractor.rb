@@ -1,6 +1,3 @@
-require "nokogiri"
-require 'yaml'
-
 module Solrizer
   
 # Provides utilities for extracting solr fields from a variety of objects and/or creating solr documents from a given object

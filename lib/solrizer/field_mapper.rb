@@ -34,8 +34,6 @@ module Solrizer
   #   #   t.dish_name   :index_as => [:some_field_type]           -maps to->   dish_name_ssim
   #   #   t.ingredients :index_as => [:some_field_type, :edible]  -maps to->   ingredients_ssim, ingredients_food
   #
-  # (See Solrizer::XML::TerminologyBasedSolrizer for instructions on applying a custom mapping once you have defined it.)
-  #
   #
   # == Custom Value Converters
   #

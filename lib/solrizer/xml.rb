@@ -1,5 +1,3 @@
-require "solrizer"
-require "om"
 module Solrizer::XML
 end
 Dir[File.join(File.dirname(__FILE__),"xml","*.rb")].each {|file| require file }

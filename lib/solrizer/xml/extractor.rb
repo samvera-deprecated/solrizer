@@ -4,7 +4,7 @@ module Solrizer::XML::Extractor
 
   #
   # This method extracts solr fields from simple xml
-  # If you want to do anything more nuanced with the xml, use TerminologyBasedSolrizer instead.
+  # If you want to do anything more nuanced with the xml, use OM instead.
   #
   # @param [xml] text xml content to index
   # @param [Hash] solr_doc
