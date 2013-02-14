@@ -85,6 +85,18 @@ module Solrizer
   #
   #     self.descriptors = [MyCustomIndexDescriptors, DefaultDescriptors]
   #   end
+
+  class StringDescriptor < Solrizer::Descriptor
+
+    def initialize(suffix)
+      @suffix = suffix
+    end
+
+    def suffix(field_type)
+      '_'+@suffix
+    end
+
+  end
   
   class FieldMapper
 
@@ -104,7 +116,7 @@ module Solrizer
       self.id_field = self.class.id_field
     end
 
-    # Given a field name, inndex_type, etc., returns the corresponding Solr name.
+    # Given a field name, index_type, etc., returns the corresponding Solr name.
     # TODO field type is the input format, maybe we could just detect that?
     # @param [String] field_name the ruby (term) name which will get a suffix appended to become a Solr field name
     # @param opts - index_type is only needed if the FieldDescriptor requires it (e.g. :searcahble)
@@ -132,19 +144,22 @@ module Solrizer
       end
     end
 
-    # @param index_type is a FieldDescriptor or a symbol that points to a method that returns a field descriptor
+    # @param [Symbol, String, Descriptor] index_type is a Descriptor, a symbol that references a method that returns a Descriptor, or a string which will be used as the suffix.
+    # @return [Descriptor] 
     def indexer(index_type)
       index_type = case index_type
       when Symbol
         index_type_macro(index_type)
-      when Array
-        raise "It's not yet supposed to be an array"
-        #IndexDescriptors::Descriptor.new(*index_type)
-      else
+      when String
+        StringDescriptor.new(index_type)
+      when Descriptor 
         index_type
+      else
+        raise Solrizer::InvalidIndexDescriptor, "#{index_type.class} is not a valid indexer_type. Use a String, Symbol or Descriptor."
+        #IndexDescriptors::Descriptor.new(*index_type)
       end
 
-      raise InvalidIndexDescriptor, "index type should be an IndexDescriptor, you passed: #{index_type}" unless index_type.kind_of? Descriptor
+      raise InvalidIndexDescriptor, "index type should be an Descriptor, you passed: #{index_type.class}" unless index_type.kind_of? Descriptor
       index_type
     end
 

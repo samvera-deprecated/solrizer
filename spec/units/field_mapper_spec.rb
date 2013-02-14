@@ -160,6 +160,10 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name('foo').should == 'foo_s'
     end
 
+    it "should allow you to pass a string as the suffix" do
+      @mapper.solr_name('bar', 'quack').should == 'bar_quack'
+    end
+
     it "should map based on data type" do
       @mapper.solr_name('foo', :fungible, type: :integer).should == 'foo_f1'
       @mapper.solr_name('foo', :fungible, type: :garble).should == 'foo_f2'  # based on type.default
