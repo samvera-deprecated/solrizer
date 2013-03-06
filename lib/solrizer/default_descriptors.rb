@@ -34,7 +34,11 @@ module Solrizer
       @symbol ||= Descriptor.new(:string, :stored, :indexed, :multivalued)
     end
 
-    # Produces _si suffix
+    # The suffix produced depends on the type parameter -- produces suffixes:
+    #  _tei - for text fields
+    #  _si - for strings 
+    #  _dti - for dates
+    #  _ii - for integers
     def self.sortable
       @sortable ||= Descriptor.new(sortable_field_definition, converter: searchable_converter, requires_type: true)
     end
