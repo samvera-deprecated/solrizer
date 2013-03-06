@@ -127,7 +127,7 @@ module Solrizer
       elsif opts.empty?
         [:stored_searchable, {type: :text}]
       else
-        [opts[0], opts[1] || {}]
+        [opts[0], opts[1] || {type: :string}]
       end
 
       indexer(index_type).name_and_converter(field_name, args).first
