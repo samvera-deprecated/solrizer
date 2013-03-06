@@ -36,7 +36,7 @@ module Solrizer
 
     # Produces _si suffix
     def self.sortable
-      @sortable ||= Descriptor.new(:string, :indexed)
+      @sortable ||= Descriptor.new(sortable_field_definition, converter: searchable_converter, requires_type: true)
     end
 
     # Fields that are both stored and sortable
@@ -74,6 +74,13 @@ module Solrizer
       lambda do |type|
         type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
         vals = [type, :indexed, :stored, :multivalued]
+        vals
+      end
+    end
+
+    def self.sortable_field_definition
+      lambda do |type|
+        vals = [type, :indexed]
         vals
       end
     end
