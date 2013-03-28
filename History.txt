@@ -1,4 +1,4 @@
-h2. 3.0.0
+h2. 3.0.0 (2013-03-28)
 suffix changes:  
   _s -> _sim
   _t -> _tesim
@@ -8,6 +8,8 @@ suffix changes:
   _display -> _sim
   _facet   -> _sim
   _unstem_search -> _tim
+
+Default Descriptors have been added: stored_searchable, searchable, dateable, facetable, symbol, sortable, displayable, unstemmed_searchable, simple
 
 
 h2. 2.1.0
