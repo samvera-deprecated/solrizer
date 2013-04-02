@@ -34,6 +34,11 @@ module Solrizer
       @symbol ||= Descriptor.new(:string, :stored, :indexed, :multivalued)
     end
 
+    # Solrizer 2.x compatibility; should probably be deprecated
+    def self.date
+      self.dateable
+    end
+
     # The suffix produced depends on the type parameter -- produces suffixes:
     #  _tei - for text fields
     #  _si - for strings 
