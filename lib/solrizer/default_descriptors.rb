@@ -55,6 +55,11 @@ module Solrizer
       @displayable ||= Descriptor.new(:string, :stored, :multivalued)
     end
 
+    # Legacy descriptor; should probably be deprecated
+    def self.display
+      self.displayable
+    end
+
     # Produces _tim suffix (used to be _unstem)
     def self.unstemmed_searchable
       @unstemmed_searchable ||= Descriptor.new(:text, :indexed, :multivalued)

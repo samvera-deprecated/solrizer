@@ -54,5 +54,8 @@ describe Solrizer do
         Solrizer.solr_name('foo', type: :string).should == "foo_tesim"
         Solrizer.solr_name('foo', :sortable).should == "foo_si"
     end
+    it "should support deprecated descriptors" do
+        Solrizer.solr_name('foo', :display).should == 'foo_ssm'
+    end
   end
 end
