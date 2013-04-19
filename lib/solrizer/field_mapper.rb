@@ -201,8 +201,9 @@ module Solrizer
       index_types.each do |index_type|
         Array(field_value).each do |single_value|
           # Get mapping for field
-          name, converter = indexer(index_type).name_and_converter(field_name, type: extract_type(single_value))
-          #name, converter = solr_name_and_converter(field_name, index_type, field_type)
+          descriptor = indexer(index_type)
+          data_type = extract_type(single_value)
+          name, converter = descriptor.name_and_converter(field_name, type: data_type)
           next unless name
           
           # Is there a custom converter?
@@ -219,8 +220,13 @@ module Solrizer
           end
           
           # Add mapped name & value, unless it's a duplicate
-          values = (results[name] ||= [])
-          values << value unless value.nil? || values.include?(value)
+          if descriptor.evaluate_suffix(data_type).multivalued?
+            values = (results[name] ||= [])
+            values << value unless value.nil? || values.include?(value)
+          else
+            logger.warn "Setting #{name} to `#{value}', but it already had `#{results[name]}'" if results[name]
+            results[name] = value
+          end
         end
       end
         

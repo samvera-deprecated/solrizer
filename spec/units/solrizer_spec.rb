@@ -9,9 +9,13 @@ describe Solrizer do
         Solrizer.insert_field(doc, 'foo', 'A name')
         doc.should == {'foo_tesim' => ['A name']}
       end
+      it "should not create an array of fields that are not multivalued" do
+        Solrizer.insert_field(doc, 'foo', 'A name', :sortable)
+        doc.should == {'foo_si' => 'A name'}
+      end
       it "should insert a field with multiple indexers" do
         Solrizer.insert_field(doc, 'foo', 'A name', :sortable, :facetable)
-        doc.should == {'foo_si' => ['A name'], 'foo_sim' => ['A name']}
+        doc.should == {'foo_si' => 'A name', 'foo_sim' => ['A name']}
       end
       it "should insert Dates" do
         Solrizer.insert_field(doc, 'foo', Date.parse('2013-01-13'))
@@ -24,17 +28,16 @@ describe Solrizer do
 
       it "should insert multiple values" do
         Solrizer.insert_field(doc, 'foo', ['A name', 'B name'], :sortable, :facetable)
-        # NOTE:  is this desired behavior for non-multivalued fields, like :sortable ?
-        doc.should == {'foo_si' => ['A name', 'B name'], 'foo_sim' => ['A name', 'B name']}
+        doc.should == {'foo_si' => 'B name', 'foo_sim' => ['A name', 'B name']}
       end
     end
 
     describe "on a document with values" do
-      before{ @doc = {'foo_si' => ['A name'], 'foo_sim' => ['A name']}}
+      before{ @doc = {'foo_si' => 'A name', 'foo_sim' => ['A name']}}
 
-      it "should not overwrite values that exist before" do
+      it "should not overwrite muli-values that exist before" do
         Solrizer.insert_field(@doc, 'foo', 'B name', :sortable, :facetable)
-        @doc.should == {'foo_si' => ['A name', 'B name'], 'foo_sim' => ['A name', 'B name']}
+        @doc.should == {'foo_si' => 'B name', 'foo_sim' => ['A name', 'B name']}
       end
     end
   end
@@ -44,7 +47,7 @@ describe Solrizer do
 
       it "should overwrite values that exist before" do
         Solrizer.set_field(@doc, 'foo', 'B name', :sortable, :facetable)
-        @doc.should == {'foo_si' => ['B name'], 'foo_sim' => ['B name']}
+        @doc.should == {'foo_si' => 'B name', 'foo_sim' => ['B name']}
       end
     end
   end

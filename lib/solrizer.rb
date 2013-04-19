@@ -7,6 +7,7 @@ module Solrizer
   autoload :Descriptor
   autoload :FieldMapper
   autoload :DefaultDescriptors
+  autoload :Suffix
   autoload :HTML, 'solrizer/html'
   autoload :VERSION, 'solrizer/version'
   autoload :XML, 'solrizer/xml'
@@ -38,7 +39,11 @@ module Solrizer
     indexer_args = [:stored_searchable] if indexer_args.empty?
     default_field_mapper.solr_names_and_values(name, value, indexer_args).each do |k, v|
       doc[k] ||= []
-      doc[k] += v
+      if v.is_a? Array
+        doc[k] += v
+      else
+        doc[k] = v
+      end
     end
     doc
   end

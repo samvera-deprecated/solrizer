@@ -15,7 +15,7 @@ module Solrizer
       args ||= {}
       field_type = args[:type]
       if type_required?
-        raise "Must provide a :type argument when index_type is `#{self}' for #{field_name}" unless field_type
+        raise ArgumentError, "Must provide a :type argument when index_type is `#{self}' for #{field_name}" unless field_type
       end
       [field_name.to_s + suffix(field_type), converter(field_type)]
     end
@@ -24,45 +24,20 @@ module Solrizer
       @type_required
     end
 
-    protected
-    def suffix(field_type)
-      evaluated_type = index_type.first.kind_of?(Proc) ? index_type.first.call(field_type) : index_type.dup
-      stored_suffix = config[:stored_suffix] if evaluated_type.delete(:stored)
-      index_suffix = config[:index_suffix] if evaluated_type.delete(:indexed)
-      multivalued_suffix = config[:multivalued_suffix] if evaluated_type.delete(:multivalued)
-      index_datatype = evaluated_type.first
-      raise Solrizer::InvalidIndexDescriptor, "Missing datatype for #{evaluated_type}" unless index_datatype
-      type_suffix = config[:type_suffix].call(index_datatype)
-      raise Solrizer::InvalidIndexDescriptor, "Invalid datatype `#{index_datatype.inspect}'. Must be one of: :date, :time, :text, :text_en, :string, :integer" unless type_suffix
+    def evaluate_suffix(field_type)
+      Suffix.new(index_type.first.kind_of?(Proc) ? index_type.first.call(field_type) : index_type.dup)
+    end
 
-      suffix = [config[:suffix_delimiter], type_suffix, stored_suffix, index_suffix, multivalued_suffix].join
+    protected
+
+
+    # Suffix can be overridden if you want a different method of grabbing the suffix
+    def suffix(field_type)
+      evaluate_suffix(field_type).to_s
     end
 
     def converter(field_type)
       @converter.call(field_type) if @converter
-    end
-
-    private
-    def config
-      @config ||= 
-      {suffix_delimiter: '_',
-      type_suffix: lambda do |type|  
-        case type
-        when :string, :symbol # TODO `:symbol' usage ought to be deprecated
-          's'
-        when :text
-          't'
-        when :text_en
-          'te'
-        when :date, :time
-          'dt'
-        when :integer
-          'i'
-        end
-      end,
-      stored_suffix: 's', 
-      index_suffix: 'i',
-      multivalued_suffix: 'm'}
     end
   end
 end
