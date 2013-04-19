@@ -168,6 +168,8 @@ module Solrizer
       when NilClass
       when Fixnum
         :integer
+      when DateTime
+        :time
       else
         value.class.to_s.underscore.to_sym
       end

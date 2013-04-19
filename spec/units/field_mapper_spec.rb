@@ -146,6 +146,7 @@ describe Solrizer::FieldMapper do
       @mapper.extract_type(nil).should == nil
       @mapper.extract_type(Date.today).should == :date
       @mapper.extract_type(Time.now).should == :time
+      @mapper.extract_type(DateTime.now).should == :time
       @mapper.extract_type("Hi").should == :string
     end
   end
