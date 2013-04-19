@@ -24,9 +24,13 @@ module Solrizer
       @type_required
     end
 
+    def resolve_solr_field_type(field_type)
+      index_type.first.kind_of?(Proc) ? index_type.first.call(field_type) : index_type.dup
+    end
+
     protected
     def suffix(field_type)
-      evaluated_type = index_type.first.kind_of?(Proc) ? index_type.first.call(field_type) : index_type.dup
+      evaluated_type = resolve_solr_field_type(field_type)
       stored_suffix = config[:stored_suffix] if evaluated_type.delete(:stored)
       index_suffix = config[:index_suffix] if evaluated_type.delete(:indexed)
       multivalued_suffix = config[:multivalued_suffix] if evaluated_type.delete(:multivalued)
