@@ -29,7 +29,8 @@ module Solrizer
       @facetable ||= Descriptor.new(:string, :indexed, :multivalued)
     end
 
-    # Produces _ssim suffix;  should probably be deprecated
+    # Produces _ssim suffix
+    # This is useful for when you only want to match whole words, such as user/group names from the the rightsMetadata datastream
     def self.symbol
       @symbol ||= Descriptor.new(:string, :stored, :indexed, :multivalued)
     end
