@@ -37,17 +37,26 @@ describe Solrizer::FieldMapper do
         def name_and_converter(field_name, args)
           [field_name + '_s', lambda { |value| "#{value} o'clock" }]
         end
+        def index_type
+          [:multivalued]
+        end
       end
 
       class StoredSearchableDescriptor < Solrizer::Descriptor
         def name_and_converter(field_name, args)
           [field_name.to_s + '_s']
         end
+        def index_type
+          [:multivalued]
+        end
       end
 
       class EdibleDescriptor < Solrizer::Descriptor
         def name_and_converter(field_name, args)
           [field_name + '_food']
+        end
+        def index_type
+          [:multivalued]
         end
       end
 
@@ -93,6 +102,9 @@ describe Solrizer::FieldMapper do
               "Knock knock. Who's there? #{value.capitalize}. #{value.capitalize} who?"
             end
           end
+        end
+        def index_type
+          [:multivalued]
         end
       end
     end
@@ -270,16 +282,16 @@ describe Solrizer::FieldMapper do
         "foo_tesim" => ["bar"], #stored_searchable
         "foo_ssm" => ["bar"], #displayable
         "foo_sim" => ["bar"], #facetable
-        "foo_si" => ["bar"], #sortable
-        "foo_ssi" => ["bar"], #stored_sortable
+        "foo_si" => "bar", #sortable
+        "foo_ssi" => "bar", #stored_sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
       }
     end
 
     it "should support stored_sortable" do
       time = Time.iso8601("2012-11-06T15:16:17Z")
-      @mapper.solr_names_and_values('foo', time, :stored_sortable).should == {"foo_dtsi" => ["2012-11-06T15:16:17Z"]} 
-      @mapper.solr_names_and_values('foo', 'bar', :stored_sortable).should == {"foo_ssi" => ["bar"]} 
+      @mapper.solr_names_and_values('foo', time, :stored_sortable).should == {"foo_dtsi" => "2012-11-06T15:16:17Z"} 
+      @mapper.solr_names_and_values('foo', 'bar', :stored_sortable).should == {"foo_ssi" => "bar"} 
     end
   end
 end
