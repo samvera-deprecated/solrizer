@@ -18,8 +18,11 @@ class Extractor
   # @param [String] field_value
   def self.insert_solr_field_value(solr_doc, field_name, field_value)
     formatted_value = self.format_node_value(field_value)
-    solr_doc[field_name] ||= []
-    solr_doc[field_name] << formatted_value
+    if solr_doc[field_name]
+      solr_doc[field_name] = Array(solr_doc[field_name]) << formatted_value
+    else
+      solr_doc[field_name] = formatted_value
+    end
     return solr_doc
   end
   

@@ -1,3 +1,6 @@
+h2. 3.0.1
+  #16 Inserting non-multivalued fields should not create a solr error
+
 h2. 3.0.0 (2013-03-28)
 suffix changes:  
   _s -> _sim
