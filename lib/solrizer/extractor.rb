@@ -29,14 +29,20 @@ class Extractor
   # Strips the majority of whitespace from the values array and then joins them with a single blank delimitter
   # Returns an empty string if values argument is nil
   #
-  # @param [Array] values Array of strings representing the values to be formatted
+  # @param [Array] values Array of strings or dates representing the values to be formatted
   # @return [String] 
   def self.format_node_value values
     if values.nil?
       return ""
     else
       values = [values] unless values.respond_to? :map
-      return values.map{|val| val.gsub(/\s+/,' ').strip}.join(" ")
+      return values.map { |val|
+        if val.is_a?(Date)
+          val.to_time.utc.iso8601.to_s
+        else
+          val.gsub(/\s+/,' ').strip
+        end
+      }.join(" ")
     end
   end
   
