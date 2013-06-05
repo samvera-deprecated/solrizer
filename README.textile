@@ -38,7 +38,7 @@ require "solrizer"
 
 h3. Field Mapper
 
-The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml) to dynamic field types defined in the Hydra Solr schema.xml file.  A copy of that is available :
+The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings to dynamic field types defined in the Hydra Solr schema.xml file.  A copy of that is available :
   https://github.com/projecthydra/hydra-head/blob/master/hydra-core/lib/generators/hydra/templates/solr_conf/conf/schema.xml
 	
 More information on the conventions followed for the dynamic solr fields is here:
