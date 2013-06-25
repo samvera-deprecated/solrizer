@@ -49,6 +49,8 @@ module Solrizer
           'dt'
         when :integer
           'i'
+        when :boolean
+          'b'
         end
       end,
       stored_suffix: 's', 

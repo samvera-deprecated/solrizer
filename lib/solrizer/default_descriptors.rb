@@ -78,8 +78,11 @@ module Solrizer
     def self.stored_searchable_field_definition
       lambda do |type|
         type = :text_en if [:string, :text].include?(type) # for backwards compatibility with old solr schema
-        vals = [type, :indexed, :stored, :multivalued]
-        vals
+        if type == :boolean
+          [type, :indexed, :stored]
+        else
+          [type, :indexed, :stored, :multivalued]
+        end
       end
     end
 
