@@ -25,6 +25,10 @@ describe Solrizer do
         Solrizer.insert_field(doc, 'foo', Time.parse('2013-01-13T22:45:56+06:00'))
         doc.should == {'foo_dtsim' => ["2013-01-13T16:45:56Z"]}
       end
+      it "should insert Booleans" do
+        Solrizer.insert_field(doc, 'foo', true)
+        doc.should == {'foo_bsi' => true}
+      end
 
       it "should insert multiple values" do
         Solrizer.insert_field(doc, 'foo', ['A name', 'B name'], :sortable, :facetable)
