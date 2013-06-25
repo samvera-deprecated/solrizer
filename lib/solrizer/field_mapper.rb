@@ -170,6 +170,8 @@ module Solrizer
         :integer
       when DateTime
         :time
+      when TrueClass, FalseClass
+        :boolean
       else
         value.class.to_s.underscore.to_sym
       end
@@ -205,7 +207,7 @@ module Solrizer
           data_type = extract_type(single_value)
           name, converter = descriptor.name_and_converter(field_name, type: data_type)
           next unless name
-          
+
           # Is there a custom converter?
           # TODO instead of a custom converter, look for input data type and output data type. Create a few methods that can do that cast.
 
@@ -215,6 +217,8 @@ module Solrizer
             else
               converter.call(single_value, field_name)
             end
+          elsif data_type == :boolean
+            single_value
           else
             single_value.to_s
           end
