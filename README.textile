@@ -45,7 +45,7 @@ More information on the conventions followed for the dynamic solr fields is here
   https://github.com/projecthydra/hydra-head/wiki/Solr-Schema
 
 <pre>
-default_mapper = Solrizer::FieldMapper::Default.new
+default_mapper = Solrizer::FieldMapper.new
 
 # some of the default mappings in solrizer
 default_mapper.solr_name("foo",:string,:searchable)     # returns foo_tesim
@@ -68,7 +68,7 @@ Solrizer.insert_field(solr_doc, 'pub_date', 'Nov 2012', :sortable, :displayable)
 => {"title_tesim"=>["whatever"], "pub_date_ssi"=>["Nov 2012"], "pub_date_ssm"=>["Nov 2012"]}
 </pre>
 
-#### You can also index dates
+h5. You can also index dates
 <pre>
 # as a date
 solr_doc = {}
@@ -87,7 +87,7 @@ Solrizer.insert_field(solr_doc, 'pub_date', 'Jan 29th 2013', :dateable)
 </pre>
 
 
-## Using a custom indexing strategy
+h3. Using a custom indexing strategy
 All you have to do is create your own index descriptor:
 <pre>
 solr_doc = {}
@@ -96,7 +96,7 @@ Solrizer.insert_field(solr_doc, 'some_count', 45, displearchable)
 {"some_count_isi"=>["45"]}
 </pre>
 
-## Changing the behavior of a default descriptor
+h5. Changing the behavior of a default descriptor
 
 Simply override the methods within Solrizer::DefaultDescriptors
 <pre>
@@ -121,7 +121,7 @@ Solrizer.insert_field(solr_doc, 'title', 'foobar', :facetable)
 </pre>
 
 
-## Creating your own Indexers
+h3. Creating your own Indexers
 <pre>
 module MyMappers
   def self.mapper_one
@@ -138,7 +138,7 @@ Solrizer.insert_field(solr_doc, 'title', 'foobar', :mapper_one)
 => {"title_ssi"=>["foobar"]}
 </pre>
 
-## Using OM
+h3. Using OM
 Same as it ever was:
 <pre>
     t.main_title(:index_as=>[:facetable],:path=>"title", :label=>"title") { ... }
