@@ -76,6 +76,7 @@ module Samples
         t.url(:path=>"url")
       }
       t.publication_url(:proxy=>[:location,:url])
+      t.root_title(:proxy => [:mods, :title_info, :main_title], :index_as => [:searchable])
       t.title(:proxy=>[:title_info, :main_title])
       t.journal_title(:proxy=>[:journal, :title_info, :main_title])
       t.pub_date(:proxy=>[:journal, :issue, :publication_date])

@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'active_model'
 
 
 if ENV['COVERAGE'] and RUBY_VERSION =~ /^1.9/

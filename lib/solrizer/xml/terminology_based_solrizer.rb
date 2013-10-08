@@ -44,6 +44,7 @@ module Solrizer::XML::TerminologyBasedSolrizer
         doc.solrize_node(node.to_s, term_pointer, term, solr_doc, field_mapper)
         unless term.kind_of? OM::XML::NamedTermProxy
           term.children.each_pair do |child_term_name, child_term|
+            next if child_term.kind_of? OM::XML::NamedTermProxy and term.is_root_term?
             doc.solrize_term(child_term, solr_doc, field_mapper, opts={:parents=>parents+[{term.name=>nodeset.index(node.to_s)}]})
           end
         end
