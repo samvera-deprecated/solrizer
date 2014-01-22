@@ -90,8 +90,7 @@ begin
       puts @msg.headers.inspect
       puts "\nPID: #{@msg.headers["pid"]}\n"
       if ["addDatastream", "addRelationship","ingest","modifyDatastreamByValue","modifyDatastreamByReference","modifyObject","purgeDatastream","purgeRelationship"].include? method
-        solrizer = Solrizer::Fedora::Solrizer.new
-        solrizer.solrize @msg.headers["pid"]
+        ActiveFedora::Base.find(@msg.headers["pid"], cast: true).update_index
       elsif method == "purgeObject"
         ActiveFedora::SolrService.instance.conn.delete_by_id(pid)
       else
