@@ -25,14 +25,23 @@ describe Solrizer do
         Solrizer.insert_field(doc, 'foo', Time.parse('2013-01-13T22:45:56+06:00'))
         doc.should == {'foo_dtsim' => ["2013-01-13T16:45:56Z"]}
       end
-      it "should insert Booleans" do
+      it "should insert true Booleans" do
         Solrizer.insert_field(doc, 'foo', true)
         doc.should == {'foo_bsi' => true}
+      end
+      it "should insert false Booleans" do
+        Solrizer.insert_field(doc, 'foo', false)
+        doc.should == {'foo_bsi' => false}
       end
 
       it "should insert multiple values" do
         Solrizer.insert_field(doc, 'foo', ['A name', 'B name'], :sortable, :facetable)
         doc.should == {'foo_si' => 'B name', 'foo_sim' => ['A name', 'B name']}
+      end
+
+      it 'should insert nothing when passed a nil value' do
+        Solrizer.insert_field(doc, 'foo', nil, :sortable, :facetable)
+        doc.should == {}
       end
     end
 
