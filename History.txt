@@ -1,3 +1,12 @@
+h2. 3.2.0
+  #25 Allow any field_value except nil to be inserted into a solr field
+  #24 Remove dependency on solrizer-fedora, use AF to update index by pid
+  #23 Enhance Suffix#config so it can be usefully overridden by downstream 
+
+h2. 3.1.1
+  #22 Support for boolean values
+  #21 Testing on Rails version 4
+
 h2. 3.1.0
   #16 Inserting non-multivalued fields should not create a solr error
   #20 Time fields should be formatted correctly when using active_support/core_ext/date_time/conversions
