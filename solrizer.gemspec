@@ -14,7 +14,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency "nokogiri"
   s.add_dependency "xml-simple"
-  s.add_dependency "mediashelf-loggable", "~>0.4.7"
   s.add_dependency "stomp"
   s.add_dependency "daemons"
   s.add_dependency "activesupport"

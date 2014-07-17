@@ -1,4 +1,3 @@
-require "loggable"
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/string/inflections'
 module Solrizer
@@ -100,8 +99,6 @@ module Solrizer
   
   class FieldMapper
 
-    include Loggable
-    
     # ------ Instance methods ------
     
     attr_reader :id_field, :default_index_types
@@ -228,7 +225,7 @@ module Solrizer
             values = (results[name] ||= [])
             values << value unless value.nil? || values.include?(value)
           else
-            logger.warn "Setting #{name} to `#{value}', but it already had `#{results[name]}'" if results[name]
+            Solrizer.logger.warn "Setting #{name} to `#{value}', but it already had `#{results[name]}'" if results[name] && Solrizer.logger
             results[name] = value
           end
         end
