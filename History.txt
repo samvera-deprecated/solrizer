@@ -1,3 +1,9 @@
+h2. 3.3.0
+  * 2014-07-17: Remove dependency on mediashelf-loggable [Justin Coyne]
+  * 2014-07-17: Fix rspec deprecations [Justin Coyne]
+  * 2014-06-04: Refactor format_node_value so we don't need to check responds_to? [Justin Coyne]
+
+[Justin Coyne]
 h2. 3.2.0
   #25 Allow any field_value except nil to be inserted into a solr field
   #24 Remove dependency on solrizer-fedora, use AF to update index by pid
