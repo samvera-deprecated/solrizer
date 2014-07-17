@@ -148,100 +148,100 @@ describe Solrizer::FieldMapper do
   # --- Tests ----
   
   it "should handle the id field" do
-    @mapper.id_field.should == 'ident'
+    expect(@mapper.id_field).to eq 'ident'
   end
 
 
   describe "extract_type" do
     it "should map objects to symbols" do
-      @mapper.extract_type(7).should == :integer
-      @mapper.extract_type(nil).should == nil
-      @mapper.extract_type(Date.today).should == :date
-      @mapper.extract_type(Time.now).should == :time
-      @mapper.extract_type(DateTime.now).should == :time
-      @mapper.extract_type("Hi").should == :string
+      expect(@mapper.extract_type(7)).to eq :integer
+      expect(@mapper.extract_type(nil)).to eq nil
+      expect(@mapper.extract_type(Date.today)).to eq :date
+      expect(@mapper.extract_type(Time.now)).to eq :time
+      expect(@mapper.extract_type(DateTime.now)).to eq :time
+      expect(@mapper.extract_type("Hi")).to eq :string
     end
   end
   
   describe '.solr_name' do
     it "should map based on passed descriptors" do
-      @mapper.solr_name('bar', :edible).should == 'bar_food'
-      @mapper.solr_name('bar', :laughable, type: :string).should == 'bar_haha'
+      expect(@mapper.solr_name('bar', :edible)).to eq 'bar_food'
+      expect(@mapper.solr_name('bar', :laughable, type: :string)).to eq 'bar_haha'
     end
 
     it "should default the index_type to :stored_searchable" do
-      @mapper.solr_name('foo').should == 'foo_s'
+      expect(@mapper.solr_name('foo')).to eq 'foo_s'
     end
 
     it "should allow you to pass a string as the suffix" do
-      @mapper.solr_name('bar', 'quack').should == 'bar_quack'
+      expect(@mapper.solr_name('bar', 'quack')).to eq 'bar_quack'
     end
 
     it "should map based on data type" do
-      @mapper.solr_name('foo', :fungible, type: :integer).should == 'foo_f1'
-      @mapper.solr_name('foo', :fungible, type: :garble).should == 'foo_f2'  # based on type.default
-      @mapper.solr_name('foo', :fungible, type: :date).should == 'foo_f0'  # type.date falls through to container
+      expect(@mapper.solr_name('foo', :fungible, type: :integer)).to eq 'foo_f1'
+      expect(@mapper.solr_name('foo', :fungible, type: :garble)).to eq 'foo_f2'  # based on type.default
+      expect(@mapper.solr_name('foo', :fungible, type: :date)).to eq 'foo_f0'  # type.date falls through to container
     end
   
     it "should return nil for an unknown index types" do
-      lambda { 
+      expect { 
         @mapper.solr_name('foo', :blargle)
-      }.should raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
+      }.to raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
     end
     
     it "should allow subclasses to selectively override suffixes" do
       @mapper = TestMapper1.new
-      @mapper.solr_name('foo', type: :date).should == 'foo_s'
-      @mapper.solr_name('foo', type: :string).should == 'foo_s'
-      @mapper.solr_name('foo', :fungible, type: :integer).should == 'foo_f5'  # override on data type
-      @mapper.solr_name('foo', :fungible, type: :garble).should == 'foo_f4'  # override on data type
-      @mapper.solr_name('foo', :fungible, type: :fratz).should == 'foo_f2'  # from super
-      @mapper.solr_name('foo', :fungible, type: :date).should == 'foo_f0'  # super definition picks up override on index type
+      expect(@mapper.solr_name('foo', type: :date)).to eq 'foo_s'
+      expect(@mapper.solr_name('foo', type: :string)).to eq 'foo_s'
+      expect(@mapper.solr_name('foo', :fungible, type: :integer)).to eq 'foo_f5'  # override on data type
+      expect(@mapper.solr_name('foo', :fungible, type: :garble)).to eq 'foo_f4'  # override on data type
+      expect(@mapper.solr_name('foo', :fungible, type: :fratz)).to eq 'foo_f2'  # from super
+      expect(@mapper.solr_name('foo', :fungible, type: :date)).to eq 'foo_f0'  # super definition picks up override on index type
     end
     
     
     it "should raise an error when field_type is nil" do
       mapper = Solrizer::FieldMapper.new
-      lambda { mapper.solr_name(:heifer, nil, :searchable)}.should raise_error Solrizer::InvalidIndexDescriptor
+      expect { mapper.solr_name(:heifer, nil, :searchable) }.to raise_error Solrizer::InvalidIndexDescriptor
     end
   end
   
   describe '.solr_names_and_values' do
     it "should map values based on passed descriptors" do
-      @mapper.solr_names_and_values('foo', 'bar', [:stored_searchable, :laughable, :edible]).should == {
+      expect(@mapper.solr_names_and_values('foo', 'bar', [:stored_searchable, :laughable, :edible])).to eq(
         'foo_s'    => ['bar'],
         'foo_food' => ['bar'],
         'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
-      }
+      )
     end
     
     it "should apply mappings based on data type" do
-      @mapper.solr_names_and_values('foo', 7, [:stored_searchable, :laughable]).should == {
+      expect(@mapper.solr_names_and_values('foo', 7, [:stored_searchable, :laughable])).to eq(
         'foo_s'     => ['7'],
         'foo_ihaha' => ["How many foos does it take to screw in a light bulb? 7."]
-      }
+      )
     end
     
     it "should raise error on unknown index types" do
-      lambda { 
+      expect { 
         @mapper.solr_names_and_values('foo', 'bar', [:blargle])
-      }.should raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
+      }.to raise_error(Solrizer::UnknownIndexMacro, "Unable to find `blargle' in [TestMapper0::Descriptors0, Solrizer::DefaultDescriptors]")
     end
     
     it "should generate multiple mappings when two return the _same_ solr name but _different_ values" do
-      @mapper.solr_names_and_values('roll', 'rock', [:unstemmed_searchable, :stored_searchable]).should == {
+      expect(@mapper.solr_names_and_values('roll', 'rock', [:unstemmed_searchable, :stored_searchable])).to eq(
         'roll_s' => ["rock o'clock", 'rock']
-      }
+      )
     end
     
     it "should not generate multiple mappings when two return the _same_ solr name and the _same_ value" do
-      @mapper.solr_names_and_values('roll', 'rock', [:another_stored_searchable, :stored_searchable]).should == {
+      expect(@mapper.solr_names_and_values('roll', 'rock', [:another_stored_searchable, :stored_searchable])).to eq(
         'roll_s' => ['rock'],
-      }
+      )
     end
 
     it "should return an empty hash when value is nil" do
-      @mapper.solr_names_and_values('roll', nil, [:another_stored_searchable, :stored_searchable]).should == { }
+      expect(@mapper.solr_names_and_values('roll', nil, [:another_stored_searchable, :stored_searchable])).to eq({ })
     end
   end
 
@@ -251,33 +251,33 @@ describe Solrizer::FieldMapper do
     end
   	
     it "should call the id field 'id'" do
-      @mapper.id_field.should == 'id'
+      expect(@mapper.id_field).to eq 'id'
     end
 
     it "should default the index_type to :stored_searchable" do
-      @mapper.solr_name('foo', :type=>:string).should == 'foo_tesim'
+      expect(@mapper.solr_name('foo', :type=>:string)).to eq 'foo_tesim'
     end
     
     it "should support field names as symbols" do
-      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_ssim"
+      expect(@mapper.solr_name(:active_fedora_model, :symbol)).to eq "active_fedora_model_ssim"
     end
     
     it "should not apply mappings for searchable by default" do
       # Just sanity check a couple; copy & pasting all data types is silly
-      @mapper.solr_names_and_values('foo', 'bar', []).should == {  }
-      @mapper.solr_names_and_values('foo', "1",[]).should == { }
+      expect(@mapper.solr_names_and_values('foo', 'bar', [])).to eq({  })
+      expect(@mapper.solr_names_and_values('foo', "1",[])).to eq({ })
     end
 
     it "should support full ISO 8601 dates" do
-      @mapper.solr_names_and_values('foo', "2012-11-06",  [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "November 6th, 2012",  [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "6 Nov. 2012", [:dateable]).should == { 'foo_dtsim' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', '', [:dateable]).should == { 'foo_dtsim' => [] }
+      expect(@mapper.solr_names_and_values('foo', "2012-11-06",  [:dateable])).to eq('foo_dtsim' =>["2012-11-06T00:00:00Z"])
+      expect(@mapper.solr_names_and_values('foo', "November 6th, 2012",  [:dateable])).to eq('foo_dtsim' =>["2012-11-06T00:00:00Z"])
+      expect(@mapper.solr_names_and_values('foo', "6 Nov. 2012", [:dateable])).to eq('foo_dtsim' =>["2012-11-06T00:00:00Z"])
+      expect(@mapper.solr_names_and_values('foo', '', [:dateable])).to eq('foo_dtsim' => [])
     end
 
     it "should support searchable, stored_searchable, displayable, facetable, sortable, stored_sortable, unstemmed" do
       descriptors = [:searchable, :stored_searchable, :displayable, :facetable, :sortable, :stored_sortable, :unstemmed_searchable]
-      @mapper.solr_names_and_values('foo', 'bar', descriptors).should == {
+      expect(@mapper.solr_names_and_values('foo', 'bar', descriptors)).to eq(
         "foo_teim" => ["bar"], #searchable
         "foo_tesim" => ["bar"], #stored_searchable
         "foo_ssm" => ["bar"], #displayable
@@ -285,13 +285,13 @@ describe Solrizer::FieldMapper do
         "foo_si" => "bar", #sortable
         "foo_ssi" => "bar", #stored_sortable
         "foo_tim" => ["bar"] #unstemmed_searchable
-      }
+      )
     end
 
     it "should support stored_sortable" do
       time = Time.iso8601("2012-11-06T15:16:17Z")
-      @mapper.solr_names_and_values('foo', time, :stored_sortable).should == {"foo_dtsi" => "2012-11-06T15:16:17Z"} 
-      @mapper.solr_names_and_values('foo', 'bar', :stored_sortable).should == {"foo_ssi" => "bar"} 
+      expect(@mapper.solr_names_and_values('foo', time, :stored_sortable)).to eq("foo_dtsi" => "2012-11-06T15:16:17Z")
+      expect(@mapper.solr_names_and_values('foo', 'bar', :stored_sortable)).to eq("foo_ssi" => "bar")
     end
   end
 end
