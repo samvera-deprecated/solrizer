@@ -14,11 +14,11 @@ fedora repository and writing to a solr instance.
 
 ## Installation
 
-The gem is hosted on [rubygems.org](http://rubygems.org/gems/solrizer). The best way to manage the gems for your project
+The gem is hosted on [rubygems.org](https://rubygems.org/gems/solrizer). The best way to manage the gems for your project
 is to use bundler.  Create a Gemfile in the root of your application and include the following:
 
 
-    source "http://rubygems.org"
+    source "https://rubygems.org"
     gem 'solrizer'
 
 Then:
