@@ -1,3 +1,5 @@
+  * 2014-09-10: Use HTTPS URLs for RubyGems [Michael Slone]
+
 h2. 3.3.0
   * 2014-07-17: Remove dependency on mediashelf-loggable [Justin Coyne]
   * 2014-07-17: Fix rspec deprecations [Justin Coyne]
