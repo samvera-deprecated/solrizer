@@ -54,6 +54,9 @@ describe Solrizer::Suffix do
       expect(Solrizer::Suffix.new(:string, :stored, :indexed).to_s).to eq '_ssi'
       expect(Solrizer::Suffix.new(:integer, :stored, :multivalued).to_s).to eq '_ism'
     end
+    it "should be able to handle longs" do
+      expect(Solrizer::Suffix.new(:long, :stored, :indexed).to_s).to eq '_ltsi'
+    end
   end
 
   describe "config" do

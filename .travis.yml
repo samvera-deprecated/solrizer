@@ -1,9 +1,10 @@
 rvm:
-  - 1.9.3
   - 2.0.0
+  - 2.1
+  - 2.2.1
+sudo: false
 
 gemfile:
-  - gemfiles/gemfile.rails3
   - gemfiles/gemfile.rails4
 
 notifications:
