@@ -1,3 +1,5 @@
+h2. 3.4.0
+  * 2015-03-14: Add support for Longs. [Trey Pendragon]
   * 2014-09-10: Use HTTPS URLs for RubyGems [Michael Slone]
 
 h2. 3.3.0
