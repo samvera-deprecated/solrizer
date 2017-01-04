@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency "stomp"
   s.add_dependency "daemons"
   s.add_dependency "activesupport"
-  s.add_development_dependency 'rspec', '~> 2.0'
+  s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'RedCloth' # yard depends on redcloth
