@@ -163,7 +163,7 @@ module Solrizer
     def extract_type(value)
       case value
       when NilClass
-      when Fixnum
+      when 0.class # Fixnum for ruby < 2.4, and Integer afterwards
         :integer
       when DateTime
         :time
