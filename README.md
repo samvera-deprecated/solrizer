@@ -157,37 +157,6 @@ But now you may also pass an Descriptor instance if that works for you:
     indexer = Solrizer::Descriptor.new(:integer, :indexed, :stored)
     t.main_title(:index_as=>[indexer],:path=>"title", :label=>"title") { ... }
 
-### Extractor and Extractor Mixins
-
-Solrizer::Extractor provides utilities for extracting solr fields from objects or inserting solr fields into documents:
-
-    > extractor = Solrizer::Extractor.new
-    > solr_doc = Hash.new
-    > extractor.format_node_value(["foo     ","\n      bar"])
-    => "foo bar"
-    > extractor.insert_solr_field_value(solr_doc, "foo","bar")
-    => {"foo"=>"bar"}
-    > extractor.insert_solr_field_value(solr_doc,"foo","baz")
-    => {"foo"=>["bar", "baz"]}
-    > extractor.insert_solr_field_value(solr_doc, "boo","hoo")
-    => {"foo"=>["bar", "baz"], "boo"=>"hoo"}
-
-#### Solrizer provides some default mixins:
-
-`Solrizer::HTML::Extractor` provides html_to_solr method and `Solrizer::XML::Extractor` provides xml_to_solr method:
-
-    > Solrizer::XML::Extractor
-    > extractor = Solrizer::Extractor.new
-    > xml = "<fields><foo>bar</foo><bar>baz</bar></fields>"
-    > extractor.xml_to_solr(xml)
-    => {:foo_tesim=>"bar", :bar_tesim=>"baz"}
-
-#### Solrizer::XML::TerminologyBasedSolrizer
-
-Another powerful mixin for use with classes that include the `OM::XML::Document` module is
-`Solrizer::XML::TerminologyBasedSolrizer`. The methods provided by this module map provides a robust way of mapping
-terms and solr fields via om terminologies. A notable example  can be found in `ActiveFedora::NokogiriDatatstream`.
-
 ## JMS Listener for Hydra Rails Applications
 
 ### The executables: solrizer and solrizerd
