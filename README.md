@@ -3,13 +3,7 @@
 [![Build Status](https://travis-ci.org/projecthydra/solrizer.png?branch=master)](https://travis-ci.org/projecthydra/solrizer)
 [![Gem Version](https://badge.fury.io/rb/solrizer.png)](http://badge.fury.io/rb/solrizer)
 
-A lightweight, configurable tool for indexing metadata into solr.  Can be triggered from within your application, from
-the command line, or as a JMS listener.
-
-Solrizer provides the baseline and structures for the process of solrizing.  In order to actually read objects from a
-data source and write solr documents into a solr instance, you need to use an implementation specific gem, such as
-"solrizer-fedora":https://github.com/projecthydra/solrizer-fedora, which provides the mechanics for reading from a
-fedora repository and writing to a solr instance.
+A lightweight tool for creating dynamic solr schema sufixes.
 
 
 ## Installation
@@ -156,43 +150,6 @@ But now you may also pass an Descriptor instance if that works for you:
 
     indexer = Solrizer::Descriptor.new(:integer, :indexed, :stored)
     t.main_title(:index_as=>[indexer],:path=>"title", :label=>"title") { ... }
-
-## JMS Listener for Hydra Rails Applications
-
-### The executables: solrizer and solrizerd
-
-The solrizer gem provides two executables:
-
- * solrizer is a stomp consumer which listens for fedora.apim.updates and solrizes (or de-solrizes) objects accordingly. 
- * solrizerd is a wrapper script that spawns a daemonized version of solrizer and handles start|stop|restart|status requests. 
-
-### Usage 
-
-The usage for solrizerd is as follows: 
-
-    solrizerd command --hydra_home PATH [options] 
-
-The commands are as follows:
- *  start      start an instance of the application 
- *  stop       stop all instances of the application 
- *  restart    stop all instances and restart them afterwards 
- *  status     show status (PID) of application instances 
-
-Required parameters:
-
---hydra_home: this is the path to your hydra rails applications' root directory.  Solrizerd needs this in order to load all your models and corresponding terminoligies.
-
-The options:
- *  -p, --port         Stomp port  61613 
- *  -o, --host         Host to connect to  localhost 
- *  -u, --user         User name for stomp listener  
- *  -w, --password     Password for stomp listener  
- *  -d, --destination  Topic to listen to (default: /topic/fedora.apim.update) 
- *  -h, --help         Display this screen 
-
-Note:
-
-Since the solrizer script must fire up your hydra rails application, it must have all the gems installed that your hydra instance needs.
 
 ## Note on Patches/Pull Requests
  
