@@ -5,14 +5,11 @@ module Solrizer
   extend ActiveSupport::Autoload
 
   autoload :Common
-  autoload :Extractor
   autoload :Descriptor
   autoload :FieldMapper
   autoload :DefaultDescriptors
   autoload :Suffix
-  autoload :HTML, 'solrizer/html'
   autoload :VERSION, 'solrizer/version'
-  autoload :XML, 'solrizer/xml'
 
   mattr_accessor :logger, instance_writer: false
 
