@@ -70,5 +70,8 @@ describe Solrizer do
         expect(Solrizer.solr_name('foo', type: :string)).to eq "foo_tesim"
         expect(Solrizer.solr_name('foo', :sortable)).to eq "foo_si"
     end
+    it "should support deprecated descriptors" do
+        Solrizer.solr_name('foo', :display).should == 'foo_ssm'
+    end
   end
 end
