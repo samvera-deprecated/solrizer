@@ -26,9 +26,16 @@ module Solrizer
       @@default_field_mapper = field_mapper
     end
 
+    def cache(*args)
+      @cache ||= {}
+      @cache[args] ||= yield(*args)
+    end
+    private :cache
 
     def solr_name(*args)
-      default_field_mapper.solr_name(*args)
+      cache(args) do
+        default_field_mapper.solr_name(*args)
+      end
     end
 
     # @params [Hash] doc the hash to insert the value into
