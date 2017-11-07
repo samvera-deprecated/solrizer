@@ -4,6 +4,7 @@ require 'active_support/core_ext/module/attribute_accessors'
 module Solrizer
   extend ActiveSupport::Autoload
 
+  autoload :CachingFieldMapper
   autoload :Common
   autoload :Descriptor
   autoload :FieldMapper
@@ -26,16 +27,12 @@ module Solrizer
       @@default_field_mapper = field_mapper
     end
 
-    def cache(*args)
-      @cache ||= {}
-      @cache[args] ||= yield(*args)
+    def caching_field_mapper
+      @caching_field_mapper ||= Solrizer::CachingFieldMapper.new(default_field_mapper)
     end
-    private :cache
-
+    
     def solr_name(*args)
-      cache(args) do
-        default_field_mapper.solr_name(*args)
-      end
+      caching_field_mapper.solr_name(*args)
     end
 
     # @params [Hash] doc the hash to insert the value into
