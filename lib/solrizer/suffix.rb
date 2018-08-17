@@ -66,7 +66,7 @@ module Solrizer
           when :long
             'lt'
           else
-            raise Solrizer::InvalidIndexDescriptor, "Invalid datatype `#{type.inspect}'. Must be one of: :date, :time, :text, :text_en, :string, :symbol, :integer, :boolean"
+            raise Solrizer::InvalidIndexDescriptor, "Invalid datatype `#{type.inspect}'. Must be one of: :date, :time, :text, :text_en, :string, :symbol, :integer, :boolean, :long"
           end
         end),
         stored_suffix: 's',
