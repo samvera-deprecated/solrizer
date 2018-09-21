@@ -66,9 +66,13 @@ describe Solrizer do
   end
 
   describe ".solr_name" do
-    it "should delegate to default_field_mapper" do
+    before do
+      allow(Deprecation).to receive(:warn)
+    end
+    it "should delegate to default_field_mapper and issues a deprecation warning" do
         expect(Solrizer.solr_name('foo', type: :string)).to eq "foo_tesim"
         expect(Solrizer.solr_name('foo', :sortable)).to eq "foo_si"
+        expect(Deprecation).to have_received(:warn).at_least :once
     end
   end
 end

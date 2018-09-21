@@ -1,7 +1,11 @@
 require 'active_support'
 require 'active_support/core_ext/module/attribute_accessors'
+require 'deprecation'
 
 module Solrizer
+  Deprecation.warn(self, "Solrizer has been merged into ActiveFedora please see (https://github.com/samvera/active_fedora/pull/1223)." \
+                         "  This means that this Gem is no longer actively maintained, and that there are plans for it to be deprecated." \
+                         "  Please see the ActiveFedora documentation for further reference: https://github.com/samvera/active_fedora/wiki.")
   extend ActiveSupport::Autoload
 
   autoload :CachingFieldMapper
@@ -30,10 +34,11 @@ module Solrizer
     def caching_field_mapper
       @caching_field_mapper ||= Solrizer::CachingFieldMapper.new(default_field_mapper)
     end
-    
+
     def solr_name(*args)
       caching_field_mapper.solr_name(*args)
     end
+    deprecation_deprecate solr_name: 'use ActiveFedora.index_field_mapper.solr_name instead'
 
     # @params [Hash] doc the hash to insert the value into
     # @params [String] name the name of the field (without the suffix)
@@ -58,7 +63,7 @@ module Solrizer
     # @params [String] name the name of the field (without the suffix)
     # @params [String,Date] value the value to be inserted
     # @params [Array,Hash] indexer_args the arguments that find the indexer
-    # @returns [Hash] doc the document that was provided with the new field (replacing any field with the same name) 
+    # @returns [Hash] doc the document that was provided with the new field (replacing any field with the same name)
     def set_field(doc, name, value, *indexer_args)
       # adding defaults indexer
       indexer_args = [:stored_searchable] if indexer_args.empty?
