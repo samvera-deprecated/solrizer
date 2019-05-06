@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'RedCloth' # yard depends on redcloth
+  s.add_development_dependency 'rspec_junit_formatter'
     
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")

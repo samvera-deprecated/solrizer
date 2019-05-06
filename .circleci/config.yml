@@ -1,0 +1,38 @@
+version: 2.1
+orbs:
+  samvera: samvera/circleci-orb@0
+jobs:
+  bundle_and_test:
+    parameters:
+      ruby_version:
+        type: string
+        default: 2.5.5
+      bundler_version:
+        type: string
+        default: 2.0.1
+    executor:
+      name: 'samvera/ruby'
+      ruby_version: << parameters.ruby_version >>
+    working_directory: ~/project
+    steps:
+      - samvera/cached_checkout
+
+      - samvera/bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          project: solrizer
+
+      - samvera/parallel_rspec
+
+workflows:
+  ci:
+    jobs:
+      - bundle_and_test:
+          name: "ruby2-6-3"
+          ruby_version: "2.6.3"
+      - bundle_and_test:
+          name: "ruby2-5-5"
+          ruby_version: "2.5.5"
+      - bundle_and_test:
+          name: "ruby2-4-6"
+          ruby_version: "2.4.6"

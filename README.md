@@ -1,6 +1,6 @@
 # solrizer
 
-[![Build Status](https://travis-ci.org/projecthydra/solrizer.png?branch=master)](https://travis-ci.org/projecthydra/solrizer)
+[![Build Status](https://circleci.com/gh/samvera/solrizer.svg?style=svg)](https://circleci.com/gh/samvera/solrizer)
 [![Gem Version](https://badge.fury.io/rb/solrizer.png)](http://badge.fury.io/rb/solrizer)
 [![Dependencies](https://gemnasium.com/projecthydra/solrizer.png)](https://gemnasium.com/projecthydra/solrizer)
 [![Coverage Status](https://img.shields.io/coveralls/projecthydra/solrizer.svg)](https://coveralls.io/r/projecthydra/solrizer)
