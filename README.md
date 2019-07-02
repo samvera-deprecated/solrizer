@@ -1,3 +1,6 @@
+## Note: This project has been deprecated and is no longer being maintained.
+The functionality previously provided by solrizer has been refactored directly into the [ActiveFedora](https://github.com/samvera/active_fedora#activefedora) gem.  If you require fucntionality previously provided by this gem, you should generally be able to include `active-fedora` in your Gemfile instead.  See especially [default_descriptors.rb](https://github.com/samvera/active_fedora/blob/12.0-stable/lib/active_fedora/indexing/default_descriptors.rb) and `solr_name` in [field_mapper.rb](https://github.com/samvera/active_fedora/blob/12.0-stable/lib/active_fedora/indexing/field_mapper.rb#L28)
+
 # solrizer
 
 [![Build Status](https://circleci.com/gh/samvera/solrizer.svg?style=svg)](https://circleci.com/gh/samvera/solrizer)
